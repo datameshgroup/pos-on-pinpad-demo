@@ -87,33 +87,6 @@ public class MainActivity extends AppCompatActivity {
         initRegister();
         printer = DeviceHelper.me().getPrinter();
 
-        new Thread(new Runnable(){
-            public void run() {
-                String x = "PHAgaWQ9InJlY2VpcHQtaW5mbyI+MjIvMTEvMjAyMiAxMjoyNzo1NDxici8+TWVyY2hhbnQgSUQ6IE0wMDAwMDAyNTxici8+VGVybWluYWwgSUQ6IERNR1ZBMDAxPC9wPjxwIGlkPSJyZWNlaXB0LWRldGFpbHMiPjxiPlB1cmNoYXNlIFRyYW5zYWN0aW9uPC9iPjxici8+QW1vdW50OiAkOTAuMDA8YnIvPlN1cmNoYXJnZTogJDAuNTg8YnIvPlRpcDogJDkuOTk8YnIvPlRvdGFsOiAkMTAwLjU3PGJyLz5NYXN0ZXJDYXJkOiA1MzYzMzRYWFhYWFgyMDU0IChUKTxici8+Q3JlZGl0IEFjY291bnQ8L3A+PHAgaWQ9InJlY2VpcHQtcmVzdWx0Ij48Yj5BcHByb3ZlZDwvYj48YnIvPlJlZmVyZW5jZTogMDAwMCAwMDA3IDA3NjI8YnIvPkF1dGggQ29kZTogNzE0NjE1PGJyLz5BSUQ6IEEwMDAwMDAwMDQxMDEwPGJyLz5BVEM6IDBBQTI8YnIvPlRWUjogODAwMDAwODAwMTxici8+QVJRQzogOUNBMzI4NUZGQ0U3QkZDRTwvcD4=";
-                String y = "<html><head>HEAD </head><body>BODYemememememememememememememe</body></html>";
-
-                Html2Bitmap build = new Html2Bitmap.Builder()
-                        .setContext(getApplicationContext())
-                        .setContent(WebViewContent.html(y))
-//                .setBitmapWidth(width)
-//                .setMeasureDelay(10)
-//                .setScreenshotDelay(10)
-                        .setStrictMode(false)
-                        .setTimeout(20)
-//                .setTextZoom(150)
-//                .setConfigurator(html2BitmapConfigurator)
-                        .build();
-
-
-                    try {
-                        startPrinter();
-                    } catch (RemoteException | IOException e) {
-                        e.printStackTrace();
-                    }
-
-            }
-        }).start();
-
     }
 
     public void testScan() throws RemoteException {

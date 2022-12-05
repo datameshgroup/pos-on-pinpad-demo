@@ -46,7 +46,6 @@ import au.com.dmg.fusion.response.paymentresponse.PaymentResponseCardData;
 import au.com.dmg.fusion.response.paymentresponse.PaymentResult;
 import au.com.dmg.terminalposdemo.ingenicoUtil.BytesUtil;
 import au.com.dmg.terminalposdemo.ingenicoUtil.DeviceHelper;
-import au.com.dmg.terminalposdemo.ingenicoUtil.GlobalClass;
 
 public class ActivityCart extends AppCompatActivity {
 

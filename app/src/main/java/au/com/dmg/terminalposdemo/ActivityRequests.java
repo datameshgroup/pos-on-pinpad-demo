@@ -10,10 +10,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import au.com.dmg.terminalposdemo.R;
-
-import au.com.dmg.terminalposdemo.ingenicoUtil.GlobalClass;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;

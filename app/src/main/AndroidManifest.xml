@@ -5,7 +5,7 @@
     <uses-permission android:name="titan.extperm.SETTING_GET"/>
     <uses-permission android:name="titan.extperm.SETTING_SET"/>
     <application
-        android:name="au.com.dmg.terminalposdemo.ingenicoUtil.GlobalClass"
+        android:name="au.com.dmg.terminalposdemo.GlobalClass"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="au.com.dmg.terminalposdemo.ActivityCart">
+
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/txtProductCode"
+        android:layout_width="0dp"
+        android:layout_height="43dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="1dp"
+        android:hint="Product Code"
+        app:layout_constraintEnd_toStartOf="@+id/ivScan"
+        app:layout_constraintHorizontal_bias="0.322"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:theme="@style/AppEditText"
+        android:background="@drawable/edit_text_border"/>
+
+    <ImageView
+        android:id="@+id/ivScan"
+        android:layout_width="58dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="50dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/ic_menu_camera" />
+
+    <EditText
+        android:id="@+id/inputTip"
+        android:layout_width="100dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="50dp"
+        android:background="@drawable/edit_text_border"
+        android:ems="10"
+        android:hint="0.00"
+        android:inputType="numberDecimal"
+        android:textSize="34sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/inputDiscount" />
+
+    <EditText
+        android:id="@+id/inputDiscount"
+        android:layout_width="100dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="50dp"
+        android:ems="10"
+        android:hint="0.00"
+        android:inputType="numberDecimal"
+        android:textSize="34sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/inputTotal"
+        android:background="@drawable/edit_text_border" />
+
+    <TextView
+        android:id="@+id/tvDiscount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="32dp"
+        android:text="@string/discount"
+        android:textSize="34sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvTotal" />
+
+    <Button
+        android:id="@+id/btnPay"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="100dp"
+        android:text="Pay"
+        android:textSize="34sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvTip" />
+
+    <TextView
+        android:id="@+id/tvTotal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="150dp"
+        android:text="Total"
+        android:textSize="34sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/inputTotal"
+        android:layout_width="100dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="148dp"
+        android:layout_marginEnd="50dp"
+        android:background="@drawable/edit_text_border"
+        android:ems="10"
+        android:hint="0.00"
+        android:inputType="numberDecimal"
+        android:textSize="34sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvTip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="32dp"
+        android:text="Tip"
+        android:textSize="34sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvDiscount" />
+
+    <TextView
+        android:id="@+id/tvResults"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#555555"
+        android:text=""
+        android:textAlignment="textStart"
+        android:textColor="#FAF6F6"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.476"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnPay"
+        app:layout_constraintVertical_bias="0.002" />
+
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="22dp" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

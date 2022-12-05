@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#4FAADD</color>
+    <color name="colorPrimaryDark">#01111E</color>
+    <color name="colorMffBlue">#2583C6</color>
+    <color name="colorMffApproved">#42D65E</color>
+    <color name="colorMffDeclined">#E10600</color>
+    <color name="colorAccent">#1F5497</color>
+    <color name="navigationBarColor">#1F5497</color>
+    <color name="error_stroke_color">#FF0000</color>
+    <color name="success_stroke_color">#008B8B</color>
+    <color name="colorSeaGreen">#2E8B57</color>
+    <color name="warning_stroke_color">#F8BB86</color>
+    <color name="colorCyan">#97e6f4</color>
+    <!-- Background color -->
+    <color name="colorPrimaryBackground">#ebebeb</color>
+    <color name="colorSummaryBackground">#092037</color>
+    <color name="menuButtonBackground">#132935</color>
+    <color name="colorButtonPressedBackground">#b9e805</color>
+    <color name="activityBackground">#01111E</color>
+    <color name="activityBackgroundLite">#F6F6F6</color>
+    <color name="colorButtonBackground">#b1bcbe</color>
+    <color name="colorLayout">#112f50</color>
+    <color name="blue_btn_bg_color">#AEDEF4</color>
+    <color name="float_transparent">#00000000</color>
+    <color name="login_btn_bg_pressed_color">#BE6D1E</color>
+    <color name="login_btn_bg_color">#DB7D25</color>
+    <color name="trans_amount_color">#000000</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="prompt_no_pwd_color">#666666</color>
+    <color name="sweet_dialog_bg_color">#FFFFFF</color>
+    <color name="line">#ffd3dde6</color>
+    <color name="prompt_text_color">#858585</color>
+    <color name="button_text_color">#000000</color>
+
+    <color name="gray_btn_bg_pressed_color">#B6B6B6</color>
+    <color name="gray_btn_bg_color">#D0D0D0</color>
+    <color name="blue_btn_bg_pressed_color">#96BFD2</color>
+
+    <color name="text_color">#575757</color>
+    <color name="colorGrey">#575757</color>
+    <color name="cancel_button_text">#333333</color>
+    <color name="mainmenu_text">#ffffffff</color>
+
+    <color name="appselect_bg_color">#96BFD2</color>
+    <color name="applist_bg_color">#FFFFFF</color>
+
+    <!--    DATAMESH CORPORATE COLORS -->
+    <color name="datameshPurple">#12284B</color>
+    <color name="datameshCobalt">#1D51A3</color>
+    <color name="datameshBlue">#0199d6</color>
+    <color name="datameshDarkGrey">#63656a</color>
+    <color name="datameshLightGrey">#D9D8D6</color>
+    <color name="datameshLime">#C0D330</color>
+
+    <color name="datameshTertiaryOrange">#FAA21B</color>
+    <color name="datameshTertiaryRed">#F04B24</color>
+    <color name="datameshTertiaryGreen">#3CAE49</color>
+    <color name="datameshTertiaryPurple">#613393</color>
+    <color name="datameshTertiaryPink">#DF1783</color>
+    <color name="datameshTertiaryGreenC">#00A887</color>
+    <color name="datameshDarkPurple">#141F35</color>
+    <color name="light_blue_600">#FF039BE5</color>
+    <color name="light_blue_900">#FF01579B</color>
+    <color name="light_blue_A200">#FF40C4FF</color>
+    <color name="light_blue_A400">#FF00B0FF</color>
+    <color name="black_overlay">#66000000</color>
+
+
+    <!-- qantas color -->
+    <color name="qantas_red">#E40000</color>
+    <color name="qantas_black">#323232</color>
+    <color name="qantas_grey">#F6F6F6</color>
+    <color name="qantas_light_grey">#D9D9D9</color>
+    <color name="qantas_black_60">#666666</color>
+    <color name="error_screen_grey_bg">#F1F1F1</color>
+    <color name="grey_border_bg_color">#999999</color>
+    <color name="qantas_error_status_color">#FFEAC4</color>
+    <color name="qantas_error_border_color">#F5A623</color>
+    <color name="qantas_select_border_color">#8DE2E0</color>
+
+    <color name="bp_color">#42C83D</color>
+    <color name="light_blue_400">#FF29B6F6</color>
+    <color name="gray_400">#FFBDBDBD</color>
+    <color name="gray_600">#FF757575</color>
+
+    <color name="cardactivity_card_background">#122737</color>
+</resources>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="au.com.dmg.terminalposdemo.MainActivity">
+
+
+    <Button
+        android:id="@+id/btnPrint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="50dp"
+        android:enabled="@bool/enableTestPrint"
+        android:text="Test Print"
+        app:layout_constraintEnd_toEndOf="@+id/btnSatellite"
+        app:layout_constraintHorizontal_bias="0.666"
+        app:layout_constraintStart_toStartOf="@+id/btnSatellite"
+        app:layout_constraintTop_toBottomOf="@+id/btnSatellite" />
+
+    <Button
+        android:id="@+id/btnScan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="40dp"
+        android:text="Test Scan"
+        android:enabled="@bool/enableTestScan"
+        app:layout_constraintEnd_toEndOf="@+id/btnPrint"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/btnPrint"
+        app:layout_constraintTop_toBottomOf="@+id/btnPrint" />
+
+    <Button
+        android:id="@+id/btnCart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="50dp"
+        android:text="@string/cart"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.486"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btnSatellite"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="50dp"
+        android:text="@string/satellite"
+        android:enabled="@bool/enableSatellite"
+        app:layout_constraintEnd_toEndOf="@+id/btnCart"
+        app:layout_constraintHorizontal_bias="0.48"
+        app:layout_constraintStart_toStartOf="@+id/btnCart"
+        app:layout_constraintTop_toBottomOf="@+id/btnCart" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

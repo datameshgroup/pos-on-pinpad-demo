@@ -18,14 +18,4 @@ public class PaxPrint {
         }
         return dal;
     }
-//
-//    try {
-//        IPrinter printer=   this.getDal().getPrinter();
-//        printer.init();
-//        printer.printStr("Your text",null);
-//        printer.start();
-//    } catch( PrinterDevException e) {
-//        e.printStackTrace();
-//    }
-
 }

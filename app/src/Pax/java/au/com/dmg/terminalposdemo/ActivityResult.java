@@ -2,6 +2,8 @@ package au.com.dmg.terminalposdemo;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -13,13 +15,10 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.text.HtmlCompat;
 
-import au.com.dmg.terminalposdemo.R;
+import au.com.dmg.terminalposdemo.Util.PaxPrint;
 
-import au.com.dmg.terminalposdemo.ingenicoUtil.DeviceHelper;
-import com.usdk.apiservice.aidl.printer.AlignMode;
-import com.usdk.apiservice.aidl.printer.FactorMode;
-import com.usdk.apiservice.aidl.printer.OnPrintListener;
-import com.usdk.apiservice.aidl.printer.UPrinter;
+import com.pax.dal.IPrinter;
+import com.pax.dal.exceptions.PrinterDevException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,29 +29,8 @@ public class ActivityResult extends AppCompatActivity {
     private Button btnPrintReceipt;
     private TextView tvResult;
 
-    ///printer start
-    private UPrinter printer;
-    protected void initDeviceInstance() {
-        printer = DeviceHelper.me().getPrinter();
-    }
-    public void initRegister() {
-        register(true);
-    }
-    private void unregister() {
-        try {
-            DeviceHelper.me().unregister();
-        } catch (IllegalStateException e) {
-            System.out.println("unregister fail: " + e.getMessage());
-        }
-    }
-    private void register(boolean useEpayModule) {
-        try {
-            DeviceHelper.me().register(useEpayModule);
-        } catch (IllegalStateException e) {
-            System.out.println("register fail: " + e.getMessage());
-        }
-    }
-    ///printer end
+    ///printer
+    IPrinter printer;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -97,20 +75,6 @@ public class ActivityResult extends AppCompatActivity {
         String outputXHTML = getIntent().getStringExtra("OutputXHTML");
 
         if(Objects.equals(result, "Success")){
-
-//            String OutputXHTML = getIntent().getStringExtra("OutputXHTML");
-//            String paymentresult = getIntent().getStringExtra("paymentresult");
-//
-//            String authorizedamount = getIntent().getStringExtra("authorizedamount");
-//            String surcharge = getIntent().getStringExtra("surcharge");
-//            String tip = getIntent().getStringExtra("tip");
-//            String paymentbrand = getIntent().getStringExtra("paymentbrand");
-//            String transactionid = getIntent().getStringExtra("transactionid");
-//            String pan = getIntent().getStringExtra("pan");
-//            String approvalcode = getIntent().getStringExtra("approvalcode");
-//            String entrymode = getIntent().getStringExtra("entrymode");
-//            String account = getIntent().getStringExtra("account");
-//            String paymentinstrumenttype = getIntent().getStringExtra("paymentinstrumenttype");
             switch (txntype) {
                 case "Refund":
                     txntype = "Refund";
@@ -171,7 +135,6 @@ public class ActivityResult extends AppCompatActivity {
             btnPrintReceipt.setVisibility(View.GONE);
             tvReceipt.setVisibility(View.GONE);
             tvMessageDetail.setVisibility(View.VISIBLE);
-//            tvMessageDetail.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
 
             switch (errorCondition){
 
@@ -221,36 +184,18 @@ public class ActivityResult extends AppCompatActivity {
         });
     }
     private void startPrint() throws RemoteException, IOException{
-//        initRegister();
-        register(true);
-        initDeviceInstance();
-
         byte[] image = readAssetsFile(this, "DMGReceipt.png");
-        printer.addBmpImage(0, FactorMode.BMP1X1, image);
-        printer.feedLine(1);
+        Bitmap bitmap = BitmapFactory.decodeByteArray(image, 0,image.length);
         String x = String.valueOf(tvResult.getText());
-        printer.addText(AlignMode.LEFT, x);
-
-        //test barcode
-        printer.feedLine(1);
-        printer.addBarCode(AlignMode.CENTER, 2, 48,  "DMGProductCode123");
-
-        printer.feedLine(2);
-
-        printer.startPrint(new OnPrintListener.Default() {
-            @Override
-            public void onFinish() throws RemoteException {
-                System.out.println("=> onFinish | printing");
-
-            }
-
-            @Override
-            public void onError(int error) throws RemoteException {
-                System.out.println("=> onError: " + error);
-            }
-        });
-        printer.cutPaper();
-
+        try {
+            printer = PaxPrint.getDal(getApplicationContext()).getPrinter();
+            printer.init();
+            printer.printBitmap(bitmap);
+            printer.printStr(x,null);
+            printer.start();
+        } catch (PrinterDevException e) {
+            e.printStackTrace();
+        }
     }
     private static byte[] readAssetsFile(Context ctx, String fileName) throws IOException {
         InputStream input = null;

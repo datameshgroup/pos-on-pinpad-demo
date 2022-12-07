@@ -12,11 +12,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.usdk.apiservice.aidl.scanner.CameraId;
-import com.usdk.apiservice.aidl.scanner.OnScanListener;
-import com.usdk.apiservice.aidl.scanner.ScannerData;
-import com.usdk.apiservice.aidl.scanner.UScanner;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
@@ -44,8 +39,6 @@ import au.com.dmg.fusion.response.paymentresponse.PaymentReceipt;
 import au.com.dmg.fusion.response.paymentresponse.PaymentResponse;
 import au.com.dmg.fusion.response.paymentresponse.PaymentResponseCardData;
 import au.com.dmg.fusion.response.paymentresponse.PaymentResult;
-import au.com.dmg.terminalposdemo.ingenicoUtil.BytesUtil;
-import au.com.dmg.terminalposdemo.ingenicoUtil.DeviceHelper;
 
 public class ActivityCart extends AppCompatActivity {
 
@@ -69,9 +62,9 @@ public class ActivityCart extends AppCompatActivity {
     String errorCondition = "";
     String additionalResponse = "";
 
-    //scanner
-    private UScanner scanner;
-    String scanString = "";
+//    //scanner
+//    private UScanner scanner;
+//    String scanString = "";
 
     private long pressedTime;
 
@@ -90,10 +83,10 @@ public class ActivityCart extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Device services - printer and scanner
-        DeviceHelper.me().init(this);
-        DeviceHelper.me().bindService();
+//
+//        // Device services - printer and scanner
+//        DeviceHelper.me().init(this);
+//        DeviceHelper.me().bindService();
 
         setContentView(R.layout.activity_cart);
 
@@ -122,8 +115,7 @@ public class ActivityCart extends AppCompatActivity {
 
 
     public void startScan() throws RemoteException {
-        DeviceHelper.me().register(true);
-
+//        DeviceHelper.me().register(true);
         startFrontScan();
 
     }
@@ -376,44 +368,7 @@ public class ActivityCart extends AppCompatActivity {
         startActivity(intent);
     }
     public void startFrontScan() throws RemoteException {
-        scanner = DeviceHelper.me().getScanner(CameraId.FRONT);
-        Thread uithread = new Thread(){
-            public void run(){
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        txtProductCode.setText(scanString);
-                    }
-                });
-            }
-        };
 
-        Bundle bundle = new Bundle();
-        bundle.putInt(ScannerData.TIMEOUT, 30);
-        scanner.startScan(bundle, new OnScanListener.Stub() {
-
-            @Override
-            public void onSuccess(String barcode) throws RemoteException {
-                System.out.println("SCANNER => " + barcode);
-                System.out.println("SCANNER => bytes data: " + BytesUtil.bytes2HexString(scanner.getRecentScanResult()));
-                scanString = barcode;
-                uithread.start();
-
-            }
-
-            @Override
-            public void onCancel() throws RemoteException {
-                System.out.println("SCANNER => onCancel");
-            }
-
-            @Override
-            public void onTimeout() throws RemoteException {
-                System.out.println("SCANNER => onTimeout");
-            }
-            @Override
-            public void onError(int error) throws RemoteException {
-                System.out.println("SCANNER => onError | " + DeviceHelper.me().getErrorDetail(error));
-            }
-        });
 
     }
 }

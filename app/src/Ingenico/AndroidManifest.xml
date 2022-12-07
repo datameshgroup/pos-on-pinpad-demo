@@ -2,7 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="au.com.dmg.terminalposdemo">
-
+    <uses-permission android:name="titan.extperm.SETTING_GET"/>
+    <uses-permission android:name="titan.extperm.SETTING_SET"/>
     <application
         android:name="au.com.dmg.terminalposdemo.GlobalClass"
         android:allowBackup="true"
@@ -15,12 +16,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TerminalPOSDemo"
         tools:targetApi="31">
-        <activity
-            android:name="au.com.dmg.terminalposdemo.ActivityResult"
-            android:exported="false" />
-        <activity
-            android:name="au.com.dmg.terminalposdemo.ActivityCart"
-            android:exported="false" />
         <activity
             android:name="au.com.dmg.terminalposdemo.ActivityRequests"
             android:exported="false" />

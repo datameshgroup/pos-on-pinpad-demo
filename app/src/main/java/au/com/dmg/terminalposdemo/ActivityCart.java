@@ -62,9 +62,9 @@ public class ActivityCart extends AppCompatActivity {
     String errorCondition = "";
     String additionalResponse = "";
 
-//    //scanner
-//    private UScanner scanner;
-//    String scanString = "";
+    //scanner
+    private DMGDeviceImpl device = new DMGDeviceImpl();
+    String scanString = "";
 
     private long pressedTime;
 
@@ -83,10 +83,8 @@ public class ActivityCart extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//
-//        // Device services - printer and scanner
-//        DeviceHelper.me().init(this);
-//        DeviceHelper.me().bindService();
+
+        device.init(getApplicationContext());
 
         setContentView(R.layout.activity_cart);
 
@@ -115,8 +113,21 @@ public class ActivityCart extends AppCompatActivity {
 
 
     public void startScan() throws RemoteException {
-//        DeviceHelper.me().register(true);
-        startFrontScan();
+        try {
+            scanString = device.frontScanBarcode();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        Thread uithread = new Thread(){
+            public void run(){
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        txtProductCode.setText(scanString);
+                    }
+                });
+            }
+        };
+        uithread.start();
 
     }
     private void sendPaymentRequest(View view) {
@@ -366,9 +377,5 @@ public class ActivityCart extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         startActivity(intent);
-    }
-    public void startFrontScan() throws RemoteException {
-
-
     }
 }

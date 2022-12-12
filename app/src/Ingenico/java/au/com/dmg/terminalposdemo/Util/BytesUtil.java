@@ -1,4 +1,4 @@
-package au.com.dmg.terminalposdemo.Ingenico;
+package au.com.dmg.terminalposdemo.Util;
 
 import android.text.TextUtils;
 

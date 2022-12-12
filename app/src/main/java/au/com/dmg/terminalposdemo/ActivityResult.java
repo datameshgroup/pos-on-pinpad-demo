@@ -15,13 +15,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.text.HtmlCompat;
 
-import au.com.dmg.terminalposdemo.Util.PaxPrint;
-
-import com.pax.dal.IPrinter;
-import com.pax.dal.exceptions.PrinterDevException;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Objects;
 
 public class ActivityResult extends AppCompatActivity {
@@ -29,13 +24,13 @@ public class ActivityResult extends AppCompatActivity {
     private Button btnPrintReceipt;
     private TextView tvResult;
 
-    ///printer
-    IPrinter printer;
+    private DMGDeviceImpl device = new DMGDeviceImpl();
 
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        device.init(getApplicationContext());
 
         setContentView(R.layout.activity_result);
 
@@ -184,38 +179,23 @@ public class ActivityResult extends AppCompatActivity {
         });
     }
     private void startPrint() throws RemoteException, IOException{
-        byte[] image = readAssetsFile(this, "DMGReceipt.png");
-        Bitmap bitmap = BitmapFactory.decodeByteArray(image, 0,image.length);
-        String x = String.valueOf(tvResult.getText());
-        try {
-            printer = PaxPrint.getDal(getApplicationContext()).getPrinter();
-            printer.init();
-            printer.printBitmap(bitmap);
-            printer.printStr(x,null);
-            printer.start();
-        } catch (PrinterDevException e) {
-            e.printStackTrace();
-        }
-    }
-    private static byte[] readAssetsFile(Context ctx, String fileName) throws IOException {
-        InputStream input = null;
-        try {
-            input = ctx.getAssets().open(fileName);
-            byte[] buffer = new byte[input.available()];
-            input.read(buffer);
-            return buffer;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        } finally {
-            if (input != null) {
+        new Thread(new Runnable(){
+            public void run() {
                 try {
-                    input.close();
-                } catch (IOException e) {
+                    byte[] image = Utils.readAssetsFile(getApplicationContext(), "DMGReceipt.png");
+                    Bitmap logoBitmap = BitmapFactory.decodeByteArray(image, 0,image.length);
+
+                    String x = String.valueOf(tvResult.getText());
+                    Bitmap bitmap = Utils.generateReceiptBitmap(getApplicationContext(), x, true);
+                    //TODO ADD print text or createbitmap
+                    device.printBitmap(logoBitmap);
+                    device.printBitmap(bitmap);
+                } catch (RemoteException | IOException e) {
                     e.printStackTrace();
                 }
+
             }
-        }
+        }).start();
     }
 
 }

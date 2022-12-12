@@ -2,6 +2,9 @@ package au.com.dmg.terminalposdemo;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -14,9 +17,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.IOException;
+import java.io.InputStream;
 
-
-// TODO PAX/Ingenico Compatibility
 // TODO check library - refund
 public class MainActivity extends AppCompatActivity {
 
@@ -24,13 +26,13 @@ public class MainActivity extends AppCompatActivity {
     private Button btnSatellite;
     private Button btnPrint;
     private Button btnScan;
-    private TestHardware testPrint = new TestHardware();
+    private DMGDeviceImpl device = new DMGDeviceImpl();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        testPrint.initDevice(getApplicationContext());
+        device.init(getApplicationContext());
 
         setContentView(R.layout.activity_main);
 
@@ -63,8 +65,9 @@ public class MainActivity extends AppCompatActivity {
         new Thread(new Runnable(){
             public void run() {
                     try {
-                        testPrint.startPrinter(MainActivity.this);
-                    } catch (RemoteException | IOException e) {
+                        Bitmap img = getBitmapFromAsset(getApplicationContext(),"DMGReceipt.png");
+                        device.printBitmap(img);
+                    } catch (RemoteException e) {
                         e.printStackTrace();
                     }
 
@@ -73,25 +76,38 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public static Bitmap getBitmapFromAsset(Context context, String filePath) {
+        AssetManager assetManager = context.getAssets();
+
+        InputStream istr;
+        Bitmap bitmap = null;
+        try {
+            istr = assetManager.open(filePath);
+            bitmap = BitmapFactory.decodeStream(istr);
+        } catch (IOException e) {
+            // handle exception
+        }
+
+        return bitmap;
+    }
+
     public void testScan() throws RemoteException {
-        testPrint.startFrontScan();
-        Thread thread = new Thread(){
-            public void run(){
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        Toast toast = Toast.makeText(MainActivity.this, "Check logcat for code", Toast.LENGTH_LONG);
-                        View view = toast.getView();
+        String pcode = "";
+        try {
+            pcode = device.frontScanBarcode();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
 
-                        view.getBackground().setColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_IN);
+        Toast toast = Toast.makeText(MainActivity.this, "Barcode: " + pcode, Toast.LENGTH_LONG);
+        View view = toast.getView();
 
-                        TextView text = view.findViewById(android.R.id.message);
-                        text.setTextColor(Color.WHITE);
+        view.getBackground().setColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_IN);
 
-                        toast.show();
-                    }
-                });
-            }};
-        thread.start();
+        TextView text = view.findViewById(android.R.id.message);
+        text.setTextColor(Color.WHITE);
+
+        toast.show();
     }
 
     public void openActivityCart() {

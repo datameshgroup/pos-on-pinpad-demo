@@ -1,7 +1,9 @@
 package au.com.dmg.terminalposdemo;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
@@ -112,22 +114,22 @@ public class ActivityCart extends AppCompatActivity {
     }
 
 
+    @SuppressLint("HandlerLeak")
+    private final Handler barcodeHandler = new Handler() {
+        public void handleMessage(android.os.Message msg) {
+            if (msg.what == 0) {
+                txtProductCode.setText(msg.obj.toString());
+            }
+        };
+    };
+
     public void startScan() throws RemoteException {
         try {
-            scanString = device.frontScanBarcode();
+            device.frontScanBarcode(barcodeHandler, 30);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-        Thread uithread = new Thread(){
-            public void run(){
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        txtProductCode.setText(scanString);
-                    }
-                });
-            }
-        };
-        uithread.start();
+
 
     }
     private void sendPaymentRequest(View view) {

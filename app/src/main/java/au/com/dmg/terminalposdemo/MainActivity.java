@@ -1,5 +1,6 @@
 package au.com.dmg.terminalposdemo;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
@@ -8,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.view.View;
 import android.widget.Button;
@@ -90,24 +92,29 @@ public class MainActivity extends AppCompatActivity {
 
         return bitmap;
     }
+    @SuppressLint("HandlerLeak")
+    private final Handler barcodeHandler = new Handler() {
+        public void handleMessage(android.os.Message msg) {
+            if (msg.what == 0) {
+                Toast toast = Toast.makeText(MainActivity.this, "Barcode: " + msg.obj.toString(), Toast.LENGTH_LONG);
+                View view = toast.getView();
 
+                view.getBackground().setColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_IN);
+
+                TextView text = view.findViewById(android.R.id.message);
+                text.setTextColor(Color.WHITE);
+
+                toast.show();
+            }
+        };
+    };
     public void testScan() throws RemoteException {
-        String pcode = "";
+
         try {
-            pcode = device.frontScanBarcode();
+            device.frontScanBarcode(barcodeHandler, 30);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-
-        Toast toast = Toast.makeText(MainActivity.this, "Barcode: " + pcode, Toast.LENGTH_LONG);
-        View view = toast.getView();
-
-        view.getBackground().setColorFilter(Color.DKGRAY, PorterDuff.Mode.SRC_IN);
-
-        TextView text = view.findViewById(android.R.id.message);
-        text.setTextColor(Color.WHITE);
-
-        toast.show();
     }
 
     public void openActivityCart() {

@@ -2,8 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="au.com.dmg.terminalposdemo">
-    <uses-permission android:name="titan.extperm.SETTING_GET"/>
-    <uses-permission android:name="titan.extperm.SETTING_SET"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
     <application
         android:name="au.com.dmg.terminalposdemo.GlobalClass"
         android:allowBackup="true"

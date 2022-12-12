@@ -3,6 +3,10 @@ package au.com.dmg.terminalposdemo;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+
+import android.os.Handler;
+import android.os.Message;
+
 import android.os.RemoteException;
 
 import com.usdk.apiservice.aidl.printer.AlignMode;
@@ -20,6 +24,10 @@ import au.com.dmg.terminalposdemo.Util.BytesUtil;
 import au.com.dmg.terminalposdemo.Util.DeviceHelper;
 
 public class DMGDeviceImpl implements DeviceInterface {
+
+    public static final int camera_front = 1;
+    public static final int camera_back = 2;
+
     private UPrinter printer;
     private UScanner scanner;
 
@@ -66,12 +74,17 @@ public class DMGDeviceImpl implements DeviceInterface {
     }
 
     @Override
-    public String frontScanBarcode() throws RemoteException{
+    public void scanBarcode(final Handler handler, int timeout, int scannerType) throws RemoteException{
         DeviceHelper.me().register(true);
-        scanner = DeviceHelper.me().getScanner(CameraId.FRONT);
+        switch (scannerType){
+            case camera_front:
+                scanner = DeviceHelper.me().getScanner(CameraId.FRONT);
+                break;
+            case camera_back:
+                scanner = DeviceHelper.me().getScanner(CameraId.BACK);
+                break;
 
-        final boolean[] isWaiting = {true};
-        final String[] scanCode = {""};
+        }
         Bundle bundle = new Bundle();
         bundle.putInt(ScannerData.TIMEOUT, 30);
         scanner.startScan(bundle, new OnScanListener.Stub() {
@@ -80,8 +93,11 @@ public class DMGDeviceImpl implements DeviceInterface {
             public void onSuccess(String barcode) throws RemoteException {
                 System.out.println("SCANNER => " + barcode);
                 System.out.println("SCANNER => bytes data: " + BytesUtil.bytes2HexString(scanner.getRecentScanResult()));
-                scanCode[0] = barcode;
-                isWaiting[0] = false;
+
+                Message message = Message.obtain();
+                message.what = 0;
+                message.obj = barcode;
+                handler.sendMessage(message);
             }
 
             @Override
@@ -92,21 +108,15 @@ public class DMGDeviceImpl implements DeviceInterface {
             @Override
             public void onTimeout() throws RemoteException {
                 System.out.println("SCANNER => onTimeout");
-                isWaiting[0] = false;
             }
 
             @Override
             public void onError(int error) throws RemoteException {
                 System.out.println("SCANNER => onError | " + DeviceHelper.me().getErrorDetail(error));
-                isWaiting[0] = false;
+
+
             }
         });
-        while(isWaiting[0]){
-            System.out.println("SCANNER => waiting for code");
-        }
-        return scanCode[0];
     }
-
-
 
 }

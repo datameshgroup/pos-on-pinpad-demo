@@ -21,8 +21,6 @@ public class DMGDeviceImpl implements DeviceInterface {
     public static final int camera_back = 2;
 
     IPrinter printer;
-    IScanner frontScanner;
-    IScanner rearScanner;
     IScanner scanner;
 
     private static IDAL dal;
@@ -39,8 +37,8 @@ public class DMGDeviceImpl implements DeviceInterface {
     @Override
     public void init(Context context) {
         printer = getDal(context).getPrinter();
-        frontScanner = getDal(context).getScanner(EScannerType.FRONT);
-        rearScanner = getDal(context).getScanner(EScannerType.REAR);
+//        frontScanner = getDal(context).getScanner(EScannerType.FRONT);
+//        rearScanner = getDal(context).getScanner(EScannerType.REAR);
 
     }
 
@@ -70,10 +68,10 @@ public class DMGDeviceImpl implements DeviceInterface {
 
         switch (scannerType){
             case camera_front:
-                scanner = frontScanner;
+                scanner = dal.getScanner(EScannerType.FRONT);
                 break;
             case camera_back:
-                scanner = rearScanner;
+                scanner = dal.getScanner(EScannerType.REAR);
                 break;
 
         }

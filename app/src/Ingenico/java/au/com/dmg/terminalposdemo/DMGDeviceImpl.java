@@ -22,6 +22,9 @@ import au.com.dmg.terminalposdemo.Util.BytesUtil;
 import au.com.dmg.terminalposdemo.Util.DeviceHelper;
 
 public class DMGDeviceImpl implements DeviceInterface {
+    public static final int camera_front = 1;
+    public static final int camera_back = 2;
+
     private UPrinter printer;
     private UScanner scanner;
 
@@ -68,9 +71,17 @@ public class DMGDeviceImpl implements DeviceInterface {
     }
 
     @Override
-    public void frontScanBarcode(final Handler handler, int timeout) throws RemoteException{
+    public void scanBarcode(final Handler handler, int timeout, int scannerType) throws RemoteException{
         DeviceHelper.me().register(true);
-        scanner = DeviceHelper.me().getScanner(CameraId.FRONT);
+        switch (scannerType){
+            case camera_front:
+                scanner = DeviceHelper.me().getScanner(CameraId.FRONT);
+                break;
+            case camera_back:
+                scanner = DeviceHelper.me().getScanner(CameraId.BACK);
+                break;
+
+        }
 
         Bundle bundle = new Bundle();
         bundle.putInt(ScannerData.TIMEOUT, 30);
@@ -106,6 +117,5 @@ public class DMGDeviceImpl implements DeviceInterface {
         });
     }
 
-
-
 }
+

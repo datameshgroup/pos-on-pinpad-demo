@@ -66,7 +66,6 @@ public class ActivityCart extends AppCompatActivity {
 
     //scanner
     private DMGDeviceImpl device = new DMGDeviceImpl();
-    String scanString = "";
 
     private long pressedTime;
 
@@ -125,7 +124,7 @@ public class ActivityCart extends AppCompatActivity {
 
     public void startScan() throws RemoteException {
         try {
-            device.frontScanBarcode(barcodeHandler, 30);
+            device.scanBarcode(barcodeHandler, 30, DMGDeviceImpl.camera_front);
         } catch (RemoteException e) {
             e.printStackTrace();
         }

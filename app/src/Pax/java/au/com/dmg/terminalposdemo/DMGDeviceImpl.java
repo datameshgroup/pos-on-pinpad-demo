@@ -17,7 +17,12 @@ import com.pax.neptunelite.api.NeptuneLiteUser;
 
 
 public class DMGDeviceImpl implements DeviceInterface {
+    public static final int camera_front = 1;
+    public static final int camera_back = 2;
+
     IPrinter printer;
+    IScanner frontScanner;
+    IScanner rearScanner;
     IScanner scanner;
 
     private static IDAL dal;
@@ -34,7 +39,9 @@ public class DMGDeviceImpl implements DeviceInterface {
     @Override
     public void init(Context context) {
         printer = getDal(context).getPrinter();
-        scanner = getDal(context).getScanner(EScannerType.FRONT);
+        frontScanner = getDal(context).getScanner(EScannerType.FRONT);
+        rearScanner = getDal(context).getScanner(EScannerType.REAR);
+
     }
 
     @Override
@@ -59,11 +66,21 @@ public class DMGDeviceImpl implements DeviceInterface {
     }
 
     @Override
-    public void frontScanBarcode(final Handler handler, int timeout) throws RemoteException {
+    public void scanBarcode(final Handler handler, int timeout, int scannerType) throws RemoteException {
+
+        switch (scannerType){
+            case camera_front:
+                scanner = frontScanner;
+                break;
+            case camera_back:
+                scanner = rearScanner;
+                break;
+
+        }
         final boolean[] isWaiting = {true};
         final String[] scanCode = {""};
         scanner.open();
-        scanner.setTimeOut(timeout);
+//        scanner.setTimeOut(timeout);
 //        scanner.setContinuousTimes(5);
 //        scanner.setContinuousInterval(1000);
 

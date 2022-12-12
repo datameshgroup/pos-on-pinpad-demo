@@ -13,5 +13,5 @@ public interface DeviceInterface {
     boolean isPrinterPaperAvailable();
     void printBitmap(Bitmap bitmap) throws RemoteException;
 
-    void frontScanBarcode(final Handler handler, int timeout) throws RemoteException;
+    void scanBarcode(final Handler handler, int timeout, int scannerType) throws RemoteException;
 }

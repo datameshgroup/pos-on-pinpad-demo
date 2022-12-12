@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
     public void testScan() throws RemoteException {
 
         try {
-            device.frontScanBarcode(barcodeHandler, 30);
+            device.scanBarcode(barcodeHandler, 30, DMGDeviceImpl.camera_back);
         } catch (RemoteException e) {
             e.printStackTrace();
         }

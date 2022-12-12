@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
@@ -128,7 +129,6 @@ public class ActivityCart extends AppCompatActivity {
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-
 
     }
     private void sendPaymentRequest(View view) {

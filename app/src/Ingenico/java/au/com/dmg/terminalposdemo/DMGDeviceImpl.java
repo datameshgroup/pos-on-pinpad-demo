@@ -3,8 +3,10 @@ package au.com.dmg.terminalposdemo;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+
 import android.os.Handler;
 import android.os.Message;
+
 import android.os.RemoteException;
 
 import com.usdk.apiservice.aidl.printer.AlignMode;
@@ -22,6 +24,7 @@ import au.com.dmg.terminalposdemo.Util.BytesUtil;
 import au.com.dmg.terminalposdemo.Util.DeviceHelper;
 
 public class DMGDeviceImpl implements DeviceInterface {
+
     public static final int camera_front = 1;
     public static final int camera_back = 2;
 
@@ -82,7 +85,6 @@ public class DMGDeviceImpl implements DeviceInterface {
                 break;
 
         }
-
         Bundle bundle = new Bundle();
         bundle.putInt(ScannerData.TIMEOUT, 30);
         scanner.startScan(bundle, new OnScanListener.Stub() {
@@ -106,16 +108,15 @@ public class DMGDeviceImpl implements DeviceInterface {
             @Override
             public void onTimeout() throws RemoteException {
                 System.out.println("SCANNER => onTimeout");
-
             }
 
             @Override
             public void onError(int error) throws RemoteException {
                 System.out.println("SCANNER => onError | " + DeviceHelper.me().getErrorDetail(error));
 
+
             }
         });
     }
 
 }
-

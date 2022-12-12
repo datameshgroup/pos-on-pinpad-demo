@@ -80,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
 
     public static Bitmap getBitmapFromAsset(Context context, String filePath) {
         AssetManager assetManager = context.getAssets();
-
         InputStream istr;
         Bitmap bitmap = null;
         try {

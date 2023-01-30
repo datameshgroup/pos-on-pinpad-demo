@@ -34,7 +34,6 @@ public class ActivityPreauthorisationList extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//      TODO:  super.onBackPressed();
         setContentView(R.layout.activity_preauthorisation_list);
 
         lvPreauthorisationList = (ListView) findViewById(R.id.lvPreauthorisationList);
@@ -65,13 +64,7 @@ public class ActivityPreauthorisationList extends AppCompatActivity {
                 {
                     GlobalClass.Preauthorisation preauth = (GlobalClass.Preauthorisation) adapterPreauthorisation.getItem(position);
 
-
-                    System.out.println(preauth.instant.toString());
-                    System.out.println(preauth.saleReferenceID);
-                    System.out.println(preauth.poiTransactionID.getTransactionID());
-                    System.out.println(preauth.authorizedAmount);
-
-                    openActivityRequests(PaymentType.Completion, preauth);
+                    openActivityRequests(PaymentType.Completion, preauth.instant);
 
                 }
             });
@@ -80,15 +73,11 @@ public class ActivityPreauthorisationList extends AppCompatActivity {
 
     }
 
-    //TODO: update this to just instant
-    public void openActivityRequests(PaymentType req, GlobalClass.Preauthorisation preauth) {
+    public void openActivityRequests(PaymentType req, Instant timpstamp) {
         Intent intent = new Intent(this, ActivityRequests.class);
         intent.putExtra("paymentType", req);
 
-        intent.putExtra("instant", preauth.instant);
-//        intent.putExtra("salesReferenceID", preauth.saleReferenceID);
-//        intent.putExtra("poiTransactionID", (CharSequence) poiTransactionID);
-//        intent.putExtra("authorizedAmount", preauth.authorizedAmount);
+        intent.putExtra("instant",timpstamp);
 
         startActivity(intent);
     }

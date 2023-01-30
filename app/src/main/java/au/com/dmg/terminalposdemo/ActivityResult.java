@@ -58,7 +58,6 @@ public class ActivityResult extends AppCompatActivity {
 
         //TODO: Cleanup
         //TODO: add home button top? fix back button or do fullscreen
-        //TODO: don't show completion page if no previous preauth
         String txntype = getIntent().getStringExtra("txnType");
 
         String result = getIntent().getStringExtra("result");

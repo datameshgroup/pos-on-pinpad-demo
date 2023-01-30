@@ -222,7 +222,7 @@ public class ActivityPayment extends AppCompatActivity {
 
         intent.putExtra(Message.INTENT_EXTRA_MESSAGE, message.toJson());
         // name of this app, that gets treated as the POS label by the terminal.
-        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_NAME, "DemoPOSvan");
+        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_NAME, "TerminalPOSDemo");
         intent.putExtra(Message.INTENT_EXTRA_APPLICATION_VERSION, "1.0.0");
 
         startActivityForResult(intent, 100);

@@ -336,12 +336,13 @@ public class ActivityRequests extends AppCompatActivity {
 
     private void sendCompletion() {
         BigDecimal inputAuthorizedAmount = null;
-
-        if (tvAmount.equals(0) || tvAmount.equals(null) || tvAmount.equals("")){
-            inputAuthorizedAmount = null;
+        //TODO: get value of transacctionid and salesreferenceid?
+        String amt = tvAmount.getText().toString();
+        if (amt == "0" || amt.equals(null) || amt.equals("")){
+            inputAuthorizedAmount = this.lastAuthorizedAmount;
         } else
         {
-            inputAuthorizedAmount = new BigDecimal(tvAmount.getText().toString());;
+            inputAuthorizedAmount = new BigDecimal(amt);;
         }
 
         SaleToPOIRequest request = new SaleToPOIRequest.Builder()
@@ -376,7 +377,7 @@ public class ActivityRequests extends AppCompatActivity {
                                                 .originalPOITransaction(
                                                         new OriginalPOITransaction.Builder()
                                                                 .POIID(getString(R.string.gPOIID))
-                                                                .POITransactionID(lastPoiTransactionID)
+                                                                .POITransactionID(new POITransactionID(lastPoiTransactionID.getTransactionID(), lastPoiTransactionID.getTimestamp()))
                                                                 .saleID("")
                                                                 .reuseCardDataFlag(true)
                                                                 .build()
@@ -518,7 +519,7 @@ public class ActivityRequests extends AppCompatActivity {
                 pr = r.getPaymentResponse();
                 paymentResult = pr.getResponse().getResult().name();
                 paymentRes = pr.getPaymentResult();
-                intent.putExtra("txnType", mc.toString()); //vannnn
+                intent.putExtra("txnType", mc.toString());
                 break;
             case TransactionStatus:
                 tsr = r.getTransactionStatusResponse();
@@ -531,7 +532,7 @@ public class ActivityRequests extends AppCompatActivity {
         }
         intent.putExtra("result", paymentResult);
 
-        if(paymentResult != "Success"){ // REFUSAL //TODO: Remove already completed
+        if(paymentResult != "Success"){ // REFUSAL //TODO: Remove "already completed" error preauth?
             setErrorCondition(mc, r);
             intent.putExtra("errorCondition", errorCondition);
             intent.putExtra("additionalResponse", additionalResponse);

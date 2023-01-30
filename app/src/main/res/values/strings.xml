@@ -1,11 +1,10 @@
 <resources>
     <string name="app_name">TerminalPOSDemo</string>
-    <string name="products">Products</string>
-    <string name="cart">Cart</string>
+    <string name="Payment">Payment</string>
     <string name="satellite">Satellite</string>
     <string name="discount">Discount</string>
     <string name="idProductCode">5</string>
-    <string name="idProductLabel">Unleaded</string>
+    <string name="idProductLabel">Test Product</string>
     <string name="gPOIID">VA POS</string>
     <string name="gsaleID">DMGVA001</string>
 </resources>

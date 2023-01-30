@@ -1,7 +1,7 @@
 package au.com.dmg.terminalposdemo;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -19,10 +19,17 @@ import androidx.core.text.HtmlCompat;
 import java.io.IOException;
 import java.util.Objects;
 
+import au.com.dmg.fusion.data.ErrorCondition;
+import au.com.dmg.fusion.data.TransactionType;
+
 public class ActivityResult extends AppCompatActivity {
 
     private Button btnPrintReceipt;
+    private Button btnBack;
     private TextView tvResult;
+
+    TransactionType transactionType;
+//    Class prevClass;
 
     private DMGDeviceImpl device = new DMGDeviceImpl();
 
@@ -34,16 +41,26 @@ public class ActivityResult extends AppCompatActivity {
 
         setContentView(R.layout.activity_result);
 
+        Bundle bundle = getIntent().getExtras();
+//        prevClass = (Class) bundle.get("prevClass");
+
         tvResult = (TextView) findViewById(R.id.tvReceipt);
         btnPrintReceipt = (Button) findViewById(R.id.btnPrintReceipt);
+        btnBack = (Button) findViewById(R.id.btnBack);
         TextView tvReceipt = (TextView) findViewById(R.id.tvReceipt);
         TextView tvMessageHead = (TextView) findViewById(R.id.tvMessageHead);
         TextView tvMessageDetail = (TextView) findViewById(R.id.tvMessageDetail);
 
-        String errorCondition = "";
+        tvReceipt.setMovementMethod(new ScrollingMovementMethod());
+
+        ErrorCondition errorCondition = null;
         String additionalResponse = "";
 
+        //TODO: Cleanup
+        //TODO: add home button top? fix back button or do fullscreen
+        //TODO: don't show completion page if no previous preauth
         String txntype = getIntent().getStringExtra("txnType");
+
         String result = getIntent().getStringExtra("result");
 
         ///AmountsResp
@@ -71,8 +88,6 @@ public class ActivityResult extends AppCompatActivity {
 
         if(Objects.equals(result, "Success")){
             switch (txntype) {
-                case "Refund":
-                    txntype = "Refund";
                 case "Payment":
                     //PaymentAcquirerData
                     approvalCode = getIntent().getStringExtra("ApprovalCode");
@@ -96,7 +111,7 @@ public class ActivityResult extends AppCompatActivity {
                     tvMessageDetail.setVisibility(View.GONE);
                     tvReceipt.setText(HtmlCompat.fromHtml(outputXHTML, HtmlCompat.FROM_HTML_MODE_COMPACT));
                     break;
-                case "refund":
+                case "Refund":
                     tvMessageHead.setText("Refund " + result);
                     tvMessageHead.setTextColor(Color.parseColor("#FF4CAF50"));
 
@@ -125,47 +140,75 @@ public class ActivityResult extends AppCompatActivity {
         else
         {
             tvMessageHead.setTextColor(Color.parseColor("#FF0000"));
-            errorCondition = getIntent().getStringExtra("errorCondition");;
+            errorCondition = (ErrorCondition) bundle.get("errorCondition");
             additionalResponse = getIntent().getStringExtra("additionalResponse");;
+
             btnPrintReceipt.setVisibility(View.GONE);
             tvReceipt.setVisibility(View.GONE);
             tvMessageDetail.setVisibility(View.VISIBLE);
 
-            switch (errorCondition){
-
-                case "NotConnectedException":
-                    tvMessageHead.setText("No Internet");
-                    tvMessageDetail.setText("Please make sure POS is connected to the internet");
-                    break;
-                case "Timeout":
-                    tvMessageHead.setText("Transaction Timeout");
-                    tvMessageDetail.setText("Transaction Aborted");
-                    break;
-                case "NotFound":
-                    tvMessageHead.setText("Transaction Not Found");
-                    tvMessageDetail.setText(additionalResponse);
-                    break;
-                case "Aborted":
-                case "Busy":
-                case "Cancel":
-                case "DeviceOut":
-                case "InsertedCard":
-                case "InProgress":
-                case "LoggedOut":
-                case "MessageFormat":
-                case "NotAllowed":
-                case "PaymentRestriction":
-                case "Refusal":
-                case "UnavailableDevice":
-                case "UnavailableService":
-                case "InvalidCard":
-                case "UnreachableHost":
-                case "WrongPIN":
-                default:
-                    tvMessageHead.setText("Transaction Failed");
-                    String errorMessage = errorCondition + "\n\n" + additionalResponse;
-                    tvMessageDetail.setText(errorMessage);
-            }
+            tvMessageHead.setText(errorCondition.toString());
+            tvMessageDetail.setText(additionalResponse);
+//            switch (errorCondition){
+//                case Aborted:
+//                    tvMessageDetail.setText("Transaction aborted");
+//                    break;
+//                case Busy:
+//                    tvMessageDetail.setText("The system is busy, try later");
+//                    break;
+//                case Cancel:
+//                    tvMessageDetail.setText("Transaction Cancelled");
+//                    break;
+//                case PaymentRestriction:
+//                    tvMessageDetail.setText("");
+//                    break;
+//                case Refusal:
+//                    tvMessageDetail.setText("");
+//                    break;
+//                case Unknown:
+//                    tvMessageDetail.setText("");
+//                    break;
+//                case NotFound:
+//                    tvMessageDetail.setText("");
+//                    break;
+//                case WrongPIN:
+//                    tvMessageDetail.setText("");
+//                    break;
+//                case DeviceOut:
+//                    tvMessageDetail.setText("");
+//                    break;
+//                case LoggedOut:
+//                    tvMessageDetail.setText("");
+//                    break;
+//                case InProgress:
+//                    tvMessageDetail.setText("");
+//                    break;
+//                case NotAllowed:
+//                    tvMessageDetail.setText("");
+//                    break;
+//                case InvalidCard:
+//                    tvMessageDetail.setText("");
+//                    break;
+//                case InsertedCard:
+//                    tvMessageDetail.setText("");
+//                    break;
+//                case MessageFormat:
+//                    tvMessageDetail.setText("");
+//                    break;
+//                case UnreachableHost:
+//                    tvMessageDetail.setText("");
+//                    break;
+//                case UnavailableDevice:
+//                    tvMessageDetail.setText("");
+//                    break;
+//                case UnavailableService:
+//                    tvMessageDetail.setText("");
+//                    break;
+//                default:
+//                    tvMessageHead.setText("Transaction Failed");
+//                    String errorMessage = errorCondition + "\n\n" + additionalResponse;
+//                    tvMessageDetail.setText(errorMessage);
+//            }
         }
 
     tvReceipt.setMovementMethod(new ScrollingMovementMethod());
@@ -176,6 +219,10 @@ public class ActivityResult extends AppCompatActivity {
             } catch (RemoteException | IOException e) {
                 e.printStackTrace();
             }
+        });
+        btnBack.setOnClickListener(view -> {
+//            openActivityPrevious(prevClass);
+            openActivityMain();
         });
     }
     private void startPrint() throws RemoteException, IOException{
@@ -197,5 +244,20 @@ public class ActivityResult extends AppCompatActivity {
             }
         }).start();
     }
-
+//    public void openActivityPrevious(Class prevClass) {
+//        Class nextClass = MainActivity.class;
+//        //Redirect to previous page
+//        if(prevClass.equals(ActivityRequests.class)){
+//            nextClass = ActivitySatellite.class;
+//        }else{
+//            nextClass = ActivityPayment.class;
+//        }
+//        Intent intent = new Intent(this, nextClass);
+//
+//        startActivity(intent);
+//    }
+    public void openActivityMain(){
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    }
 }

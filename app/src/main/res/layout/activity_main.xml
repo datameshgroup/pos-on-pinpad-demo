@@ -36,13 +36,13 @@
         app:layout_constraintTop_toBottomOf="@+id/btnPrint" />
 
     <Button
-        android:id="@+id/btnCart"
+        android:id="@+id/btnPayment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
         android:layout_marginTop="50dp"
         android:layout_marginEnd="50dp"
-        android:text="@string/cart"
+        android:text="@string/Payment"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.486"
         app:layout_constraintStart_toStartOf="parent"
@@ -57,9 +57,9 @@
         android:layout_marginEnd="50dp"
         android:text="@string/satellite"
         android:enabled="@bool/enableSatellite"
-        app:layout_constraintEnd_toEndOf="@+id/btnCart"
+        app:layout_constraintEnd_toEndOf="@+id/btnPayment"
         app:layout_constraintHorizontal_bias="0.48"
-        app:layout_constraintStart_toStartOf="@+id/btnCart"
-        app:layout_constraintTop_toBottomOf="@+id/btnCart" />
+        app:layout_constraintStart_toStartOf="@+id/btnPayment"
+        app:layout_constraintTop_toBottomOf="@+id/btnPayment" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

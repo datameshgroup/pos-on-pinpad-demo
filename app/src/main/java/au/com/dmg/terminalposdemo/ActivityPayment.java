@@ -22,6 +22,7 @@ import java.util.Random;
 
 import au.com.dmg.fusion.Message;
 import au.com.dmg.fusion.MessageHeader;
+import au.com.dmg.fusion.data.ErrorCondition;
 import au.com.dmg.fusion.data.MessageCategory;
 import au.com.dmg.fusion.data.MessageClass;
 import au.com.dmg.fusion.data.MessageType;
@@ -43,14 +44,14 @@ import au.com.dmg.fusion.response.paymentresponse.PaymentResponse;
 import au.com.dmg.fusion.response.paymentresponse.PaymentResponseCardData;
 import au.com.dmg.fusion.response.paymentresponse.PaymentResult;
 
-public class ActivityCart extends AppCompatActivity {
+public class ActivityPayment extends AppCompatActivity {
 
     BigDecimal totalAmount = BigDecimal.valueOf(0);
     BigDecimal bTotal = BigDecimal.valueOf(0);
     BigDecimal bDiscount = BigDecimal.valueOf(0);
     BigDecimal bTip = BigDecimal.valueOf(0);
     SaleToPOIResponse response = null;
-    String lastTxid = null;
+//    String lastTxid = null;
 
     private ImageView ivScan;
     private Button btnPay;
@@ -58,11 +59,11 @@ public class ActivityCart extends AppCompatActivity {
     private TextView inputDiscount;
     private TextView inputTip;
     private TextView tvResults;
-    private String lastServiceID = null;
+//    private String lastServiceID = null;
     private POITransactionID resPOI = null;
     private TextView txtProductCode = null;
 
-    String errorCondition = "";
+    ErrorCondition errorCondition = null;
     String additionalResponse = "";
 
     //scanner
@@ -167,13 +168,13 @@ public class ActivityCart extends AppCompatActivity {
                                                 .tipAmount(bTip)
                                                 .cashBackAmount(bDiscount)
                                                 .build())
+
                                         .addSaleItem(new SaleItem.Builder()
                                                 .itemID(1)
-//                                                .productCode(getString(R.string.idProductCode))
                                                 .productCode(txtProductCode.getText().toString())
                                                 .unitOfMeasure(UnitOfMeasure.Litre)
-                                                .itemAmount(new BigDecimal(1.0))
-                                                .unitPrice(new BigDecimal(1.0))
+                                                .itemAmount(bTotal)
+                                                .unitPrice(bTotal)
                                                 .quantity(new BigDecimal(1.0))
                                                 .productLabel(getString(R.string.idProductLabel))
                                                 .build())
@@ -253,15 +254,15 @@ public class ActivityCart extends AppCompatActivity {
     private void setErrorCondition(MessageCategory mc, SaleToPOIResponse r){
         switch (mc){
             case Payment:
-                errorCondition = r.getPaymentResponse().getResponse().getErrorCondition().toString();
+                errorCondition = r.getPaymentResponse().getResponse().getErrorCondition();
                 additionalResponse = r.getPaymentResponse().getResponse().getAdditionalResponse();
                 break;
             case TransactionStatus:
-                errorCondition = r.getTransactionStatusResponse().getResponse().getErrorCondition().toString();
+                errorCondition = r.getTransactionStatusResponse().getResponse().getErrorCondition();
                 additionalResponse = r.getTransactionStatusResponse().getResponse().getAdditionalResponse();
                 break;
             default:
-                errorCondition = "Unknown Error";
+                errorCondition = ErrorCondition.Unknown;
                 additionalResponse = "---";
         }
     }
@@ -277,10 +278,7 @@ public class ActivityCart extends AppCompatActivity {
                 textViewJson.setText(response.toJson()); //prints to cart page
 
                 GlobalClass globalClass = (GlobalClass)getApplicationContext();
-                this.lastServiceID = response.getMessageHeader().getServiceID();
-                globalClass.setgLastServiceID(lastServiceID);
-                this.lastTxid = response.getPaymentResponse().getPoiData().getPOITransactionID().getTransactionID();
-                globalClass.setgLasttxnID(lastTxid);
+                globalClass.setResponse(response);
 
                 //parse response
                 MessageHeader mh = response.getMessageHeader();
@@ -377,6 +375,7 @@ public class ActivityCart extends AppCompatActivity {
 
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
+        intent.putExtra("prevClass", this.getClass());
         startActivity(intent);
     }
 }

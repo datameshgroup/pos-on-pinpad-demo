@@ -19,7 +19,7 @@
             android:name="au.com.dmg.terminalposdemo.ActivityResult"
             android:exported="false" />
         <activity
-            android:name="au.com.dmg.terminalposdemo.ActivityCart"
+            android:name="au.com.dmg.terminalposdemo.ActivityPayment"
             android:exported="false" />
         <activity
             android:name="au.com.dmg.terminalposdemo.ActivityRequests"

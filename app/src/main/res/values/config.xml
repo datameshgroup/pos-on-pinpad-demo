@@ -8,8 +8,8 @@
     <bool name="enableReversal">false</bool>
     <bool name="enableCashout">false</bool>
     <bool name="enableRefund">true</bool>  <!-- fix fusionsatellite library first for refund-->
-    <bool name="enablePreAuth">false</bool>
-    <bool name="enableCompletion">false</bool>
+    <bool name="enablePreAuth">true</bool>
+    <bool name="enableCompletion">true</bool>
     <bool name="enableTransactionStatus">true</bool>
     <bool name="enableCardAcquisition">false</bool>
 <!--    <bool name="enable">false</bool>-->

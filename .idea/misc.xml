@@ -8,11 +8,13 @@
         <entry key="app/src/main/res/drawable/toast_info_background.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_cart.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.22" />
+        <entry key="app/src/main/res/layout/activity_preauthorisation_list.xml" value="0.165" />
         <entry key="app/src/main/res/layout/activity_products.xml" value="0.43645833333333334" />
-        <entry key="app/src/main/res/layout/activity_requests.xml" value="0.43645833333333334" />
-        <entry key="app/src/main/res/layout/activity_result.xml" value="0.18" />
+        <entry key="app/src/main/res/layout/activity_requests.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/activity_result.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_result_error.xml" value="0.25416666666666665" />
-        <entry key="app/src/main/res/layout/activity_satellite.xml" value="0.18" />
+        <entry key="app/src/main/res/layout/activity_satellite.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/preauth_layout.xml" value="0.1" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_dmg_logo.xml" value="0.1" />
       </map>
     </option>

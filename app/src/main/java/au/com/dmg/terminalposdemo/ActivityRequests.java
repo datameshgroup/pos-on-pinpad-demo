@@ -17,6 +17,7 @@ import java.util.Random;
 
 import au.com.dmg.fusion.Message;
 import au.com.dmg.fusion.MessageHeader;
+import au.com.dmg.fusion.data.ErrorCondition;
 import au.com.dmg.fusion.data.MessageCategory;
 import au.com.dmg.fusion.data.MessageClass;
 import au.com.dmg.fusion.data.MessageType;
@@ -43,22 +44,26 @@ import au.com.dmg.fusion.response.paymentresponse.PaymentResult;
 
 public class ActivityRequests extends AppCompatActivity {
 
-    private String requestName;
-    private TextView tvRequestTitle;
-    private TextView txtAmountLabel;
+    private Instant preauthTimestamp;
     private TextView tvAmount;
-    private Button btnSendReq;
 
-    private SaleToPOIResponse response = null;
+    private SaleToPOIResponse lastResponse = null;
+    private PaymentType lastPaymentType= null;
+    private PaymentType currentPaymentType= null;
     private String lastTxid = null;
     private String lastServiceID = null;
+    private BigDecimal lastAuthorizedAmount = null;
+    private POITransactionID lastPoiTransactionID = null;
+    private String SalesReference = "";
 
-    String errorCondition = "";
+    ErrorCondition errorCondition = null;
     String additionalResponse = "";
 
     BigDecimal bAmt = BigDecimal.valueOf(0);
 
     private long pressedTime;
+
+    GlobalClass globalClass;
 
     @Override
     public void onBackPressed() {
@@ -76,59 +81,87 @@ public class ActivityRequests extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_requests);
 
-        GlobalClass globalClass = (GlobalClass)getApplicationContext();
-        this.lastTxid = globalClass.getgLasttxnID();
-        this.lastServiceID = globalClass.getgLastServiceID();
+        // Getting latest transaction response
+        globalClass = (GlobalClass)getApplicationContext();
+        this.lastResponse = globalClass.getResponse();
+        this.lastTxid = (lastResponse == null)? "" : lastResponse.getPaymentResponse().getPoiData().getPOITransactionID().getTransactionID();
+        this.lastServiceID = (lastResponse == null)? "" : lastResponse.getMessageHeader().getServiceID();
+        this.lastPaymentType = (lastResponse == null) ? PaymentType.Normal : lastResponse.getPaymentResponse().getPaymentResult().getPaymentType();
 
         Bundle bundle = getIntent().getExtras();
 
-        String requestName = bundle.getString("requestName");
+        this.currentPaymentType = (PaymentType) bundle.get("paymentType");
 
-        tvRequestTitle = (TextView) findViewById(R.id.tvRequestTitle);
-        txtAmountLabel = (TextView) findViewById(R.id.txtAmountLabel);
-        btnSendReq = (Button) findViewById(R.id.btnSendReq);
+        TextView tvRequestTitle = (TextView) findViewById(R.id.tvRequestTitle);
+        TextView txtAmountLabel = (TextView) findViewById(R.id.txtAmountLabel);
+        TextView txtSalesReferenceLabel = (TextView) findViewById(R.id.txtSalesReferenceLabel);
+        TextView tvSalesReference = (TextView) findViewById(R.id.tvSalesReference);
+        TextView txtTransactionIDLabel = (TextView) findViewById(R.id.txtTransactionIDLabel);
+        TextView tvTransactionID = (TextView) findViewById(R.id.tvTransactionID);
+        Button btnSendReq = (Button) findViewById(R.id.btnSendReq);
         tvAmount = (TextView) findViewById(R.id.tvAmount);
 
-        switch (requestName) {
+        txtSalesReferenceLabel.setVisibility(View.GONE);
+        tvSalesReference.setVisibility(View.GONE);
+        txtTransactionIDLabel.setVisibility(View.GONE);
+        tvTransactionID.setVisibility(View.GONE);
 
-            case "refund":
+        switch (currentPaymentType) {
+            case Refund:
                 tvRequestTitle.setText("REFUND REQUEST");
                 btnSendReq.setOnClickListener(v -> sendRefundRequest());
                 break;
-            case "reversal":
-                tvRequestTitle.setText("REVERSAL REQUEST");
-                txtAmountLabel.setText("Last Transaction ID: " + ((lastTxid == null)  ? "0" : lastTxid));
-                tvAmount.setVisibility(View.GONE);
-                btnSendReq.setOnClickListener(v -> sendReversal());
-                break;
-            case "cashout":
+            case CashAdvance:
                 tvRequestTitle.setText("CASHOUT REQUEST");
                 btnSendReq.setOnClickListener(v -> sendCashOut());
                 break;
-            case "preauth":
+            case FirstReservation:
+//                globalClass.initPreauthorisationList();
                 tvRequestTitle.setText("PREAUTH REQUEST");
-                txtAmountLabel.setText("ID: " + ((lastTxid == null)  ? "0" : lastTxid));
-                tvAmount.setVisibility(View.GONE);
                 btnSendReq.setOnClickListener(v -> sendPreAuth());
                 break;
-            case "completion":
+            case Completion:
                 tvRequestTitle.setText("COMPLETION REQUEST");
-                txtAmountLabel.setText("ID: " + ((lastTxid == null)  ? "0" : lastTxid));
-                tvAmount.setVisibility(View.GONE);
+                GlobalClass.Preauthorisation preauthorisation = new GlobalClass.Preauthorisation();
+                this.preauthTimestamp = (Instant) bundle.get("instant");
+                preauthorisation = globalClass.getPreauthorisation(preauthTimestamp);
+                this.lastAuthorizedAmount = preauthorisation.authorizedAmount;
+                this.lastPoiTransactionID = preauthorisation.poiTransactionID;
+//                this.SalesReference = (lastResponse == null)? "" : lastResponse.getPaymentResponse().getSaleData().getSaleReferenceID(); // TODO check documentation
+                this.SalesReference = "";
+
+                tvSalesReference.setText(SalesReference);
+                tvTransactionID.setText((lastPoiTransactionID==null) ? "" : lastPoiTransactionID.getTransactionID());
+                tvAmount.setText((lastAuthorizedAmount==null) ? "0.00" : lastAuthorizedAmount.toString());
+
+                txtSalesReferenceLabel.setVisibility(View.VISIBLE);
+                tvSalesReference.setVisibility(View.VISIBLE);
+                txtTransactionIDLabel.setVisibility(View.VISIBLE);
+                tvTransactionID.setVisibility(View.VISIBLE);
+
+
                 btnSendReq.setOnClickListener(v -> sendCompletion());
                 break;
-            case "txnstatus":
+            case Normal:
                 tvRequestTitle.setText("TRANSACTION STATUS REQUEST");
-                txtAmountLabel.setText("ID:\n" + ((lastTxid == null)  ? "0" : lastTxid));
+                txtAmountLabel.setText("Service ID: \n" + ((lastServiceID == "")  ? "0" : lastServiceID));
                 tvAmount.setVisibility(View.GONE);
                 btnSendReq.setOnClickListener(v -> sendTransactionStatusRequest());
                 break;
-            case "cardacq":
-                tvRequestTitle.setText("CARD ACQUISITION REQUEST");
-                txtAmountLabel.setText("CARD:\n" + ((lastTxid == null)  ? "0" : lastTxid));
-                tvAmount.setVisibility(View.GONE);
-                btnSendReq.setOnClickListener(v -> sendCardAcquisitionRequest());
-                break;
+
+                // TODO: Below is for future availability
+//            case "CardAcquisition":
+//                tvRequestTitle.setText("CARD ACQUISITION REQUEST");
+//                txtAmountLabel.setText("CARD:\n" + ((lastTxid == null)  ? "0" : lastTxid));
+//                tvAmount.setVisibility(View.GONE);
+//                btnSendReq.setOnClickListener(v -> sendCardAcquisitionRequest());
+//                break;
+//            case "Reversal":
+//                tvRequestTitle.setText("REVERSAL REQUEST");
+//                txtAmountLabel.setText("Last Transaction ID: " + ((lastTxid == null)  ? "0" : lastTxid));
+//                tvAmount.setVisibility(View.GONE);
+//                btnSendReq.setOnClickListener(v -> sendReversal());
+//                break;
             default:
                 tvRequestTitle.setText("no match");
                 txtAmountLabel.setVisibility(View.GONE);
@@ -183,7 +216,7 @@ public class ActivityRequests extends AppCompatActivity {
     }
 
     private void sendReversal(){
-        lastTxid = "7607251233";
+//        lastTxid = "7607251233";
         if(lastTxid == null){
             Toast.makeText(this, "Send a transaction first.", Toast.LENGTH_SHORT).show();
             return;
@@ -257,6 +290,7 @@ public class ActivityRequests extends AppCompatActivity {
 
     private void sendPreAuth() {
         bAmt = new BigDecimal(tvAmount.getText().toString());
+        preauthTimestamp = Instant.ofEpochMilli(System.currentTimeMillis());
         SaleToPOIRequest request = new SaleToPOIRequest.Builder()
                 .messageHeader(
                         new MessageHeader.Builder()
@@ -274,7 +308,7 @@ public class ActivityRequests extends AppCompatActivity {
                                                 .saleTransactionID(
                                                         new SaleTransactionID.Builder()
                                                                 .transactionID(generateTransactionId())
-                                                                .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
+                                                                .timestamp(preauthTimestamp)
                                                                 .build()
                                                 ).build()
                                 )
@@ -301,9 +335,13 @@ public class ActivityRequests extends AppCompatActivity {
     }
 
     private void sendCompletion() {
-        if (response == null) {
-            Toast.makeText(this, "No prior transaction to perform completion", Toast.LENGTH_SHORT).show();
-            return;
+        BigDecimal inputAuthorizedAmount = null;
+
+        if (tvAmount.equals(0) || tvAmount.equals(null) || tvAmount.equals("")){
+            inputAuthorizedAmount = null;
+        } else
+        {
+            inputAuthorizedAmount = new BigDecimal(tvAmount.getText().toString());;
         }
 
         SaleToPOIRequest request = new SaleToPOIRequest.Builder()
@@ -332,14 +370,14 @@ public class ActivityRequests extends AppCompatActivity {
                                                 .amountsReq(
                                                         new AmountsReq.Builder()
                                                                 .currency("AUD")
-                                                                .requestedAmount(response.getPaymentResponse().getPaymentResult().getAmountsResp().getAuthorizedAmount())
+                                                                .requestedAmount(inputAuthorizedAmount)
                                                                 .build()
                                                 )
                                                 .originalPOITransaction(
                                                         new OriginalPOITransaction.Builder()
                                                                 .POIID(getString(R.string.gPOIID))
-                                                                .POITransactionID(response.getPaymentResponse().getPoiData().getPOITransactionID())
-                                                                .saleID(response.getPaymentResponse().getSaleData().getSaleTransactionID().getTransactionID())
+                                                                .POITransactionID(lastPoiTransactionID)
+                                                                .saleID("")
                                                                 .reuseCardDataFlag(true)
                                                                 .build()
                                                 )
@@ -358,11 +396,9 @@ public class ActivityRequests extends AppCompatActivity {
     }
 
     private void sendTransactionStatusRequest() {
-        if (lastServiceID == null) {
-            Toast.makeText(this, "Perform a transaction first.", Toast.LENGTH_SHORT).show();
-            return;
+        if (lastServiceID == null || lastPaymentType!=PaymentType.Normal) {
+            lastServiceID = "";
         }
-        // TODO: 1. check refund PaymentType, 2. check null serviceid transactionstatusrequest
 
         SaleToPOIRequest request = new SaleToPOIRequest.Builder()
                 .messageHeader(
@@ -370,7 +406,6 @@ public class ActivityRequests extends AppCompatActivity {
                                 .messageClass(MessageClass.Service)
                                 .messageCategory(MessageCategory.TransactionStatus)
                                 .messageType(MessageType.Request)
-//                                .serviceID(null)
                                 .serviceID(lastServiceID)
                                 .build()
                 )
@@ -440,7 +475,8 @@ public class ActivityRequests extends AppCompatActivity {
         handleResponse(message.getResponse());
     }
     private void handleResponse(SaleToPOIResponse response) {
-        this.response = response;
+        this.lastResponse = response;
+
         //TextView textViewJson = findViewById(R.id.tvResults);
         Log.d("Response", response.toJson());
         //textViewJson.setText(response.toJson());
@@ -452,22 +488,21 @@ public class ActivityRequests extends AppCompatActivity {
     private void setErrorCondition(MessageCategory mc, SaleToPOIResponse r){
         switch (mc){
             case Payment:
-                errorCondition = r.getPaymentResponse().getResponse().getErrorCondition().toString();
+                errorCondition = r.getPaymentResponse().getResponse().getErrorCondition();
                 additionalResponse = r.getPaymentResponse().getResponse().getAdditionalResponse();
                 break;
             case TransactionStatus:
-                errorCondition = r.getTransactionStatusResponse().getResponse().getErrorCondition().toString();
+                errorCondition = r.getTransactionStatusResponse().getResponse().getErrorCondition();
                 additionalResponse = r.getTransactionStatusResponse().getResponse().getAdditionalResponse();
                 break;
             default:
-                errorCondition = "Unknown Error";
+                errorCondition = ErrorCondition.Unknown;
                 additionalResponse = "---";
         }
     }
 
     public void openActivityResult(MessageCategory mc, SaleToPOIResponse r) {
         Intent intent = new Intent(this, ActivityResult.class);
-//        Response resp;
         PaymentReceipt paymentreceipt = null;
         PaymentResponse pr = null;
         PaymentResult paymentRes = null;
@@ -483,8 +518,7 @@ public class ActivityRequests extends AppCompatActivity {
                 pr = r.getPaymentResponse();
                 paymentResult = pr.getResponse().getResult().name();
                 paymentRes = pr.getPaymentResult();
-                intent.putExtra("txnType", "Refund"); //van
-
+                intent.putExtra("txnType", mc.toString()); //vannnn
                 break;
             case TransactionStatus:
                 tsr = r.getTransactionStatusResponse();
@@ -497,19 +531,25 @@ public class ActivityRequests extends AppCompatActivity {
         }
         intent.putExtra("result", paymentResult);
 
-        if(paymentResult != "Success"){ // REFUSAL
+        if(paymentResult != "Success"){ // REFUSAL //TODO: Remove already completed
             setErrorCondition(mc, r);
             intent.putExtra("errorCondition", errorCondition);
             intent.putExtra("additionalResponse", additionalResponse);
         }
         else{
 
-
             switch (mc){
                 case Payment:
-                    ///PaymentAcquirerData
                     intent.putExtra("ApprovalCode", paymentRes.getPaymentAcquirerData().getApprovalCode());
                     intent.putExtra("TransactionID", paymentRes.getPaymentAcquirerData().getAcquirerTransactionID().getTransactionID());
+
+                    if(currentPaymentType == PaymentType.FirstReservation){
+                        globalClass.setResponse(r);
+                        globalClass.addPreauthorisation(r);
+                    } else if(currentPaymentType == PaymentType.Completion){
+                        globalClass.setResponse(r);
+                        globalClass.removePreauthorisation(preauthTimestamp);
+                    }
                     break;
                 case TransactionStatus:
                     pr = tsr.getRepeatedMessageResponse().getRepeatedResponseMessageBody().getPaymentResponse();
@@ -543,6 +583,7 @@ public class ActivityRequests extends AppCompatActivity {
 
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
+        intent.putExtra("prevClass", this.getClass());
         startActivity(intent);
     }
 

@@ -4,10 +4,10 @@
     package="au.com.dmg.terminalposdemo">
 
     <application
-        android:name="au.com.dmg.terminalposdemo.GlobalClass"
+        android:name=".GlobalClass"
         android:allowBackup="true"
-        android:extractNativeLibs="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:extractNativeLibs="true"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -16,26 +16,29 @@
         android:theme="@style/Theme.TerminalPOSDemo"
         tools:targetApi="31">
         <activity
-            android:name="au.com.dmg.terminalposdemo.ActivityResult"
+            android:name=".ActivityPreauthorisationList"
             android:exported="false" />
         <activity
-            android:name="au.com.dmg.terminalposdemo.ActivityCart"
+            android:name=".ActivityResult"
             android:exported="false" />
         <activity
-            android:name="au.com.dmg.terminalposdemo.ActivityRequests"
+            android:name=".ActivityPayment"
             android:exported="false" />
         <activity
-            android:name="au.com.dmg.terminalposdemo.ActivitySatellite"
+            android:name=".ActivityRequests"
             android:exported="false" />
         <activity
-            android:name="au.com.dmg.terminalposdemo.MainActivity"
+            android:name=".ActivitySatellite"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
     </application>
 
 </manifest>

@@ -3,6 +3,7 @@ package au.com.dmg.terminalposdemo;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,12 +12,15 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,11 +42,11 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        btnCart = (Button) findViewById(R.id.btnCart);
+        btnCart = (Button) findViewById(R.id.btnPayment);
         btnCart.setOnClickListener(v -> openActivityCart());
 
         btnSatellite = (Button) findViewById(R.id.btnSatellite);
-        btnSatellite.setOnClickListener(v -> openActivitySattelite());
+        btnSatellite.setOnClickListener(v -> openActivitySatellite());
 
         btnPrint = (Button) findViewById(R.id.btnPrint);
         btnPrint.setOnClickListener(v -> {
@@ -117,11 +121,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openActivityCart() {
-        Intent intent = new Intent(this, ActivityCart.class);
+        Intent intent = new Intent(this, ActivityPayment.class);
         startActivity(intent);
     }
 
-    public void openActivitySattelite() {
+    public void openActivitySatellite() {
         Intent intent = new Intent(this, ActivitySatellite.class);
         startActivity(intent);
     }

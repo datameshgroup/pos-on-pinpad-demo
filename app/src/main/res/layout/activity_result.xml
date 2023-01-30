@@ -6,85 +6,77 @@
     android:layout_height="match_parent"
     tools:context="au.com.dmg.terminalposdemo.ActivityResult">
 
-    <ScrollView
+    <TextView
+        android:id="@+id/tvMessageHead"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="24dp"
+        android:background="#00555555"
+        android:text="STATUS"
+        android:textAlignment="center"
+        android:textColor="#43A047"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/tvReceipt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvReceipt"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="8dp"
+        android:background="#FDF7F7"
+        android:isScrollContainer="true"
+        android:scrollbars="vertical"
+        android:text="SOME TEXT FOR  RECEIPT"
+        android:textAlignment="textStart"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvMessageHead" />
+
+    <Button
+        android:id="@+id/btnPrintReceipt"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="24dp"
+        android:text="Print"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/btnBack" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="8dp"
+        android:text="Back"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvReceipt" />
 
-            <TextView
-                android:id="@+id/tvMessageHead"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="32dp"
-                android:layout_marginEnd="24dp"
-                android:background="#00555555"
-                android:text="STATUS"
-                android:textAlignment="center"
-                android:textColor="#43A047"
-                android:textSize="24sp"
-                app:layout_constraintEnd_toEndOf="@+id/tvMessageDetail"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="@+id/tvMessageDetail"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/tvMessageDetail"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="24dp"
-                android:isScrollContainer="true"
-                android:scrollbars="vertical"
-                android:text="TextView"
-                android:textSize="20sp"
-                app:layout_constraintEnd_toEndOf="@+id/tvReceipt"
-                app:layout_constraintStart_toStartOf="@+id/tvReceipt"
-                app:layout_constraintTop_toBottomOf="@+id/tvMessageHead" />
-
-            <TextView
-                android:id="@+id/tvReceipt"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_marginStart="32dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="32dp"
-                android:layout_marginBottom="24dp"
-                android:background="#FDF7F7"
-                android:isScrollContainer="true"
-                android:scrollbars="vertical"
-                android:text="SOME TEXT FOR  RECEIPT"
-                android:textAlignment="textStart"
-                android:textColor="#000000"
-                android:textSize="18sp"
-                app:layout_constraintBottom_toTopOf="@+id/btnPrintReceipt"
-                app:layout_constraintEnd_toEndOf="@+id/tvMessageHead"
-                app:layout_constraintStart_toStartOf="@+id/btnPrintReceipt"
-                app:layout_constraintTop_toBottomOf="@+id/tvMessageDetail" />
-
-            <Button
-                android:id="@+id/btnPrintReceipt"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="24dp"
-                android:layout_marginBottom="32dp"
-                android:text="Print"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvReceipt" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
+    <TextView
+        android:id="@+id/tvMessageDetail"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:text="TextView"
+        android:textSize="20sp"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp"
+        tools:ignore="MissingConstraints" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

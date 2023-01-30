@@ -22,7 +22,7 @@
         android:id="@+id/txtAmountLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
+        android:layout_marginStart="32dp"
         android:layout_marginTop="60dp"
         android:text="Amount"
         android:textSize="20sp"
@@ -32,7 +32,7 @@
     <EditText
         android:id="@+id/tvAmount"
         android:layout_width="180dp"
-        android:layout_height="46dp"
+        android:layout_height="48dp"
         android:layout_marginTop="52dp"
         android:ems="10"
         android:hint="0.00"
@@ -40,8 +40,59 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.603"
-        app:layout_constraintStart_toEndOf="@+id/txtAmountLabel"
+        app:layout_constraintStart_toEndOf="@+id/txtSalesReferenceLabel"
         app:layout_constraintTop_toBottomOf="@+id/tvRequestTitle" />
+
+    <TextView
+        android:id="@+id/txtSalesReferenceLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="60dp"
+        android:text="Sales Reference"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtAmountLabel" />
+
+    <EditText
+        android:id="@+id/tvSalesReference"
+        android:layout_width="180dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="52dp"
+        android:ems="10"
+        android:hint="000000000000"
+        android:inputType="number"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.603"
+        app:layout_constraintStart_toEndOf="@+id/txtSalesReferenceLabel"
+        app:layout_constraintTop_toBottomOf="@+id/tvAmount" />
+
+    <TextView
+        android:id="@+id/txtTransactionIDLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="60dp"
+        android:text="Transaction ID
+"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtSalesReferenceLabel" />
+
+    <EditText
+        android:id="@+id/tvTransactionID"
+        android:layout_width="180dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="52dp"
+        android:ems="10"
+        android:hint="000000000000"
+        android:inputType="number"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.603"
+        app:layout_constraintStart_toEndOf="@+id/txtTransactionIDLabel"
+        app:layout_constraintTop_toBottomOf="@+id/txtSalesReferenceLabel" />
 
     <Button
         android:id="@+id/btnSendReq"
@@ -53,5 +104,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtAmountLabel" />
+        app:layout_constraintTop_toBottomOf="@+id/tvTransactionID" />
 </androidx.constraintlayout.widget.ConstraintLayout>

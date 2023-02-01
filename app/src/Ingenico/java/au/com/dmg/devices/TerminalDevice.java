@@ -1,4 +1,4 @@
-package au.com.dmg.terminalposdemo;
+package au.com.dmg.devices;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -14,8 +14,10 @@ import com.usdk.apiservice.aidl.scanner.OnScanListener;
 import com.usdk.apiservice.aidl.scanner.ScannerData;
 import com.usdk.apiservice.aidl.scanner.UScanner;
 import java.io.ByteArrayOutputStream;
-import au.com.dmg.terminalposdemo.Util.BytesUtil;
-import au.com.dmg.terminalposdemo.Util.DeviceHelper;
+
+import au.com.dmg.terminalposdemo.DeviceInterface;
+import au.com.dmg.devices.Util.BytesUtil;
+import au.com.dmg.devices.Util.DeviceHelper;
 
 public class TerminalDevice implements DeviceInterface {
 

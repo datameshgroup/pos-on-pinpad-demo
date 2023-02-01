@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.Random;
 
+import au.com.dmg.devices.TerminalDevice;
 import au.com.dmg.fusion.Message;
 import au.com.dmg.fusion.MessageHeader;
 import au.com.dmg.fusion.data.ErrorCondition;

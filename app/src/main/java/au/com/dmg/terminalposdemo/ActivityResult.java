@@ -19,6 +19,7 @@ import androidx.core.text.HtmlCompat;
 import java.io.IOException;
 import java.util.Objects;
 
+import au.com.dmg.devices.TerminalDevice;
 import au.com.dmg.fusion.data.ErrorCondition;
 import au.com.dmg.fusion.data.TransactionType;
 

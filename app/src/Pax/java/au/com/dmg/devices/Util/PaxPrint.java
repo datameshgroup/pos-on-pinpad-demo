@@ -1,4 +1,4 @@
-package au.com.dmg.terminalposdemo.Util;
+package au.com.dmg.devices.Util;
 
 import android.content.Context;
 

@@ -1,8 +1,7 @@
-package au.com.dmg.terminalposdemo;
+package au.com.dmg.devices;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
@@ -13,6 +12,8 @@ import com.pax.dal.entity.EScannerType;
 import com.pax.dal.entity.ScanResult;
 import com.pax.dal.exceptions.PrinterDevException;
 import com.pax.neptunelite.api.NeptuneLiteUser;
+
+import au.com.dmg.terminalposdemo.DeviceInterface;
 
 public class TerminalDevice implements DeviceInterface {
     public static final int camera_front = 1;

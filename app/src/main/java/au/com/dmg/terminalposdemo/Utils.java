@@ -2,13 +2,9 @@ package au.com.dmg.terminalposdemo;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
 import com.izettle.html2bitmap.Html2Bitmap;
 import com.izettle.html2bitmap.content.WebViewContent;
-
 import org.apache.commons.lang3.StringUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -81,7 +77,4 @@ public class Utils {
             }
         }
     }
-
-
-
 }

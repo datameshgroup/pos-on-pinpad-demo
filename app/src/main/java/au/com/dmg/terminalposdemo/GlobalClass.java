@@ -30,7 +30,6 @@ public class GlobalClass extends Application {
     public void setResponse(SaleToPOIResponse response){ this.gResponse = response; }
 
     ///Temporary preauthorisation storage used for Completion Request
-
     static class Preauthorisation {
         Instant instant;
         String saleReferenceID;

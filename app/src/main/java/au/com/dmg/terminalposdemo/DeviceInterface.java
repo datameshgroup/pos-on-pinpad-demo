@@ -10,8 +10,6 @@ import java.io.IOException;
 
 public interface DeviceInterface {
     void init(Context context);
-    boolean isisPrinterSupported();
-    boolean isPrinterPaperAvailable();
     void printBitmap(Bitmap bitmap) throws RemoteException;
     void scanBarcode(final Handler handler, int timeout, int scannerType) throws RemoteException;
 

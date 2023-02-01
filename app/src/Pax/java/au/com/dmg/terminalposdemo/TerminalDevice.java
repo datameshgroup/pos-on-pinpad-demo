@@ -2,26 +2,19 @@ package au.com.dmg.terminalposdemo;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-
 import android.os.RemoteException;
-
 import com.pax.dal.IDAL;
 import com.pax.dal.IPrinter;
 import com.pax.dal.IScanner;
-
 import com.pax.dal.entity.EScannerType;
 import com.pax.dal.entity.ScanResult;
-
 import com.pax.dal.exceptions.PrinterDevException;
 import com.pax.neptunelite.api.NeptuneLiteUser;
 
-
-public class DMGDeviceImpl implements DeviceInterface {
-
+public class TerminalDevice implements DeviceInterface {
     public static final int camera_front = 1;
     public static final int camera_back = 2;
 
@@ -42,18 +35,6 @@ public class DMGDeviceImpl implements DeviceInterface {
     @Override
     public void init(Context context) {
         printer = getDal(context).getPrinter();
-
-
-    }
-
-    @Override
-    public boolean isisPrinterSupported() {
-        return false;
-    }
-
-    @Override
-    public boolean isPrinterPaperAvailable() {
-        return false;
     }
 
     @Override
@@ -82,9 +63,6 @@ public class DMGDeviceImpl implements DeviceInterface {
         final boolean[] isWaiting = {true};
         final String[] scanCode = {""};
         scanner.open();
-//        scanner.setTimeOut(timeout);
-//        scanner.setContinuousTimes(5);
-//        scanner.setContinuousInterval(1000);
 
         scanner.start(new IScanner.IScanListener() {
             @Override

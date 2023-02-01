@@ -5,8 +5,11 @@
     <string name="discount">Discount</string>
     <string name="idProductCode">5</string>
     <string name="idProductLabel">Test Product</string>
+
     <string name="gPOIID">VA POS</string>
     <string name="gsaleID">DMGVA001</string>
+
     <string name="test_print">Test Print</string>
     <string name="test_scan">Test Scan</string>
+    <string name="textview">TextView</string>
 </resources>

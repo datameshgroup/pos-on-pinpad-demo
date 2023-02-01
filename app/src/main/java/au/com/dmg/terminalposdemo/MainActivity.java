@@ -3,7 +3,6 @@ package au.com.dmg.terminalposdemo;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,7 +11,6 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.RemoteException;
-import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -20,19 +18,16 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.gson.Gson;
-
 import java.io.IOException;
 import java.io.InputStream;
 
-// TODO check library - refund
 public class MainActivity extends AppCompatActivity {
 
     private Button btnCart;
     private Button btnSatellite;
     private Button btnPrint;
     private Button btnScan;
-    private DMGDeviceImpl device = new DMGDeviceImpl();
+    private TerminalDevice device = new TerminalDevice();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
     public void testScan() throws RemoteException {
 
         try {
-            device.scanBarcode(barcodeHandler, 30, DMGDeviceImpl.camera_back);
+            device.scanBarcode(barcodeHandler, 30, TerminalDevice.camera_back);
         } catch (RemoteException e) {
             e.printStackTrace();
         }

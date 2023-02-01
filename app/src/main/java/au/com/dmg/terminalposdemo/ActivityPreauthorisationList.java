@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,15 +14,12 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-import au.com.dmg.fusion.Message;
 import au.com.dmg.fusion.data.PaymentType;
-import au.com.dmg.fusion.request.paymentrequest.POITransactionID;
 
 
 public class ActivityPreauthorisationList extends AppCompatActivity {
@@ -111,8 +107,6 @@ class AdapterPreauthorisation extends BaseAdapter {
 
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
-        //      int type = getItemViewType(position);
-
         if (convertView == null) {
 
             convertView = layoutInflater.inflate(R.layout.preauth_layout, null);

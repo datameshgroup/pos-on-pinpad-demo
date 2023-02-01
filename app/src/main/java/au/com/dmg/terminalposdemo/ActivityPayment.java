@@ -51,7 +51,6 @@ public class ActivityPayment extends AppCompatActivity {
     BigDecimal bDiscount = BigDecimal.valueOf(0);
     BigDecimal bTip = BigDecimal.valueOf(0);
     SaleToPOIResponse response = null;
-//    String lastTxid = null;
 
     private ImageView ivScan;
     private Button btnPay;
@@ -59,7 +58,6 @@ public class ActivityPayment extends AppCompatActivity {
     private TextView inputDiscount;
     private TextView inputTip;
     private TextView tvResults;
-//    private String lastServiceID = null;
     private POITransactionID resPOI = null;
     private TextView txtProductCode = null;
 
@@ -67,7 +65,7 @@ public class ActivityPayment extends AppCompatActivity {
     String additionalResponse = "";
 
     //scanner
-    private DMGDeviceImpl device = new DMGDeviceImpl();
+    private TerminalDevice device = new TerminalDevice();
 
     private long pressedTime;
 
@@ -126,7 +124,7 @@ public class ActivityPayment extends AppCompatActivity {
 
     public void startScan() throws RemoteException {
         try {
-            device.scanBarcode(barcodeHandler, 30, DMGDeviceImpl.camera_front);
+            device.scanBarcode(barcodeHandler, 30, TerminalDevice.camera_front);
         } catch (RemoteException e) {
             e.printStackTrace();
         }

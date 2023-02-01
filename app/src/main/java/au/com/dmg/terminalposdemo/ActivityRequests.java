@@ -2,6 +2,7 @@ package au.com.dmg.terminalposdemo;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,12 +10,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.Random;
-
 import au.com.dmg.fusion.Message;
 import au.com.dmg.fusion.MessageHeader;
 import au.com.dmg.fusion.data.ErrorCondition;
@@ -76,6 +75,7 @@ public class ActivityRequests extends AppCompatActivity {
         pressedTime = System.currentTimeMillis();
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,7 +116,6 @@ public class ActivityRequests extends AppCompatActivity {
                 btnSendReq.setOnClickListener(v -> sendCashOut());
                 break;
             case FirstReservation:
-//                globalClass.initPreauthorisationList();
                 tvRequestTitle.setText("PREAUTH REQUEST");
                 btnSendReq.setOnClickListener(v -> sendPreAuth());
                 break;
@@ -127,19 +126,17 @@ public class ActivityRequests extends AppCompatActivity {
                 preauthorisation = globalClass.getPreauthorisation(preauthTimestamp);
                 this.lastAuthorizedAmount = preauthorisation.authorizedAmount;
                 this.lastPoiTransactionID = preauthorisation.poiTransactionID;
-//                this.SalesReference = (lastResponse == null)? "" : lastResponse.getPaymentResponse().getSaleData().getSaleReferenceID(); // TODO check documentation
+//                this.SalesReference = (lastResponse == null)? "" : lastResponse.getPaymentResponse().getSaleData().getSaleReferenceID(); // TODO check/update documentation
                 this.SalesReference = "";
 
                 tvSalesReference.setText(SalesReference);
                 tvTransactionID.setText((lastPoiTransactionID==null) ? "" : lastPoiTransactionID.getTransactionID());
                 tvAmount.setText((lastAuthorizedAmount==null) ? "0.00" : lastAuthorizedAmount.toString());
-
-                txtSalesReferenceLabel.setVisibility(View.VISIBLE);
-                tvSalesReference.setVisibility(View.VISIBLE);
+                // TODO check if SalesReference is still a requirement for completion
+//                txtSalesReferenceLabel.setVisibility(View.VISIBLE);
+//                tvSalesReference.setVisibility(View.VISIBLE);
                 txtTransactionIDLabel.setVisibility(View.VISIBLE);
                 tvTransactionID.setVisibility(View.VISIBLE);
-
-
                 btnSendReq.setOnClickListener(v -> sendCompletion());
                 break;
             case Normal:
@@ -162,6 +159,7 @@ public class ActivityRequests extends AppCompatActivity {
 //                tvAmount.setVisibility(View.GONE);
 //                btnSendReq.setOnClickListener(v -> sendReversal());
 //                break;
+
             default:
                 tvRequestTitle.setText("no match");
                 txtAmountLabel.setVisibility(View.GONE);
@@ -216,7 +214,6 @@ public class ActivityRequests extends AppCompatActivity {
     }
 
     private void sendReversal(){
-//        lastTxid = "7607251233";
         if(lastTxid == null){
             Toast.makeText(this, "Send a transaction first.", Toast.LENGTH_SHORT).show();
             return;
@@ -336,9 +333,9 @@ public class ActivityRequests extends AppCompatActivity {
 
     private void sendCompletion() {
         BigDecimal inputAuthorizedAmount = null;
-        //TODO: get value of transacctionid and salesreferenceid?
+        //TODO: check if salesreferenceid is still needed
         String amt = tvAmount.getText().toString();
-        if (amt == "0" || amt.equals(null) || amt.equals("")){
+        if (amt.equals("0") || amt == null || amt.equals("")){
             inputAuthorizedAmount = this.lastAuthorizedAmount;
         } else
         {

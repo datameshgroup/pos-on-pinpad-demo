@@ -31,19 +31,18 @@
 
     <EditText
         android:id="@+id/tvAmount"
-        android:layout_width="0dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="20dp"
+        android:layout_width="210dp"
+        android:layout_height="50dp"
         android:layout_marginEnd="20dp"
+        android:background="@drawable/edit_text_border"
         android:hint="0.00"
         android:inputType="numberDecimal"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="@+id/txtAmountLabel"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.603"
-        app:layout_constraintStart_toEndOf="@+id/txtSalesReferenceLabel"
-        app:layout_constraintTop_toTopOf="@+id/txtAmountLabel"
-        android:background="@drawable/edit_text_border"/>
+        app:layout_constraintTop_toTopOf="@+id/txtAmountLabel" />
 
     <TextView
         android:id="@+id/txtSalesReferenceLabel"
@@ -58,18 +57,18 @@
 
     <EditText
         android:id="@+id/tvSalesReference"
-        android:layout_width="0dp"
+        android:layout_width="210dp"
         android:layout_height="48dp"
-        android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
+        android:background="@drawable/edit_text_border"
         android:hint="000000000000"
         android:inputType="number"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="@+id/txtSalesReferenceLabel"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/txtSalesReferenceLabel"
-        app:layout_constraintTop_toTopOf="@+id/txtSalesReferenceLabel"
-        android:background="@drawable/edit_text_border"/>
+        app:layout_constraintTop_toTopOf="@+id/txtSalesReferenceLabel" />
 
     <TextView
         android:id="@+id/txtTransactionIDLabel"
@@ -84,18 +83,18 @@
 
     <EditText
         android:id="@+id/tvTransactionID"
-        android:layout_width="0dp"
+        android:layout_width="210dp"
         android:layout_height="48dp"
-        android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
+        android:background="@drawable/edit_text_border"
         android:hint="000000000000"
         android:inputType="number"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="@+id/txtTransactionIDLabel"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/txtSalesReferenceLabel"
-        app:layout_constraintTop_toTopOf="@+id/txtTransactionIDLabel"
-        android:background="@drawable/edit_text_border"/>
+        app:layout_constraintTop_toTopOf="@+id/txtTransactionIDLabel" />
 
     <Button
         android:id="@+id/btnSendReq"

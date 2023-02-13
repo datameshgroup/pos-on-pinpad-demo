@@ -23,6 +23,7 @@ import java.util.Random;
 import au.com.dmg.devices.TerminalDevice;
 import au.com.dmg.fusion.Message;
 import au.com.dmg.fusion.MessageHeader;
+import au.com.dmg.fusion.data.CustomFieldType;
 import au.com.dmg.fusion.data.ErrorCondition;
 import au.com.dmg.fusion.data.MessageCategory;
 import au.com.dmg.fusion.data.MessageClass;
@@ -31,6 +32,7 @@ import au.com.dmg.fusion.data.PaymentType;
 import au.com.dmg.fusion.data.UnitOfMeasure;
 import au.com.dmg.fusion.request.SaleToPOIRequest;
 import au.com.dmg.fusion.request.paymentrequest.AmountsReq;
+import au.com.dmg.fusion.request.paymentrequest.CustomField;
 import au.com.dmg.fusion.request.paymentrequest.POITransactionID;
 import au.com.dmg.fusion.request.paymentrequest.PaymentData;
 import au.com.dmg.fusion.request.paymentrequest.PaymentRequest;
@@ -152,6 +154,11 @@ public class ActivityPayment extends AppCompatActivity {
                         .serviceID(generateRandomServiceID())
                         .build())
                 .request(new PaymentRequest.Builder()
+                        .addCustomField(new CustomField.Builder()
+                                .key("samplePaymentRequestCustomFieldKey")
+                                .type(CustomFieldType.array)
+                                .value("sample1,sample2,sample3")
+                                .build())
                         .saleData(new SaleData.Builder()
                                 .operatorLanguage("en")
                                 .saleTransactionID(new SaleTransactionID.Builder()
@@ -169,7 +176,12 @@ public class ActivityPayment extends AppCompatActivity {
                                                 .build())
 
                                         .addSaleItem(new SaleItem.Builder()
-                                                .itemID(1)
+                                                .addCustomField(new CustomField.Builder()
+                                                        .key("sampleSaleItemCustomFieldKey")
+                                                        .type(CustomFieldType.string)
+                                                        .value("testing custom field/s per sale item")
+                                                        .build())
+                                                .itemID(0)
                                                 .productCode(txtProductCode.getText().toString())
                                                 .unitOfMeasure(UnitOfMeasure.Litre)
                                                 .itemAmount(bTotal)

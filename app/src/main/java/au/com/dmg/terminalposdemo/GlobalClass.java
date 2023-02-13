@@ -1,22 +1,17 @@
 package au.com.dmg.terminalposdemo;
 
 import android.app.Application;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import java.io.IOException;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
-
-import java.io.Serializable;
 import java.util.List;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
 import au.com.dmg.fusion.request.paymentrequest.POITransactionID;
 import au.com.dmg.fusion.response.SaleToPOIResponse;

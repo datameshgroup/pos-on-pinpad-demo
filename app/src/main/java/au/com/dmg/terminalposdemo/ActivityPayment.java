@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Random;
 
@@ -145,6 +146,15 @@ public class ActivityPayment extends AppCompatActivity {
         }
         totalAmount = bTotal.subtract(bDiscount).add(bTip);
 
+        //CustomField
+        String[] strArray = {"\"sample1\"", "\"sample2\"", "\"sample3\""};
+
+        CustomData customData = new CustomData.Builder()
+                .GroupName("SampleCustomData")
+                .Quantity(100)
+                .Items(Arrays.asList(strArray))
+                .build();
+
         //Request creation
         SaleToPOIRequest request = new SaleToPOIRequest.Builder()
                 .messageHeader(new MessageHeader.Builder()
@@ -155,9 +165,9 @@ public class ActivityPayment extends AppCompatActivity {
                         .build())
                 .request(new PaymentRequest.Builder()
                         .addCustomField(new CustomField.Builder()
-                                .key("samplePaymentRequestCustomFieldKey")
-                                .type(CustomFieldType.array)
-                                .value("sample1,sample2,sample3")
+                                .Key("samplePaymentRequestCustomFieldKey")
+                                .Type(CustomFieldType.Object)
+                                .Value(customData.toString())
                                 .build())
                         .saleData(new SaleData.Builder()
                                 .operatorLanguage("en")
@@ -173,21 +183,6 @@ public class ActivityPayment extends AppCompatActivity {
                                                 .requestedAmount(totalAmount)
                                                 .tipAmount(bTip)
                                                 .cashBackAmount(bDiscount)
-                                                .build())
-
-                                        .addSaleItem(new SaleItem.Builder()
-                                                .addCustomField(new CustomField.Builder()
-                                                        .key("sampleSaleItemCustomFieldKey")
-                                                        .type(CustomFieldType.string)
-                                                        .value("testing custom field/s per sale item")
-                                                        .build())
-                                                .itemID(0)
-                                                .productCode(txtProductCode.getText().toString())
-                                                .unitOfMeasure(UnitOfMeasure.Litre)
-                                                .itemAmount(bTotal)
-                                                .unitPrice(bTotal)
-                                                .quantity(new BigDecimal(1.0))
-                                                .productLabel(getString(R.string.idProductLabel))
                                                 .build())
                                         .build()
                         )

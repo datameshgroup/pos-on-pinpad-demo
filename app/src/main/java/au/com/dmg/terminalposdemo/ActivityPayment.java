@@ -144,7 +144,7 @@ public class ActivityPayment extends AppCompatActivity {
         if (inputTip != null && !inputTip.getText().toString().isEmpty()) {
             bTip = new BigDecimal(inputTip.getText().toString());
         }
-        totalAmount = bTotal.subtract(bDiscount).add(bTip);
+        totalAmount = bTotal.subtract(bDiscount).add(bTip).add(BigDecimal.valueOf(1));
 
         //CustomField
         String[] strArray = {"\"sample1\"", "\"sample2\"", "\"sample3\""};
@@ -183,6 +183,15 @@ public class ActivityPayment extends AppCompatActivity {
                                                 .requestedAmount(totalAmount)
                                                 .tipAmount(bTip)
                                                 .cashBackAmount(bDiscount)
+                                                .build())
+                                        .addSaleItem(new SaleItem.Builder()
+                                                .itemID(1)
+                                                .productCode(txtProductCode.getText().toString())
+                                                .unitOfMeasure(UnitOfMeasure.Litre)
+                                                .itemAmount(bTotal)
+                                                .unitPrice(bTotal)
+                                                .quantity(new BigDecimal(1.0))
+                                                .productLabel(getString(R.string.idProductLabel))
                                                 .build())
                                         .build()
                         )

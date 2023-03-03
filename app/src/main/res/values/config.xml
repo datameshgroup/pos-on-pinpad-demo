@@ -5,7 +5,7 @@
     <bool name="enableTestPrint">true</bool>
     <bool name="enableScanProductCode">true</bool>
 
-    <bool name="enableReversal">false</bool>
+    <bool name="enableReversal">true</bool>
     <bool name="enableCashout">false</bool>
     <bool name="enableRefund">true</bool>  <!-- fix fusionsatellite library first for refund-->
     <bool name="enablePreAuth">true</bool>

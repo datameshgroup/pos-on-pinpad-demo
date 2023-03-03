@@ -153,12 +153,12 @@ public class ActivityRequests extends AppCompatActivity {
 //                tvAmount.setVisibility(View.GONE);
 //                btnSendReq.setOnClickListener(v -> sendCardAcquisitionRequest());
 //                break;
-//            case "Reversal":
-//                tvRequestTitle.setText("REVERSAL REQUEST");
-//                txtAmountLabel.setText("Last Transaction ID: " + ((lastTxid == null)  ? "0" : lastTxid));
-//                tvAmount.setVisibility(View.GONE);
-//                btnSendReq.setOnClickListener(v -> sendReversal());
-//                break;
+            case Reversal:
+                tvRequestTitle.setText("REVERSAL REQUEST");
+                txtAmountLabel.setText("Last Transaction ID: " + ((lastTxid == null)  ? "0" : lastTxid));
+                tvAmount.setVisibility(View.GONE);
+                btnSendReq.setOnClickListener(v -> sendReversal());
+                break;
 
             default:
                 tvRequestTitle.setText("no match");
@@ -228,10 +228,10 @@ public class ActivityRequests extends AppCompatActivity {
                                 .build()
                 )
                 .request(new ReversalRequest.Builder()
-                        .reversalReason(ReversalReason.SignatureDeclined)
+                        .reversalReason(ReversalReason.MerchantCancel)
                         .originalPOITransaction(new OriginalPOITransaction.Builder()
-                                .POIID(getString(R.string.gPOIID))
-                                .saleID(getString(R.string.gsaleID))
+                                .POIID("TransitMe")
+                                .saleID("DriverApp")
                                 .POITransactionID(new POITransactionID(lastTxid, Instant.ofEpochMilli(System.currentTimeMillis())))
                                 .build())
                         .build())

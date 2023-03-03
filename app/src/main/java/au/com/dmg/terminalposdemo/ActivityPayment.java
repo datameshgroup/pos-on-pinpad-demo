@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.contract.ActivityResultContract;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.math.BigDecimal;
@@ -20,6 +21,10 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import au.com.dmg.devices.TerminalDevice;
 import au.com.dmg.fusion.Message;
@@ -32,6 +37,7 @@ import au.com.dmg.fusion.data.MessageType;
 import au.com.dmg.fusion.data.PaymentType;
 import au.com.dmg.fusion.data.UnitOfMeasure;
 import au.com.dmg.fusion.request.SaleToPOIRequest;
+import au.com.dmg.fusion.request.aborttransactionrequest.AbortTransactionRequest;
 import au.com.dmg.fusion.request.paymentrequest.AmountsReq;
 import au.com.dmg.fusion.request.paymentrequest.CustomField;
 import au.com.dmg.fusion.request.paymentrequest.POITransactionID;
@@ -41,6 +47,7 @@ import au.com.dmg.fusion.request.paymentrequest.PaymentTransaction;
 import au.com.dmg.fusion.request.paymentrequest.SaleData;
 import au.com.dmg.fusion.request.paymentrequest.SaleItem;
 import au.com.dmg.fusion.request.paymentrequest.SaleTransactionID;
+import au.com.dmg.fusion.request.transactionstatusrequest.MessageReference;
 import au.com.dmg.fusion.response.SaleToPOIResponse;
 import au.com.dmg.fusion.response.TransactionStatusResponse;
 import au.com.dmg.fusion.response.paymentresponse.PaymentReceipt;
@@ -58,6 +65,7 @@ public class ActivityPayment extends AppCompatActivity {
 
     private ImageView ivScan;
     private Button btnPay;
+    private Button btnAbort;
     private TextView inputTotal;
     private TextView inputDiscount;
     private TextView inputTip;
@@ -72,6 +80,8 @@ public class ActivityPayment extends AppCompatActivity {
     private TerminalDevice device = new TerminalDevice();
 
     private long pressedTime;
+
+    String testServiceID;
 
     @Override
     public void onBackPressed() {
@@ -91,7 +101,7 @@ public class ActivityPayment extends AppCompatActivity {
 
         device.init(getApplicationContext());
 
-        setContentView(R.layout.activity_cart);
+        setContentView(R.layout.activity_payment);
 
         ivScan = (ImageView) findViewById(R.id.ivScan);
         ivScan.setOnClickListener(v -> {
@@ -104,6 +114,9 @@ public class ActivityPayment extends AppCompatActivity {
 
         btnPay = (Button) findViewById(R.id.btnPay);
         btnPay.setOnClickListener(this::sendPaymentRequest);
+
+        btnAbort = (Button) findViewById(R.id.btnAbort);
+        btnAbort.setOnClickListener(this::testAbort);
 
         inputTotal = (TextView) findViewById(R.id.inputTotal);
 
@@ -134,9 +147,10 @@ public class ActivityPayment extends AppCompatActivity {
         }
 
     }
-    private void sendPaymentRequest(View view) {
 
-        //Computation
+    private SaleToPOIRequest buildPaymentRequest(String ServiceID){
+        SaleToPOIRequest paymentRequest;
+
         bTotal = new BigDecimal(inputTotal.getText().toString());
         if (inputDiscount != null && !inputDiscount.getText().toString().isEmpty()) {
             bDiscount = new BigDecimal(inputDiscount.getText().toString());
@@ -144,7 +158,7 @@ public class ActivityPayment extends AppCompatActivity {
         if (inputTip != null && !inputTip.getText().toString().isEmpty()) {
             bTip = new BigDecimal(inputTip.getText().toString());
         }
-        totalAmount = bTotal.subtract(bDiscount).add(bTip).add(BigDecimal.valueOf(1));
+        totalAmount = bTotal.subtract(bDiscount).add(bTip);
 
         //CustomField
         String[] strArray = {"\"sample1\"", "\"sample2\"", "\"sample3\""};
@@ -156,24 +170,24 @@ public class ActivityPayment extends AppCompatActivity {
                 .build();
 
         //Request creation
-        SaleToPOIRequest request = new SaleToPOIRequest.Builder()
+        paymentRequest = new SaleToPOIRequest.Builder()
                 .messageHeader(new MessageHeader.Builder()
                         .messageClass(MessageClass.Service)
                         .messageCategory(MessageCategory.Payment)
                         .messageType(MessageType.Request)
-                        .serviceID(generateRandomServiceID())
+                        .serviceID(ServiceID)
                         .build())
                 .request(new PaymentRequest.Builder()
                         .addCustomField(new CustomField.Builder()
-                                .Key("samplePaymentRequestCustomFieldKey")
-                                .Type(CustomFieldType.Object)
-                                .Value(customData.toString())
+                                .key("objectsamplecustomfield")
+                                .type(CustomFieldType.Object)
+                                .value(customData)
                                 .build())
                         .saleData(new SaleData.Builder()
                                 .operatorLanguage("en")
                                 .saleTransactionID(new SaleTransactionID.Builder()
                                         .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
-                                        .transactionID(generateTransactionId())
+                                        .transactionID(ServiceID)
                                         .build())
                                 .build())
                         .paymentTransaction(
@@ -202,10 +216,77 @@ public class ActivityPayment extends AppCompatActivity {
                 )
                 .build();
 
+        return paymentRequest;
+    }
+
+    private void testAbort(View view) {
+        this.testServiceID = generateTransactionId();
+        //create payment request first
+        SaleToPOIRequest paymentRequest = buildPaymentRequest(testServiceID);
+
+        Intent intent = new Intent(Message.INTENT_ACTION_SALETOPOI_REQUEST);
+
+        // wrapper of request.
+        Message message = new Message(paymentRequest);
+        Log.d("Request", message.toJson());
+        intent.putExtra(Message.INTENT_EXTRA_MESSAGE, message.toJson());
+        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_NAME, "TerminalPOSDemo");
+        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_VERSION, "1.0.0");
+
+        //create abort request
+        SaleToPOIRequest abortRequest = buildAbortRequest(testServiceID);
+        Intent intentCancel = new Intent();
+        Message messageCancel = new Message(abortRequest);
+        Log.d("AbortRequest", messageCancel.toJson());
+        intentCancel.putExtra(Message.INTENT_EXTRA_MESSAGE, messageCancel.toJson());
+
+        startActivityForResult(intent, 1);
+
+        intentCancel.setAction(Message.INTENT_ACTION_BROADCAST);
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                sendBroadcast(intentCancel);
+            }
+        }, 15000);
+
+    }
+
+    private void sendPaymentRequest(View view) {
+
+        this.testServiceID = generateTransactionId();
+        //Computation
+        SaleToPOIRequest request = buildPaymentRequest(testServiceID);
+
         sendRequest(request);
+
         bDiscount = BigDecimal.valueOf(0);
         bTip = BigDecimal.valueOf(0);
         totalAmount = BigDecimal.valueOf(0);
+    }
+
+    private SaleToPOIRequest buildAbortRequest(String refServiceID) {
+
+        // Abort Request
+        MessageReference messageReference = new MessageReference.Builder()//
+                .messageCategory(MessageCategory.Abort)
+                .saleID("DMGVA")
+                .POIID("DMGVA")
+                .serviceID(refServiceID)
+                .build();
+        AbortTransactionRequest abortTransactionRequest = new AbortTransactionRequest(messageReference, "User Cancel");
+
+        SaleToPOIRequest abortRequest = new SaleToPOIRequest.Builder()
+                .messageHeader(new MessageHeader.Builder()
+                        .messageClass(MessageClass.Service)
+                        .messageCategory(MessageCategory.Abort)
+                        .messageType(MessageType.Request)
+                        .serviceID(generateRandomServiceID())
+                        .build())
+                .request(abortTransactionRequest)
+                .build();
+
+        return abortRequest;
     }
 
     private String generateTransactionId() {
@@ -284,7 +365,6 @@ public class ActivityPayment extends AppCompatActivity {
 
     private void handleResponse(SaleToPOIResponse response) {
         this.response = response;
-
 
         if(response != null) {
             try {

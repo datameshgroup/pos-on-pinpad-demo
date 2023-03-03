@@ -14,7 +14,7 @@ public class ActivitySatellite extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_satellite);
 
-//        Button btnReversalReq = (Button) findViewById(R.id.btnReversalReq);
+        Button btnReversalReq = (Button) findViewById(R.id.btnReversalReq);
         Button btnCashoutReq = (Button) findViewById(R.id.btnCashoutReq);
         Button btnRefundReq = (Button) findViewById(R.id.btnRefundReq);
         Button btnPreauthReq = (Button) findViewById(R.id.btnPreauthReq);
@@ -29,7 +29,7 @@ public class ActivitySatellite extends AppCompatActivity {
 //        btnCompletionReq.setOnClickListener(v -> openActivityRequests(PaymentType.Completion));
         btnCompletionReq.setOnClickListener(v -> openActivityPreauthorisationList());
         btnTransactionStatusReq.setOnClickListener(v -> openActivityRequests(PaymentType.Normal));
-//        btnReversalReq.setOnClickListener(v -> openActivityRequests("Reversal")); //NOT YET AVAILABLE
+        btnReversalReq.setOnClickListener(v -> openActivityRequests(PaymentType.Reversal)); //NOT YET AVAILABLE
 //        btnCardAcquisitionReq.setOnClickListener(v -> openActivityRequests("CardAcquisition")); //NOT YET AVAILABLE
 
     }

@@ -248,7 +248,7 @@ public class ActivityPayment extends AppCompatActivity {
             public void run() {
                 sendBroadcast(intentCancel);
             }
-        }, 15000);
+        }, 10000);
 
     }
 

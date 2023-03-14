@@ -79,7 +79,6 @@ android {
 }
 
 dependencies {
-    implementation files('libs/FusionSatellite-1.3.3.jar')
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
     implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation 'com.google.android.material:material:1.6.1'
@@ -89,6 +88,8 @@ dependencies {
     implementation "com.squareup.moshi:moshi:1.14.0"
     testImplementation 'junit:junit:4.13.2'
 
+    implementation files('libs/FusionSatellite-1.3.5.jar')
+//    implementation 'com.datameshgroup.fusion:fusion-sdk:1.3.5' will be ready
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1"
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'

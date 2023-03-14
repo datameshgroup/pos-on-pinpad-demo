@@ -36,6 +36,20 @@
         app:layout_constraintTop_toBottomOf="@+id/btnPrint" />
 
     <Button
+        android:id="@+id/btnUpdateSatellite"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="50dp"
+        android:text="@string/update_satellite"
+        android:enabled="@bool/enableSatelliteUpdate"
+        app:layout_constraintEnd_toEndOf="@+id/btnScan"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/btnScan"
+        app:layout_constraintTop_toBottomOf="@+id/btnScan" />
+
+    <Button
         android:id="@+id/btnPayment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -4,6 +4,7 @@
     <bool name="enableTestScan">true</bool>
     <bool name="enableTestPrint">true</bool>
     <bool name="enableScanProductCode">true</bool>
+    <bool name="enableSatelliteUpdate">true</bool>
 
     <bool name="enableReversal">true</bool>
     <bool name="enableCashout">false</bool>

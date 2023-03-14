@@ -1,6 +1,7 @@
 package au.com.dmg.terminalposdemo;
 
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
@@ -11,6 +12,7 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.RemoteException;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -21,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import au.com.dmg.devices.TerminalDevice;
+import au.com.dmg.fusion.Message;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btnSatellite;
     private Button btnPrint;
     private Button btnScan;
+    private Button btnUpdateSatellite;
     private TerminalDevice device = new TerminalDevice();
 
     @Override
@@ -61,6 +65,35 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         });
+
+        btnUpdateSatellite = (Button) findViewById(R.id.btnUpdateSatellite);
+        btnUpdateSatellite.setOnClickListener(v -> {
+            forceUpdateSatellite();
+                }
+        );
+    }
+
+    private void forceUpdateSatellite() {
+
+        Intent intent = new Intent(Message.AXIS_PULL_UPDATE);
+
+        Log.d("TerminalPOSDemo","Updating Satellite...");
+
+        // AXIS_RESULT_ACTIVITY = Activity to go back to after the update
+        intent.putExtra(Message.AXIS_RESULT_ACTIVITY, "au.com.dmg.terminalposdemo.MainActivity");
+        intent.setAction("au.com.dmg.axispay.action.UPDATE");
+        startActivityForResult(intent,100);
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        Log.d("TerminalPOSDemo","Main Activity onResume...");
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null && bundle.containsKey("result")) {
+            String updateResult = getIntent().getStringExtra("result");
+            Toast.makeText(MainActivity.this, updateResult, Toast.LENGTH_LONG).show();
+        }
     }
 
     public void testPrint() throws RemoteException {
@@ -75,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }).start();
-
     }
 
     public static Bitmap getBitmapFromAsset(Context context, String filePath) {

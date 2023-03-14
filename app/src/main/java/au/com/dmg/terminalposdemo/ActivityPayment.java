@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
@@ -13,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.contract.ActivityResultContract;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.math.BigDecimal;
@@ -21,10 +19,6 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import au.com.dmg.devices.TerminalDevice;
 import au.com.dmg.fusion.Message;
@@ -180,8 +174,8 @@ public class ActivityPayment extends AppCompatActivity {
                 .request(new PaymentRequest.Builder()
                         .addCustomField(new CustomField.Builder()
                                 .key("objectsamplecustomfield")
-                                .type(CustomFieldType.Object)
-                                .value(customData)
+                                .type(CustomFieldType.Array)
+                                .value(customData.toString())
                                 .build())
                         .saleData(new SaleData.Builder()
                                 .operatorLanguage("en")

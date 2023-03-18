@@ -13,6 +13,7 @@ This app demonstrates how to send the following requests via intents to the Sate
 * Refund
 * Preauthorisation
 * Completion
+* Software Upgrade
   
 #### Other features of the demo
 
@@ -48,7 +49,6 @@ This project uses the following dependencies:
 
 - **[Java Fusion SDK](https://github.com/datameshgroup/fusionsatellite-sdk-java):** contains all the models necessary to create request and response messages to the Fusion websocket server
   _This library is included in the project as a jar file under libs folder, and is implemented on the build.gradle_
-
 
 
 ### Minimum Required JDK

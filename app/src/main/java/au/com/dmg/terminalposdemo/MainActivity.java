@@ -74,14 +74,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void forceUpdateSatellite() {
+        // String below should be static in the library. This should do for now.
+        String AXIS_PULL_UPDATE = "au.com.dmg.axispay.action.UPDATE";
+        String AXIS_RESULT_ACTIVITY = "OnUpdateFinishAction";
 
-        Intent intent = new Intent(Message.AXIS_PULL_UPDATE);
+        Intent intent = new Intent(AXIS_PULL_UPDATE);
 
         Log.d("TerminalPOSDemo","Updating Satellite...");
 
         // AXIS_RESULT_ACTIVITY = Activity to go back to after the update
-        intent.putExtra(Message.AXIS_RESULT_ACTIVITY, "au.com.dmg.terminalposdemo.MainActivity");
-        intent.setAction("au.com.dmg.axispay.action.UPDATE");
+        intent.putExtra(AXIS_RESULT_ACTIVITY, "au.com.dmg.terminalposdemo.MainActivity");
         startActivityForResult(intent,100);
     }
 

@@ -3,6 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="au.com.dmg.terminalposdemo">
 
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
     <application
         android:name=".GlobalClass"
         android:allowBackup="true"
@@ -31,6 +43,15 @@
             android:name=".ActivitySatellite"
             android:exported="false" />
         <activity
+            android:name=".ble.ActivityBLEClient"
+            android:exported="false" />
+        <activity
+            android:name=".ble.ServicesList"
+            android:exported="false" />
+        <activity
+            android:name=".ble.ActivityBLEServer"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
@@ -39,6 +60,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service android:name=".ble.GattService"/>
     </application>
 
 </manifest>

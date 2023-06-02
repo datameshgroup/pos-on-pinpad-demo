@@ -12,4 +12,39 @@
     <string name="test_print">Test Print</string>
     <string name="test_scan">Test Scan</string>
     <string name="textview">TextView</string>
+
+
+    <!-- Bluetooth -->
+    <string name="bluetoothNotSupported">BLE Peripheral Simulator closing: Bluetooth Not Supported</string>
+    <string name="bluetoothNotEnabled">BLE Peripheral Simulator closing: Bluetooth is Not Enabled</string>
+    <string name="bluetoothAdvertisingNotSupported">BLE Peripheral Simulator closing: BLE Advertising Not Supported</string>
+
+    <!-- Adv -->
+    <string name="label_advertisingStatus">Advertising Status</string>
+    <string name="status_advertising">Advertising (Keep Screen On)</string>
+    <string name="status_notAdvertising">Not Advertising</string>
+    <string name="status_advDataTooLarge">Not Advertising. Advertisement is larger than 31 bytes.</string>
+    <string name="status_advFeatureUnsupported">Not Advertising. Advertising not supported.</string>
+    <string name="status_advInternalError">Not Advertising. Internal error occurred.</string>
+    <string name="status_advTooManyAdvertisers">Not Advertising. No advertising instance is available.</string>
+
+    <!-- Connection -->
+    <string name="label_connectionStatus">Connection Status</string>
+    <string name="status_devicesConnected">Devices Connected:</string>
+    <string name="status_errorWhenConnecting">An error occurred when connecting to a device. Error Code</string>
+
+    <string name="notify">Notify</string>
+    <string name="notificationsEnabled">Notifications enabled</string>
+    <string name="notificationsNotEnabled">Notifications not enabled</string>
+
+    <string name="status_noLeAdv">LE Advertising is not available. Please pair with a device to be
+        discoverable.
+    </string>
+    <string name="menu_disconnect_devices">Disconnect Devices</string>
+
+    <!-- BLE UUID (not yet used) -->
+
+    <string name="serviceUUID">49cef8b2-71f7-4e4f-8c5c-1f7c766addc8</string>
+    <string name="charUUID">4473bd07-53db-42d4-bc41-61e3a703551b</string>
+    <string name="charDescUUID">d7109bad-609d-486a-a502-0c431c893edc</string>
 </resources>

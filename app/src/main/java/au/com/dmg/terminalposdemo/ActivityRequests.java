@@ -33,6 +33,7 @@ import au.com.dmg.fusion.request.paymentrequest.PaymentTransaction;
 import au.com.dmg.fusion.request.paymentrequest.SaleData;
 import au.com.dmg.fusion.request.paymentrequest.SaleTransactionID;
 import au.com.dmg.fusion.request.reversalrequest.ReversalRequest;
+import au.com.dmg.fusion.request.transactionstatusrequest.MessageReference;
 import au.com.dmg.fusion.request.transactionstatusrequest.TransactionStatusRequest;
 import au.com.dmg.fusion.response.SaleToPOIResponse;
 import au.com.dmg.fusion.response.TransactionStatusResponse;
@@ -397,6 +398,11 @@ public class ActivityRequests extends AppCompatActivity {
         if (lastServiceID == null || lastPaymentType!=PaymentType.Normal) {
             lastServiceID = "";
         }
+        MessageReference messageReference = new MessageReference.Builder()
+                .serviceID(lastServiceID)
+//                .serviceID("xxxxxxxxx5")
+                .messageCategory(MessageCategory.Payment)
+                .build();
 
         SaleToPOIRequest request = new SaleToPOIRequest.Builder()
                 .messageHeader(
@@ -404,10 +410,11 @@ public class ActivityRequests extends AppCompatActivity {
                                 .messageClass(MessageClass.Service)
                                 .messageCategory(MessageCategory.TransactionStatus)
                                 .messageType(MessageType.Request)
-                                .serviceID(lastServiceID)
+//                                .serviceID("xxxxxxxxx23")
+                                .serviceID(generateRandomServiceID())
                                 .build()
                 )
-                .request(new TransactionStatusRequest())
+                .request(new TransactionStatusRequest(messageReference))
                 .build();
 
         sendRequest(request);

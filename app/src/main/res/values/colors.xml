@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- ble -->
+    <!-- Teal 500 -->
+    <color name="primary">#009688</color>
+    <!-- Teal 700 -->
+    <color name="primary_dark">#00796B</color>
+    <!-- Cyan A700 -->
+    <color name="accent">#00B8D4</color>
+    <!-- Seconday Text / Icons -->
+    <color name="secondary_text">#757575</color>
+    <!-- ble -->
+
     <color name="colorPrimary">#4FAADD</color>
     <color name="colorPrimaryDark">#01111E</color>
     <color name="colorMffBlue">#2583C6</color>

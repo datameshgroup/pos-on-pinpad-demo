@@ -54,7 +54,7 @@ public class ActivityResult extends AppCompatActivity {
 
         tvReceipt.setMovementMethod(new ScrollingMovementMethod());
 
-        ErrorCondition errorCondition = null;
+        ErrorCondition errorCondition = ErrorCondition.Unknown;
         String additionalResponse = "";
 
         //TODO: add home button top? fix back button or do fullscreen
@@ -145,6 +145,7 @@ public class ActivityResult extends AppCompatActivity {
             btnPrintReceipt.setVisibility(View.GONE);
             tvReceipt.setVisibility(View.GONE);
             tvMessageDetail.setVisibility(View.VISIBLE);
+
 
             tvMessageHead.setText(errorCondition.toString());
             tvMessageDetail.setText(additionalResponse);

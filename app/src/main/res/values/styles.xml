@@ -1,0 +1,7 @@
+<resources>
+    <style name="ble_label" parent="android:TextAppearance.Material.Caption"/>
+    <style name="ble_text" parent="android:TextAppearance.Material.Subhead"/>
+    <style name="ble_subheader" parent="android:TextAppearance.Material.Body2">
+        <item name="android:textColor">@color/secondary_text</item>
+    </style>
+</resources>

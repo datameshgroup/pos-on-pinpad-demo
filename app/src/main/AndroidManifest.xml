@@ -46,9 +46,6 @@
             android:name=".ble.ActivityBLEClient"
             android:exported="false" />
         <activity
-            android:name=".ble.ServicesList"
-            android:exported="false" />
-        <activity
             android:name=".ble.ActivityBLEServer"
             android:exported="false" />
         <activity
@@ -60,7 +57,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".ble.GattService"/>
     </application>
 
 </manifest>

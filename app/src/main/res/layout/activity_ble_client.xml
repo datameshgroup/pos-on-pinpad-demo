@@ -88,6 +88,7 @@
                 android:text="@string/notify"
                 android:textColor="@color/accent" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -97,7 +98,7 @@
                 android:id="@+id/textView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="SERVER(Library/sdk)"
+                android:text="CLIENT (Terminal app)"
                 android:textSize="34sp" />
         </LinearLayout>
     </LinearLayout>

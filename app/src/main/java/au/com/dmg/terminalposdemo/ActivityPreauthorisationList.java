@@ -19,6 +19,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
+import au.com.dmg.fusion.MessageHeader;
 import au.com.dmg.fusion.data.PaymentType;
 
 
@@ -72,7 +73,6 @@ public class ActivityPreauthorisationList extends AppCompatActivity {
     public void openActivityRequests(PaymentType req, Instant timpstamp) {
         Intent intent = new Intent(this, ActivityRequests.class);
         intent.putExtra("paymentType", req);
-
         intent.putExtra("instant",timpstamp);
 
         startActivity(intent);

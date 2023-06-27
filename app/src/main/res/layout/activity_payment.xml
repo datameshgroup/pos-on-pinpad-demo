@@ -10,13 +10,13 @@
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/txtProductCode"
         android:layout_width="0dp"
-        android:layout_height="48dp"
+        android:layout_height="40dp"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="70dp"
+        android:layout_marginTop="50dp"
         android:layout_marginEnd="1dp"
         android:background="@drawable/edit_text_border"
         android:hint="Test Product"
-        android:lines="1"
+        android:inputType="text"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
         android:theme="@style/AppEditText"
@@ -28,8 +28,8 @@
     <ImageView
         android:id="@+id/ivScan"
         android:layout_width="58dp"
-        android:layout_height="45dp"
-        android:layout_marginTop="70dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="50dp"
         android:layout_marginEnd="50dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -43,11 +43,11 @@
         android:layout_marginEnd="50dp"
         android:background="@drawable/edit_text_border"
         android:ems="10"
-        android:hint="0.00"
+        android:text="1.50"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
         android:inputType="numberDecimal"
-        android:textSize="34sp"
+        android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/inputDiscount" />
 
@@ -58,11 +58,11 @@
         android:layout_marginTop="20dp"
         android:layout_marginEnd="50dp"
         android:ems="10"
-        android:hint="0.00"
+        android:text="0.50"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
         android:inputType="numberDecimal"
-        android:textSize="34sp"
+        android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/inputTotal"
         android:background="@drawable/edit_text_border" />
@@ -83,7 +83,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="100dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="30dp"
         android:layout_marginEnd="100dp"
         android:text="Pay"
         android:textSize="34sp"
@@ -92,14 +92,37 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvTip" />
 
+    <Button
+        android:id="@+id/btnAbort"
+        android:layout_width="150dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="20dp"
+        android:text="Pay &amp; Abort"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnPay" />
+
+    <Button
+        android:id="@+id/btnExtensionData"
+        android:layout_width="150dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="24dp"
+        android:text="View Transit Data"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btnAbort"
+        app:layout_constraintTop_toBottomOf="@+id/btnPay" />
+
     <TextView
         android:id="@+id/tvTotal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="180dp"
+        android:layout_marginTop="110dp"
         android:text="Total"
-        android:textSize="34sp"
+        android:textSize="30sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -107,7 +130,7 @@
         android:id="@+id/inputTotal"
         android:layout_width="100dp"
         android:layout_height="58dp"
-        android:layout_marginTop="180dp"
+        android:layout_marginTop="110dp"
         android:layout_marginEnd="50dp"
         android:background="@drawable/edit_text_border"
         android:ems="10"
@@ -115,7 +138,8 @@
         android:inputType="numberDecimal"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
-        android:textSize="34sp"
+        android:textSize="30sp"
+        android:text="22.00"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -126,7 +150,7 @@
         android:layout_marginStart="50dp"
         android:layout_marginTop="32dp"
         android:text="Tip"
-        android:textSize="34sp"
+        android:textSize="30sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvDiscount" />
 

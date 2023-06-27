@@ -8,23 +8,45 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.text.HtmlCompat;
 
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.IOException;
-import java.util.Objects;
+import java.util.List;
 
 import au.com.dmg.devices.TerminalDevice;
+import au.com.dmg.fusion.Message;
 import au.com.dmg.fusion.data.ErrorCondition;
+import au.com.dmg.fusion.data.MessageCategory;
+import au.com.dmg.fusion.data.PaymentType;
 import au.com.dmg.fusion.data.TransactionType;
+import au.com.dmg.fusion.request.paymentrequest.POIData;
+import au.com.dmg.fusion.response.CardAcquisitionResponse;
+import au.com.dmg.fusion.response.ResponseResult;
+import au.com.dmg.fusion.response.SaleToPOIResponse;
+import au.com.dmg.fusion.response.TransactionStatusResponse;
+import au.com.dmg.fusion.response.paymentresponse.AmountsResp;
+import au.com.dmg.fusion.response.paymentresponse.PaymentAcquirerData;
+import au.com.dmg.fusion.response.paymentresponse.PaymentInstrumentData;
+import au.com.dmg.fusion.response.paymentresponse.PaymentReceipt;
+import au.com.dmg.fusion.response.paymentresponse.PaymentResponse;
+import au.com.dmg.fusion.response.paymentresponse.PaymentResponseCardData;
+import au.com.dmg.fusion.response.paymentresponse.PaymentResult;
+import au.com.dmg.fusion.response.reversalresponse.ReversalResponse;
 
 public class ActivityResult extends AppCompatActivity {
 
+    private static String noValue = "Not received";
     private Button btnPrintReceipt;
     private Button btnBack;
     private TextView tvResult;
@@ -56,81 +78,148 @@ public class ActivityResult extends AppCompatActivity {
 
         ErrorCondition errorCondition = null;
         String additionalResponse = "";
+        SaleToPOIResponse saleToPOIResponse = null;
+        Message message = null;
+
+        PaymentResponse paymentResponse = null;
+        TransactionStatusResponse transactionStatusResponse = null;
+        ReversalResponse reversalResponse = null;
+        CardAcquisitionResponse cardAcquisitionResponse = null;
+
+        PaymentResult paymentResult = null;
+        PaymentType paymentType = null;
+
+        ResponseResult responseResult = null;
+
+        String details = "";
+
+
+        MessageCategory mc = (MessageCategory)bundle.getSerializable("messageCategory");
+
+        try {
+            message = Message.fromJson(bundle.getString("message"));
+            saleToPOIResponse = message.getResponse();
+        } catch (IOException e) {
+//            throw new RuntimeException(e);
+            Log.d("Error", "Invalid Response ==>" + e.getMessage() );
+        }
+
+        //Check the response
+       switch (mc){
+           case Payment:
+               paymentResponse = saleToPOIResponse.getPaymentResponse();
+               break;
+           case TransactionStatus:
+               transactionStatusResponse = saleToPOIResponse.getTransactionStatusResponse();
+               paymentResponse = transactionStatusResponse.getRepeatedMessageResponse().getRepeatedResponseMessageBody().getPaymentResponse();
+               break;
+           case Reversal:
+               reversalResponse = saleToPOIResponse.getReversalResponse();
+               break;
+           case CardAcquisition:
+               cardAcquisitionResponse = saleToPOIResponse.getCardAcquisitionResponse();
+               break;
+       }
+        if (paymentResponse!=null){
+            paymentResult = paymentResponse.getPaymentResult();
+            responseResult = paymentResponse.getResponse().getResult();
+        } //TODO: add reversal and card acquisition responses here
+
+
 
         //TODO: add home button top? fix back button or do fullscreen
-        String txntype = getIntent().getStringExtra("txnType");
 
-        String result = getIntent().getStringExtra("result");
-
-        ///AmountsResp
-        String authorizedAmount = getIntent().getStringExtra("AuthorizedAmount");
-//        String totalFeesAmount = getIntent().getStringExtra("TotalFeesAmount");
-        String cashBackAmount = getIntent().getStringExtra("CashBackAmount");
-        String tipAmount = getIntent().getStringExtra("TipAmount");
-        String surchargeAmount = getIntent().getStringExtra("SurchargeAmount");
-
-        ///PaymentInstrumentData
-        String paymentInstrumentType = getIntent().getStringExtra("PaymentInstrumentType");
-
-        ///CardData
-        String paymentBrand = getIntent().getStringExtra("PaymentBrand");
-        String maskedPAN = getIntent().getStringExtra("MaskedPAN");
-        String entryMode = getIntent().getStringExtra("EntryMode");
-        String account = getIntent().getStringExtra("Account");
-
-        ///PaymentAcquirerData
-        String approvalCode = "";
-        String transactionID = "";
 
         ///PaymentReceipt
-        String outputXHTML = getIntent().getStringExtra("OutputXHTML");
+        List<PaymentReceipt> paymentReceipt = paymentResponse.getPaymentReceipt();
+        String outputXHTML = noValue;
+        if(paymentReceipt!=null){
+            outputXHTML = StringUtils.defaultIfEmpty(paymentReceipt.get(0).getReceiptContentAsHtml(), noValue);
+        }
 
-        if(Objects.equals(result, "Success")){
-            switch (txntype) {
-                case "Payment":
-                    //PaymentAcquirerData
-                    approvalCode = getIntent().getStringExtra("ApprovalCode");
-                    transactionID = getIntent().getStringExtra("TransactionID");
+        // Show receipt if available, else show details
+        if(!outputXHTML.equals(noValue)){
+            tvMessageDetail.setVisibility(View.INVISIBLE);
+            tvReceipt.setText(HtmlCompat.fromHtml(outputXHTML, HtmlCompat.FROM_HTML_MODE_COMPACT));
+        } else {
+            tvReceipt.setVisibility(View.INVISIBLE);
+            btnPrintReceipt.setVisibility(View.GONE);
+        }
 
-                case "TransactionStatus":
-                    tvMessageHead.setText("Payment " + result);
+        if(responseResult.equals(ResponseResult.Success)){
+            paymentType = paymentResult.getPaymentType();
+
+            ///AmountsResp
+            AmountsResp amountsResp = paymentResult.getAmountsResp();
+            String authorizedAmount = StringUtils.defaultIfEmpty(amountsResp.getAuthorizedAmount().toString(), noValue);
+            String cashBackAmount = StringUtils.defaultIfEmpty(amountsResp.getCashBackAmount().toString(), noValue);
+            String tipAmount = StringUtils.defaultIfEmpty(amountsResp.getTipAmount().toString(), noValue);
+            String surchargeAmount = StringUtils.defaultIfEmpty(amountsResp.getSurchargeAmount().toString(), noValue);
+
+            ///PaymentInstrumentData
+            PaymentInstrumentData paymentInstrumentData = paymentResult.getPaymentInstrumentData();
+            String paymentInstrumentType = StringUtils.defaultIfEmpty(paymentInstrumentData.getPaymentInstrumentType(), noValue);
+
+            ///CardData
+            PaymentResponseCardData cardData = paymentInstrumentData.getCardData();
+            String paymentBrand = StringUtils.defaultIfEmpty(cardData.getPaymentBrand().toString(), noValue);
+            String maskedPAN =  StringUtils.defaultIfEmpty(cardData.getMaskedPAN(), noValue);
+            String entryMode = StringUtils.defaultIfEmpty(cardData.getEntryMode().toString(), noValue);
+            String account = StringUtils.defaultIfEmpty(cardData.getAccount(), noValue);
+
+            ///PaymentAcquirerData
+            PaymentAcquirerData paymentAcquirerData = paymentResult.getPaymentAcquirerData();
+            String acquirerTransactionID = noValue;
+            if (paymentAcquirerData != null){
+                acquirerTransactionID = StringUtils.defaultIfEmpty(paymentAcquirerData.getAcquirerTransactionID().getTransactionID(), noValue);
+            }
+
+
+            ///POIData
+            POIData poiData = paymentResponse.getPoiData();
+            String poiTransactionID = noValue;
+            if(poiData!=null){
+                poiTransactionID = StringUtils.defaultIfEmpty(poiData.getPOITransactionID().getTransactionID(), noValue);
+            }
+
+            switch (mc) {
+                case Payment:
+                case TransactionStatus:
+                    if(paymentType.equals(PaymentType.Normal)){
+                        tvMessageHead.setText("Payment " + responseResult);
+                    } else if (paymentType.equals(PaymentType.FirstReservation)) {
+                        tvMessageHead.setText("Preauthorisation " + responseResult);
+                    } else{
+                        tvMessageHead.setText(paymentType.toString()  + " " + responseResult);
+                    }
                     tvMessageHead.setTextColor(Color.parseColor("#FF4CAF50"));
 
-                    tvMessageDetail.setText("Authorized Amount: " + authorizedAmount + "\n"
-                            + "Surcharge: " + surchargeAmount + "\n"
-                            + "Tip: " + tipAmount  + "\n"
-                            + "Payment Brand: " + paymentBrand  + "\n"
-                            + "Transaction ID: " + transactionID  + "\n"
-                            + "Masked PAN: " + maskedPAN  + "\n"
-                            + "Approval Code: " + approvalCode  + "\n"
-                            + "Entry Mode: " + entryMode  + "\n"
-                            + "Account: " + account  + "\n"
-                            + "Payment Instrument Type: " + paymentInstrumentType
-                    );
-                    tvMessageDetail.setVisibility(View.GONE);
-                    tvReceipt.setText(HtmlCompat.fromHtml(outputXHTML, HtmlCompat.FROM_HTML_MODE_COMPACT));
-                    break;
-                case "Refund":
-                    tvMessageHead.setText("Refund " + result);
-                    tvMessageHead.setTextColor(Color.parseColor("#FF4CAF50"));
+                    details = "<b>Authorized Amount:</b> $" + authorizedAmount + "<br>"
+                            + "<b>Surcharge:</b> $" + surchargeAmount + "<br>"
+                            + "<b>Tip:</b> $" + tipAmount  + "<br>"
+                            + "<b>Payment Brand:</b> " + paymentBrand  + "<br>"
+                            + "<b>Acquirer Transaction ID:</b><br>" + acquirerTransactionID  + "<br>"
+                            + "<b>POI Transaction ID:</b><br>" + poiTransactionID  + "<br>"
+                            + "<b>Masked PAN:</b> " + maskedPAN  + "<br>"
+                            + "<b>Entry Mode:</b> " + entryMode  + "<br>"
+                            + "<b>Account:</b> " + account  + "<br>"
+                            + "<b>Payment Instrument Type:</b><br>" + paymentInstrumentType;
 
-                    tvMessageDetail.setText("Authorized Amount: " + authorizedAmount + "\n");
-
-                    tvReceipt.setText(HtmlCompat.fromHtml(outputXHTML, 0));
+                    tvMessageDetail.setText(HtmlCompat.fromHtml(details, HtmlCompat.FROM_HTML_MODE_COMPACT));
                     break;
-                case "cancel":
+                case Abort:
                     tvMessageHead.setText("Transaction Cancelled");
                     tvMessageHead.setTextColor(Color.parseColor("#FF4CAF50"));
 
-                    tvMessageDetail.setText("Authorized Amount: " + authorizedAmount + "\n"
-                            + "Surcharge: " + surchargeAmount + "\n"
-                            + "Tip: " + tipAmount
-                    );
 
-                    tvReceipt.setText(HtmlCompat.fromHtml(outputXHTML, 0));
+                    details = "<b>Authorized Amount:</b> $" + authorizedAmount + "<br>"
+                            + "<b>Surcharge:</b> $" + surchargeAmount + "<br>"
+                            + "<b>Tip:</b> $" + tipAmount  + "<br>";
+
+                    tvMessageDetail.setText(HtmlCompat.fromHtml(details, HtmlCompat.FROM_HTML_MODE_COMPACT));
                     break;
                 default:
-                    tvMessageHead.setText("Error \n" + txntype);
+                    tvMessageHead.setText("Error \n" + mc);
                     break;
             }
 
@@ -138,76 +227,17 @@ public class ActivityResult extends AppCompatActivity {
 
         else
         {
+            String errorMessage = "";
             tvMessageHead.setTextColor(Color.parseColor("#FF0000"));
-            errorCondition = (ErrorCondition) bundle.get("errorCondition");
-            additionalResponse = getIntent().getStringExtra("additionalResponse");;
+            errorCondition = paymentResponse.getResponse().getErrorCondition();
+            additionalResponse = paymentResponse.getResponse().getAdditionalResponse();
 
-            btnPrintReceipt.setVisibility(View.GONE);
-            tvReceipt.setVisibility(View.GONE);
-            tvMessageDetail.setVisibility(View.VISIBLE);
+            tvMessageHead.setText("Transaction " + responseResult);
+            errorMessage = "<b>ErrorCode:</b> " + errorCondition
+                    + "<br><br>"
+                    + "<b>AdditionalResponse:</b><br>" + additionalResponse;
+            tvMessageDetail.setText(HtmlCompat.fromHtml(errorMessage, HtmlCompat.FROM_HTML_MODE_COMPACT));
 
-            tvMessageHead.setText(errorCondition.toString());
-            tvMessageDetail.setText(additionalResponse);
-            switch (errorCondition){
-                case Aborted:
-                    tvMessageDetail.setText("Transaction aborted");
-                    break;
-                case Busy:
-                    tvMessageDetail.setText("The system is busy, try later");
-                    break;
-                case Cancel:
-                    tvMessageDetail.setText("Transaction Cancelled");
-                    break;
-                case PaymentRestriction:
-                    tvMessageDetail.setText("Payment Restricted");
-                    break;
-                case Refusal:
-                    tvMessageDetail.setText("Transaction Refused");
-                    break;
-                case Unknown:
-                    tvMessageDetail.setText("Unknown");
-                    break;
-                case NotFound:
-                    tvMessageDetail.setText("Not Found");
-                    break;
-                case WrongPIN:
-                    tvMessageDetail.setText("Wrong PIN");
-                    break;
-                case DeviceOut:
-                    tvMessageDetail.setText("DeviceOut");
-                    break;
-                case LoggedOut:
-                    tvMessageDetail.setText("LoggedOut");
-                    break;
-                case InProgress:
-                    tvMessageDetail.setText("InProgress");
-                    break;
-                case NotAllowed:
-                    tvMessageDetail.setText("NotAllowed");
-                    break;
-                case InvalidCard:
-                    tvMessageDetail.setText("InvalidCard");
-                    break;
-                case InsertedCard:
-                    tvMessageDetail.setText("InsertedCard");
-                    break;
-                case MessageFormat:
-                    tvMessageDetail.setText("MessageFormat");
-                    break;
-                case UnreachableHost:
-                    tvMessageDetail.setText("UnreachableHost");
-                    break;
-                case UnavailableDevice:
-                    tvMessageDetail.setText("UnavailableDevice");
-                    break;
-                case UnavailableService:
-                    tvMessageDetail.setText("UnavailableService");
-                    break;
-                default:
-                    tvMessageHead.setText("Transaction Failed");
-                    String errorMessage = errorCondition + "\n\n" + additionalResponse;
-                    tvMessageDetail.setText(errorMessage);
-            }
         }
 
     tvReceipt.setMovementMethod(new ScrollingMovementMethod());
@@ -256,8 +286,12 @@ public class ActivityResult extends AppCompatActivity {
 //
 //        startActivity(intent);
 //    }
+
     public void openActivityMain(){
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
+    }
+    public static <T> T defaultWhenNull(@Nullable T object, @NonNull T def) {
+        return (object == null) ? def : object;
     }
 }

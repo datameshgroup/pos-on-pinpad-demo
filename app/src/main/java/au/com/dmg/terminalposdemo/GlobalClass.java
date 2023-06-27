@@ -18,6 +18,8 @@ import au.com.dmg.fusion.response.SaleToPOIResponse;
 
 // Storing last response on this class for transaction status and completion request
 public class GlobalClass extends Application {
+    public static String APPLICATION_VERSION = "1.1.0";
+    public static String APPLICATION_NAME = "TerminalPOSDemo";
 
     ///Temporary response storage used for Transaction Status Request
     private SaleToPOIResponse gResponse;
@@ -30,6 +32,8 @@ public class GlobalClass extends Application {
         String saleReferenceID;
         POITransactionID poiTransactionID;
         BigDecimal authorizedAmount;
+
+        String serviceID;
     }
 
     ArrayList<Preauthorisation> preauthorisationList = new ArrayList<>();
@@ -51,6 +55,7 @@ public class GlobalClass extends Application {
         preauthorisation.poiTransactionID = response.getPaymentResponse().getPoiData().getPOITransactionID();
         preauthorisation.authorizedAmount = response.getPaymentResponse().getPaymentResult().getAmountsResp().getAuthorizedAmount();
         preauthorisation.saleReferenceID = "1"; //response.getPaymentResponse().getSaleData().getSaleReferenceID();
+        preauthorisation.serviceID = response.getMessageHeader().getServiceID();
         preauthorisationList.add(preauthorisation);
 
         // save the task list to sharedpreferences

@@ -12,7 +12,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Optional;
 import java.util.Random;
 import au.com.dmg.fusion.Message;
 import au.com.dmg.fusion.MessageHeader;
@@ -32,18 +31,20 @@ import au.com.dmg.fusion.request.paymentrequest.PaymentRequest;
 import au.com.dmg.fusion.request.paymentrequest.PaymentTransaction;
 import au.com.dmg.fusion.request.paymentrequest.SaleData;
 import au.com.dmg.fusion.request.paymentrequest.SaleTransactionID;
+import au.com.dmg.fusion.request.paymentrequest.extenstiondata.ExtensionData;
+import au.com.dmg.fusion.request.paymentrequest.extenstiondata.Stop;
+import au.com.dmg.fusion.request.paymentrequest.extenstiondata.TransitData;
+import au.com.dmg.fusion.request.paymentrequest.extenstiondata.Trip;
 import au.com.dmg.fusion.request.reversalrequest.ReversalRequest;
 import au.com.dmg.fusion.request.transactionstatusrequest.TransactionStatusRequest;
 import au.com.dmg.fusion.response.SaleToPOIResponse;
 import au.com.dmg.fusion.response.TransactionStatusResponse;
-import au.com.dmg.fusion.response.paymentresponse.PaymentReceipt;
 import au.com.dmg.fusion.response.paymentresponse.PaymentResponse;
-import au.com.dmg.fusion.response.paymentresponse.PaymentResponseCardData;
-import au.com.dmg.fusion.response.paymentresponse.PaymentResult;
 
 public class ActivityRequests extends AppCompatActivity {
 
     private Instant preauthTimestamp;
+    private String preauthServiceID;
     private TextView tvAmount;
 
     private SaleToPOIResponse lastResponse = null;
@@ -121,8 +122,9 @@ public class ActivityRequests extends AppCompatActivity {
                 break;
             case Completion:
                 tvRequestTitle.setText("COMPLETION REQUEST");
-                GlobalClass.Preauthorisation preauthorisation = new GlobalClass.Preauthorisation();
+                GlobalClass.Preauthorisation preauthorisation;
                 this.preauthTimestamp = (Instant) bundle.get("instant");
+                this.preauthServiceID = (String) bundle.get("serviceID");
                 preauthorisation = globalClass.getPreauthorisation(preauthTimestamp);
                 this.lastAuthorizedAmount = preauthorisation.authorizedAmount;
                 this.lastPoiTransactionID = preauthorisation.poiTransactionID;
@@ -176,7 +178,7 @@ public class ActivityRequests extends AppCompatActivity {
                                 .messageClass(MessageClass.Service)
                                 .messageCategory(MessageCategory.Payment)
                                 .messageType(MessageType.Request)
-                                .serviceID(generateRandomServiceID())
+                                .serviceID(generateServiceID())
                                 .build()
                 )
                 .request(
@@ -206,6 +208,29 @@ public class ActivityRequests extends AppCompatActivity {
                                                 .paymentType(PaymentType.Refund)
                                                 .build()
                                 )
+                                //placeholder
+                                .extensionData(new ExtensionData.Builder().transitData(
+                                                new TransitData.Builder()
+                                                        .isWheelchairEnabled(false)
+                                                        .trip(new Trip.Builder()
+                                                                .totalDistanceTravelled(new BigDecimal("222.22"))
+                                                                .addStop(new Stop.Builder()
+                                                                        .stopIndex(0)
+                                                                        .stopName("test0")
+                                                                        .latitude(new BigDecimal(3432423))
+                                                                        .longitude(new BigDecimal(-3432423))
+                                                                        .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
+                                                                        .build())
+                                                                .addStop(new Stop.Builder()
+                                                                        .stopIndex(1)
+                                                                        .stopName("test1")
+                                                                        .latitude(new BigDecimal(3432423))
+                                                                        .longitude(new BigDecimal(-3432423))
+                                                                        .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
+                                                                        .build())
+                                                                .build())
+                                                        .build())
+                                        .build())
                                 .build()
                 )
                 .build();
@@ -224,7 +249,7 @@ public class ActivityRequests extends AppCompatActivity {
                                 .messageClass(MessageClass.Service)
                                 .messageCategory(MessageCategory.Reversal)
                                 .messageType(MessageType.Request)
-                                .serviceID(generateRandomServiceID())
+                                .serviceID(generateServiceID())
                                 .build()
                 )
                 .request(new ReversalRequest.Builder()
@@ -248,7 +273,7 @@ public class ActivityRequests extends AppCompatActivity {
                                 .messageClass(MessageClass.Service)
                                 .messageCategory(MessageCategory.Payment)
                                 .messageType(MessageType.Request)
-                                .serviceID(generateRandomServiceID())
+                                .serviceID(generateServiceID())
                                 .build()
                 )
                 .request(
@@ -278,6 +303,29 @@ public class ActivityRequests extends AppCompatActivity {
                                                 .paymentType(PaymentType.CashAdvance)
                                                 .build()
                                 )
+                                //placeholder
+                                .extensionData(new ExtensionData.Builder().transitData(
+                                                new TransitData.Builder()
+                                                        .isWheelchairEnabled(false)
+                                                        .trip(new Trip.Builder()
+                                                                .totalDistanceTravelled(new BigDecimal("222.22"))
+                                                                .addStop(new Stop.Builder()
+                                                                        .stopIndex(0)
+                                                                        .stopName("test0")
+                                                                        .latitude(new BigDecimal(3432423))
+                                                                        .longitude(new BigDecimal(-3432423))
+                                                                        .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
+                                                                        .build())
+                                                                .addStop(new Stop.Builder()
+                                                                        .stopIndex(1)
+                                                                        .stopName("test1")
+                                                                        .latitude(new BigDecimal(3432423))
+                                                                        .longitude(new BigDecimal(-3432423))
+                                                                        .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
+                                                                        .build())
+                                                                .build())
+                                                        .build())
+                                        .build())
                                 .build()
                 )
                 .build();
@@ -294,7 +342,7 @@ public class ActivityRequests extends AppCompatActivity {
                                 .messageClass(MessageClass.Service)
                                 .messageCategory(MessageCategory.Payment)
                                 .messageType(MessageType.Request)
-                                .serviceID(generateRandomServiceID())
+                                .serviceID(generateServiceID())
                                 .build()
                 )
                 .request(
@@ -324,6 +372,29 @@ public class ActivityRequests extends AppCompatActivity {
                                                 .paymentType(PaymentType.FirstReservation)
                                                 .build()
                                 )
+                                //placeholder
+                                .extensionData(new ExtensionData.Builder().transitData(
+                                                new TransitData.Builder()
+                                                        .isWheelchairEnabled(false)
+                                                        .trip(new Trip.Builder()
+                                                                .totalDistanceTravelled(new BigDecimal("222.22"))
+                                                                .addStop(new Stop.Builder()
+                                                                        .stopIndex(0)
+                                                                        .stopName("test0")
+                                                                        .latitude(new BigDecimal(3432423))
+                                                                        .longitude(new BigDecimal(-3432423))
+                                                                        .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
+                                                                        .build())
+                                                                .addStop(new Stop.Builder()
+                                                                        .stopIndex(1)
+                                                                        .stopName("test1")
+                                                                        .latitude(new BigDecimal(3432423))
+                                                                        .longitude(new BigDecimal(-3432423))
+                                                                        .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
+                                                                        .build())
+                                                                .build())
+                                                        .build())
+                                        .build())
                                 .build()
                 )
                 .build();
@@ -348,7 +419,7 @@ public class ActivityRequests extends AppCompatActivity {
                                 .messageClass(MessageClass.Service)
                                 .messageCategory(MessageCategory.Payment)
                                 .messageType(MessageType.Request)
-                                .serviceID(generateRandomServiceID())
+                                .serviceID(preauthServiceID) //vannn
                                 .build()
                 )
                 .request(
@@ -386,6 +457,29 @@ public class ActivityRequests extends AppCompatActivity {
                                                 .paymentType(PaymentType.Completion)
                                                 .build()
                                 )
+                                //placeholder
+                                .extensionData(new ExtensionData.Builder().transitData(
+                                                new TransitData.Builder()
+                                                        .isWheelchairEnabled(false)
+                                                        .trip(new Trip.Builder()
+                                                                .totalDistanceTravelled(new BigDecimal("222.22"))
+                                                                .addStop(new Stop.Builder()
+                                                                        .stopIndex(0)
+                                                                        .stopName("test0")
+                                                                        .latitude(new BigDecimal(3432423))
+                                                                        .longitude(new BigDecimal(-3432423))
+                                                                        .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
+                                                                        .build())
+                                                                .addStop(new Stop.Builder()
+                                                                        .stopIndex(1)
+                                                                        .stopName("test1")
+                                                                        .latitude(new BigDecimal(3432423))
+                                                                        .longitude(new BigDecimal(-3432423))
+                                                                        .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
+                                                                        .build())
+                                                                .build())
+                                                        .build())
+                                        .build())
                                 .build()
                 )
                 .build();
@@ -416,7 +510,7 @@ public class ActivityRequests extends AppCompatActivity {
     private void sendCardAcquisitionRequest() {
         SaleToPOIRequest request = new SaleToPOIRequest.Builder()
                 .messageHeader(new MessageHeader.Builder()
-                        .serviceID(generateRandomServiceID())
+                        .serviceID(generateServiceID())
                         .messageClass(MessageClass.Service)
                         .messageCategory(MessageCategory.CardAcquisition)
                         .messageType(MessageType.Request)
@@ -446,8 +540,8 @@ public class ActivityRequests extends AppCompatActivity {
 
         intent.putExtra(Message.INTENT_EXTRA_MESSAGE, message.toJson());
         // name of this app, that gets treated as the POS label by the terminal.
-        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_NAME, "DemoPOS");
-        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_VERSION, "1.0.0");
+        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_NAME, GlobalClass.APPLICATION_NAME);
+        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_VERSION, GlobalClass.APPLICATION_VERSION);
 
         startActivityForResult(intent, 100);
     }
@@ -470,9 +564,10 @@ public class ActivityRequests extends AppCompatActivity {
             e.printStackTrace();
             return;
         }
-        handleResponse(message.getResponse());
+        handleResponse(message);
     }
-    private void handleResponse(SaleToPOIResponse response) {
+    private void handleResponse(Message message) {
+        SaleToPOIResponse response = message.getResponse();
         this.lastResponse = response;
 
         //TextView textViewJson = findViewById(R.id.tvResults);
@@ -481,104 +576,53 @@ public class ActivityRequests extends AppCompatActivity {
         MessageHeader mh = response.getMessageHeader();
         MessageCategory mc = mh.getMessageCategory();
 
-        openActivityResult(mc, response);
-    }
-    private void setErrorCondition(MessageCategory mc, SaleToPOIResponse r){
-        switch (mc){
-            case Payment:
-                errorCondition = r.getPaymentResponse().getResponse().getErrorCondition();
-                additionalResponse = r.getPaymentResponse().getResponse().getAdditionalResponse();
-                break;
-            case TransactionStatus:
-                errorCondition = r.getTransactionStatusResponse().getResponse().getErrorCondition();
-                additionalResponse = r.getTransactionStatusResponse().getResponse().getAdditionalResponse();
-                break;
-            default:
-                errorCondition = ErrorCondition.Unknown;
-                additionalResponse = "---";
-        }
+        openActivityResult(mc, response, message);
     }
 
-    public void openActivityResult(MessageCategory mc, SaleToPOIResponse r) {
+    public void openActivityResult(MessageCategory mc, SaleToPOIResponse r, Message message) {
         Intent intent = new Intent(this, ActivityResult.class);
-        PaymentReceipt paymentreceipt = null;
-        PaymentResponse pr = null;
-        PaymentResult paymentRes = null;
-        PaymentResponseCardData cardData = null;
 
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("messageCategory", mc);
+        bundle.putString("message", message.toString());
+        intent.putExtras(bundle);
+
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("prevClass", this.getClass());
+
+
+        PaymentResponse pr = null;
         TransactionStatusResponse tsr = null;
 
-        String receiptOutput = "";
         String paymentResult = "";
+
 
         switch (mc){
             case Payment:
                 pr = r.getPaymentResponse();
                 paymentResult = pr.getResponse().getResult().name();
-                paymentRes = pr.getPaymentResult();
-                intent.putExtra("txnType", mc.toString());
                 break;
             case TransactionStatus:
                 tsr = r.getTransactionStatusResponse();
                 paymentResult = tsr.getResponse().getResult().name();
-                intent.putExtra("txnType", mc.toString());
                 break;
             default:
-                intent.putExtra("txnType", "OTHERS");
                 paymentResult = "unknown"; // change for other transaction types
         }
-        intent.putExtra("result", paymentResult);
 
-        if(paymentResult != "Success"){ // REFUSAL //TODO: Remove "already completed" error preauth?
-            setErrorCondition(mc, r);
-            intent.putExtra("errorCondition", errorCondition);
-            intent.putExtra("additionalResponse", additionalResponse);
-        }
-        else{
+        if(paymentResult.equals("Success")){  //TODO: Remove "already completed" error preauth?
 
-            switch (mc){
-                case Payment:
-                    intent.putExtra("ApprovalCode", paymentRes.getPaymentAcquirerData().getApprovalCode());
-                    intent.putExtra("TransactionID", paymentRes.getPaymentAcquirerData().getAcquirerTransactionID().getTransactionID());
-
-                    if(currentPaymentType == PaymentType.FirstReservation){
-                        globalClass.setResponse(r);
-                        globalClass.addPreauthorisation(r);
-                    } else if(currentPaymentType == PaymentType.Completion){
-                        globalClass.setResponse(r);
-                        globalClass.removePreauthorisation(preauthTimestamp);
-                    }
-                    break;
-                case TransactionStatus:
-                    pr = tsr.getRepeatedMessageResponse().getRepeatedResponseMessageBody().getPaymentResponse();
-                    paymentRes = pr.getPaymentResult();
-                    break;
+            if (mc.equals(MessageCategory.Payment)){
+                if(currentPaymentType == PaymentType.FirstReservation){
+                    globalClass.setResponse(r);
+                    globalClass.addPreauthorisation(r);
+                } else if(currentPaymentType == PaymentType.Completion){
+                    globalClass.setResponse(r);
+                    globalClass.removePreauthorisation(preauthTimestamp);
+                }
             }
-            paymentreceipt = pr.getPaymentReceipt().get(0);
-            receiptOutput = paymentreceipt.getReceiptContentAsHtml();
-            cardData = paymentRes.getPaymentInstrumentData().getCardData();
-
-            ///AmountsResp
-            intent.putExtra("AuthorizedAmount", paymentRes.getAmountsResp().getAuthorizedAmount().toString());
-//            intent.putExtra("TotalFeesAmount", paymentRes.getAmountsResp().getTotalFeesAmount().toString());
-            intent.putExtra("CashBackAmount", paymentRes.getAmountsResp().getCashBackAmount().toString());
-            intent.putExtra("TipAmount", paymentRes.getAmountsResp().getTipAmount().toString());
-            intent.putExtra("SurchargeAmount", paymentRes.getAmountsResp().getSurchargeAmount().toString());
-
-            ///PaymentInstrumentData
-            intent.putExtra("PaymentInstrumentType", paymentRes.getPaymentInstrumentData().getPaymentInstrumentType());
-
-            ///CardData
-            intent.putExtra("PaymentBrand", cardData.getPaymentBrand().toString());
-            intent.putExtra("MaskedPAN", cardData.getMaskedPAN());
-            intent.putExtra("EntryMode", cardData.getEntryMode().toString());
-            intent.putExtra("Account", Optional.ofNullable(cardData.getAccount()).orElse("not specified"));
-
-            ///PaymentReceipt
-            intent.putExtra("OutputXHTML", receiptOutput);
 
         }
-
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         intent.putExtra("prevClass", this.getClass());
@@ -586,22 +630,10 @@ public class ActivityRequests extends AppCompatActivity {
     }
 
     private String generateTransactionId() {
-        String s = "";
-        Random r = new Random();
-        for (int i = 0; i < 10; ++i) {
-            int x = r.nextInt(10);
-            s += x;
-        }
-        return s;
+        return java.util.UUID.randomUUID().toString();
     }
-    private String generateRandomServiceID() {
-        StringBuilder serviceId = new StringBuilder();
-
-        Random rand = new Random();
-        for (int i = 0; i < 10; ++i) {
-            serviceId.append(rand.nextInt(10));
-        }
-        return serviceId.toString();
+    private String generateServiceID() {
+        return java.util.UUID.randomUUID().toString();
     }
 
 }

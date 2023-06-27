@@ -13,6 +13,7 @@ This app demonstrates how to send the following requests via intents to the Sate
 * Refund
 * Preauthorisation
 * Completion
+* Satellite Update
   
 #### Other features of the demo
 
@@ -56,5 +57,6 @@ This project uses the following dependencies:
 ***
 
 - Java 1.8
-
+- Compile sdk version 32
+- 
 > **Note:** Other versions may work as well, but have not been tested.

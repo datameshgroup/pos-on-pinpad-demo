@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
+import android.os.Parcelable;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
@@ -32,6 +34,7 @@ import au.com.dmg.fusion.data.MessageType;
 import au.com.dmg.fusion.data.PaymentType;
 import au.com.dmg.fusion.data.UnitOfMeasure;
 import au.com.dmg.fusion.request.SaleToPOIRequest;
+import au.com.dmg.fusion.request.aborttransactionrequest.AbortTransactionRequest;
 import au.com.dmg.fusion.request.paymentrequest.AmountsReq;
 import au.com.dmg.fusion.request.paymentrequest.CustomField;
 import au.com.dmg.fusion.request.paymentrequest.POITransactionID;
@@ -41,9 +44,14 @@ import au.com.dmg.fusion.request.paymentrequest.PaymentTransaction;
 import au.com.dmg.fusion.request.paymentrequest.SaleData;
 import au.com.dmg.fusion.request.paymentrequest.SaleItem;
 import au.com.dmg.fusion.request.paymentrequest.SaleTransactionID;
+import au.com.dmg.fusion.request.paymentrequest.extenstiondata.ExtensionData;
+import au.com.dmg.fusion.request.paymentrequest.extenstiondata.Stop;
+import au.com.dmg.fusion.request.paymentrequest.extenstiondata.TransitData;
+import au.com.dmg.fusion.request.paymentrequest.extenstiondata.Trip;
+import au.com.dmg.fusion.request.transactionstatusrequest.MessageReference;
+import au.com.dmg.fusion.response.ResponseResult;
 import au.com.dmg.fusion.response.SaleToPOIResponse;
 import au.com.dmg.fusion.response.TransactionStatusResponse;
-import au.com.dmg.fusion.response.paymentresponse.PaymentReceipt;
 import au.com.dmg.fusion.response.paymentresponse.PaymentResponse;
 import au.com.dmg.fusion.response.paymentresponse.PaymentResponseCardData;
 import au.com.dmg.fusion.response.paymentresponse.PaymentResult;
@@ -58,6 +66,7 @@ public class ActivityPayment extends AppCompatActivity {
 
     private ImageView ivScan;
     private Button btnPay;
+    private Button btnAbort;
     private TextView inputTotal;
     private TextView inputDiscount;
     private TextView inputTip;
@@ -73,6 +82,7 @@ public class ActivityPayment extends AppCompatActivity {
 
     private long pressedTime;
 
+    String testServiceID;
     @Override
     public void onBackPressed() {
         if (pressedTime + 2000 > System.currentTimeMillis()) {
@@ -91,7 +101,7 @@ public class ActivityPayment extends AppCompatActivity {
 
         device.init(getApplicationContext());
 
-        setContentView(R.layout.activity_cart);
+        setContentView(R.layout.activity_payment);
 
         ivScan = (ImageView) findViewById(R.id.ivScan);
         ivScan.setOnClickListener(v -> {
@@ -104,6 +114,9 @@ public class ActivityPayment extends AppCompatActivity {
 
         btnPay = (Button) findViewById(R.id.btnPay);
         btnPay.setOnClickListener(this::sendPaymentRequest);
+
+        btnAbort = (Button) findViewById(R.id.btnAbort);
+        btnAbort.setOnClickListener(this::testAbort);
 
         inputTotal = (TextView) findViewById(R.id.inputTotal);
 
@@ -134,7 +147,43 @@ public class ActivityPayment extends AppCompatActivity {
         }
 
     }
-    private void sendPaymentRequest(View view) {
+
+    private void testAbort(View view) {
+        //This simulates an abort request during a payment. For this code, we delay the intentCancel
+
+        this.testServiceID = generateServiceID();
+        //create payment request first
+        SaleToPOIRequest paymentRequest = buildPaymentRequest(testServiceID);
+
+        Intent intent = new Intent(Message.INTENT_ACTION_SALETOPOI_REQUEST);
+
+        // wrapper of request.
+        Message message = new Message(paymentRequest);
+        Log.d("Request", message.toJson());
+        intent.putExtra(Message.INTENT_EXTRA_MESSAGE, message.toJson());
+        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_NAME, GlobalClass.APPLICATION_NAME);
+        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_VERSION, GlobalClass.APPLICATION_VERSION);
+
+        //create abort request
+        SaleToPOIRequest abortRequest = buildAbortRequest(testServiceID);
+        Intent intentCancel = new Intent(Message.INTENT_ACTION_BROADCAST);
+        Message messageCancel = new Message(abortRequest);
+        Log.d("AbortRequest", messageCancel.toJson());
+        intentCancel.putExtra(Message.INTENT_EXTRA_MESSAGE, messageCancel.toJson());
+        intentCancel.putExtra("RETURN_TO_PACKAGE", this.getPackageName());
+
+        startActivityForResult(intent, 1);
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                sendBroadcast(intentCancel);
+            }
+        }, 10000);
+    }
+
+    private SaleToPOIRequest buildPaymentRequest(String serviceID) {
+        SaleToPOIRequest paymentRequest;
 
         //Computation
         bTotal = new BigDecimal(inputTotal.getText().toString());
@@ -156,18 +205,18 @@ public class ActivityPayment extends AppCompatActivity {
                 .build();
 
         //Request creation
-        SaleToPOIRequest request = new SaleToPOIRequest.Builder()
+        paymentRequest = new SaleToPOIRequest.Builder()
                 .messageHeader(new MessageHeader.Builder()
                         .messageClass(MessageClass.Service)
                         .messageCategory(MessageCategory.Payment)
                         .messageType(MessageType.Request)
-                        .serviceID(generateRandomServiceID())
+                        .serviceID(generateServiceID())
                         .build())
                 .request(new PaymentRequest.Builder()
                         .addCustomField(new CustomField.Builder()
-                                .Key("samplePaymentRequestCustomFieldKey")
-                                .Type(CustomFieldType.Object)
-                                .Value(customData.toString())
+                                .key("samplePaymentRequestCustomFieldKey")
+                                .type(CustomFieldType.Object)
+                                .value(customData.toString())
                                 .build())
                         .saleData(new SaleData.Builder()
                                 .operatorLanguage("en")
@@ -187,10 +236,10 @@ public class ActivityPayment extends AppCompatActivity {
                                         .addSaleItem(new SaleItem.Builder()
                                                 .itemID(1)
                                                 .productCode(txtProductCode.getText().toString())
-                                                .unitOfMeasure(UnitOfMeasure.Litre)
+                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
                                                 .itemAmount(bTotal)
                                                 .unitPrice(bTotal)
-                                                .quantity(new BigDecimal(1.0))
+                                                .quantity(new BigDecimal(1))
                                                 .productLabel(getString(R.string.idProductLabel))
                                                 .build())
                                         .build()
@@ -198,16 +247,69 @@ public class ActivityPayment extends AppCompatActivity {
                         .paymentData(new PaymentData.Builder()
                                 .paymentType(PaymentType.Normal)
                                 .build())
+                        .extensionData(new ExtensionData.Builder().transitData(
+                                        new TransitData.Builder()
+                                                .isWheelchairEnabled(false)
+                                                .trip(new Trip.Builder()
+                                                        .totalDistanceTravelled(new BigDecimal("222.22"))
+                                                        .addStop(new Stop.Builder()
+                                                                .stopIndex(0)
+                                                                .stopName("test0")
+                                                                .latitude(new BigDecimal(3432423))
+                                                                .longitude(new BigDecimal(-3432423))
+                                                                .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
+                                                                .build())
+                                                        .addStop(new Stop.Builder()
+                                                                .stopIndex(1)
+                                                                .stopName("test1")
+                                                                .latitude(new BigDecimal(3432423))
+                                                                .longitude(new BigDecimal(-3432423))
+                                                                .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
+                                                                .build())
+                                                        .build())
+                                                .build())
+                                .build())
                         .build()
                 )
                 .build();
+        return paymentRequest;
+    }
+
+    private void sendPaymentRequest(View view) {
+        this.testServiceID = generateServiceID();
+        //Computation
+        SaleToPOIRequest request = buildPaymentRequest(testServiceID);
 
         sendRequest(request);
+
         bDiscount = BigDecimal.valueOf(0);
         bTip = BigDecimal.valueOf(0);
         totalAmount = BigDecimal.valueOf(0);
     }
 
+    private SaleToPOIRequest buildAbortRequest(String refServiceID) {
+
+        // Abort Request
+        MessageReference messageReference = new MessageReference.Builder()//
+                .messageCategory(MessageCategory.Abort)
+                .saleID("SaleIDHere")
+                .POIID("POIIDHere")
+                .serviceID(refServiceID)
+                .build();
+        AbortTransactionRequest abortTransactionRequest = new AbortTransactionRequest(messageReference, "User Cancel");
+
+        SaleToPOIRequest abortRequest = new SaleToPOIRequest.Builder()
+                .messageHeader(new MessageHeader.Builder()
+                        .messageClass(MessageClass.Service)
+                        .messageCategory(MessageCategory.Abort)
+                        .messageType(MessageType.Request)
+                        .serviceID(generateServiceID())
+                        .build())
+                .request(abortTransactionRequest)
+                .build();
+
+        return abortRequest;
+    }
     private String generateTransactionId() {
         String s = "";
         Random r = new Random();
@@ -218,14 +320,8 @@ public class ActivityPayment extends AppCompatActivity {
         return s;
     }
 
-    private String generateRandomServiceID() {
-        StringBuilder serviceId = new StringBuilder();
-
-        Random rand = new Random();
-        for (int i = 0; i < 10; ++i) {
-            serviceId.append(rand.nextInt(10));
-        }
-        return serviceId.toString();
+    private String generateServiceID() {
+        return java.util.UUID.randomUUID().toString();
     }
 
     private void sendRequest(SaleToPOIRequest request) {
@@ -237,8 +333,9 @@ public class ActivityPayment extends AppCompatActivity {
 
         intent.putExtra(Message.INTENT_EXTRA_MESSAGE, message.toJson());
         // name of this app, that gets treated as the POS label by the terminal.
-        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_NAME, "TerminalPOSDemo");
-        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_VERSION, "1.0.0");
+        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_NAME, GlobalClass.APPLICATION_NAME);
+        // version of of this POS app.
+        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_VERSION, GlobalClass.APPLICATION_VERSION);
 
         startActivityForResult(intent, 100);
     }
@@ -263,34 +360,18 @@ public class ActivityPayment extends AppCompatActivity {
             return;
         }
 
-        handleResponse(message.getResponse());
+        handleResponse(message);
     }
 
-    private void setErrorCondition(MessageCategory mc, SaleToPOIResponse r){
-        switch (mc){
-            case Payment:
-                errorCondition = r.getPaymentResponse().getResponse().getErrorCondition();
-                additionalResponse = r.getPaymentResponse().getResponse().getAdditionalResponse();
-                break;
-            case TransactionStatus:
-                errorCondition = r.getTransactionStatusResponse().getResponse().getErrorCondition();
-                additionalResponse = r.getTransactionStatusResponse().getResponse().getAdditionalResponse();
-                break;
-            default:
-                errorCondition = ErrorCondition.Unknown;
-                additionalResponse = "---";
-        }
-    }
 
-    private void handleResponse(SaleToPOIResponse response) {
-        this.response = response;
-
+    private void handleResponse(Message message) {
+        this.response = message.getResponse();
 
         if(response != null) {
             try {
                 TextView textViewJson = findViewById(R.id.tvResults);
                 Log.d("Response", response.toJson());
-                textViewJson.setText(response.toJson()); //prints to cart page
+                textViewJson.setText(response.toJson()); //prints to payment page
 
                 GlobalClass globalClass = (GlobalClass)getApplicationContext();
                 globalClass.setResponse(response);
@@ -299,7 +380,7 @@ public class ActivityPayment extends AppCompatActivity {
                 MessageHeader mh = response.getMessageHeader();
                 MessageCategory mc = mh.getMessageCategory();
 
-                openActivityResult(mc, response);
+                openActivityResult(mc, response, message);
 
                 }
                 catch (Exception e){
@@ -309,87 +390,15 @@ public class ActivityPayment extends AppCompatActivity {
         }
     }
 
-    public void openActivityResult(MessageCategory mc, SaleToPOIResponse r) {
+    public void openActivityResult(MessageCategory mc, SaleToPOIResponse r, Message message) {
         Intent intent = new Intent(this, ActivityResult.class);
 
-        PaymentReceipt paymentreceipt = null;
-        PaymentResponse pr = null;
-        PaymentResult paymentRes = null;
-        PaymentResponseCardData cardData = null;
-
-        TransactionStatusResponse tsr = null;
-
-        String receiptOutput = "";
-        String paymentResult = "";
-
-        intent.putExtra("txnType", mc.toString());
-
-        switch (mc){
-            case Payment:
-                pr = r.getPaymentResponse();
-                paymentResult = pr.getResponse().getResult().name();
-                paymentRes = pr.getPaymentResult();
-                break;
-            case TransactionStatus:
-                tsr = r.getTransactionStatusResponse();
-                pr = tsr.getRepeatedMessageResponse().getRepeatedResponseMessageBody().getPaymentResponse();
-                paymentResult = tsr.getResponse().getResult().name();
-                paymentRes = pr.getPaymentResult();
-                break;
-            default:
-
-        }
-        intent.putExtra("result", paymentResult);
-
-        if(paymentResult != "Success"){ // REFUSAL
-            setErrorCondition(mc, r);
-            intent.putExtra("errorCondition", errorCondition);
-            intent.putExtra("additionalResponse", additionalResponse);
-        }
-        else{
-
-            switch (mc){
-                case Payment:
-                    ///PaymentAcquirerData
-                    intent.putExtra("ApprovalCode", paymentRes.getPaymentAcquirerData().getApprovalCode());
-                    intent.putExtra("TransactionID", paymentRes.getPaymentAcquirerData().getAcquirerTransactionID().getTransactionID());
-                    break;
-                case TransactionStatus:
-                    pr = tsr.getRepeatedMessageResponse().getRepeatedResponseMessageBody().getPaymentResponse();
-                    paymentRes = pr.getPaymentResult();
-                    break;
-            }
-            paymentreceipt = pr.getPaymentReceipt().get(0);
-            receiptOutput = paymentreceipt.getReceiptContentAsHtml();
-            cardData = paymentRes.getPaymentInstrumentData().getCardData();
-
-            ///AmountsResp
-            intent.putExtra("AuthorizedAmount", paymentRes.getAmountsResp().getAuthorizedAmount().toString());
-//            intent.putExtra("TotalFeesAmount", paymentRes.getAmountsResp().getTotalFeesAmount().toString());
-            intent.putExtra("CashBackAmount", paymentRes.getAmountsResp().getCashBackAmount().toString());
-            intent.putExtra("TipAmount", paymentRes.getAmountsResp().getTipAmount().toString());
-            intent.putExtra("SurchargeAmount", paymentRes.getAmountsResp().getSurchargeAmount().toString());
-
-            ///PaymentInstrumentData
-            intent.putExtra("PaymentInstrumentType", paymentRes.getPaymentInstrumentData().getPaymentInstrumentType());
-
-            ///CardData
-            intent.putExtra("PaymentBrand", cardData.getPaymentBrand().toString());
-            intent.putExtra("MaskedPAN", cardData.getMaskedPAN());
-            intent.putExtra("EntryMode", cardData.getEntryMode().toString());
-            intent.putExtra("Account", Optional.ofNullable(cardData.getAccount()).orElse("not specified"));
-
-//            ///PaymentAcquirerData
-//            intent.putExtra("ApprovalCode", paymentRes.getPaymentAcquirerData().getApprovalCode());
-//            intent.putExtra("TransactionID", paymentRes.getPaymentAcquirerData().getAcquirerTransactionID().getTransactionID());
-
-            ///PaymentReceipt
-            intent.putExtra("OutputXHTML", receiptOutput);
-
-        }
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("messageCategory", mc);
+        bundle.putString("message", message.toString());
+        intent.putExtras(bundle);
 
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
         intent.putExtra("prevClass", this.getClass());
         startActivity(intent);
     }

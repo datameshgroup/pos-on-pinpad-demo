@@ -61,7 +61,7 @@ public class ActivityPreauthorisationList extends AppCompatActivity {
                 {
                     GlobalClass.Preauthorisation preauth = (GlobalClass.Preauthorisation) adapterPreauthorisation.getItem(position);
 
-                    openActivityRequests(PaymentType.Completion, preauth.instant);
+                    openActivityRequests(PaymentType.Completion, preauth.instant, preauth.serviceID);
 
                 }
             });
@@ -70,10 +70,11 @@ public class ActivityPreauthorisationList extends AppCompatActivity {
 
     }
 
-    public void openActivityRequests(PaymentType req, Instant timpstamp) {
+    public void openActivityRequests(PaymentType req, Instant timpstamp, String serviceID) {
         Intent intent = new Intent(this, ActivityRequests.class);
         intent.putExtra("paymentType", req);
         intent.putExtra("instant",timpstamp);
+        intent.putExtra("serviceID", serviceID);
 
         startActivity(intent);
     }

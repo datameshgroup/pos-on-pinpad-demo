@@ -19,7 +19,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-import au.com.dmg.fusion.MessageHeader;
 import au.com.dmg.fusion.data.PaymentType;
 
 
@@ -61,7 +60,7 @@ public class ActivityPreauthorisationList extends AppCompatActivity {
                 {
                     GlobalClass.Preauthorisation preauth = (GlobalClass.Preauthorisation) adapterPreauthorisation.getItem(position);
 
-                    openActivityRequests(PaymentType.Completion, preauth.instant, preauth.serviceID);
+                    openActivityRequests(PaymentType.Completion, preauth.instant);
 
                 }
             });
@@ -70,11 +69,10 @@ public class ActivityPreauthorisationList extends AppCompatActivity {
 
     }
 
-    public void openActivityRequests(PaymentType req, Instant timpstamp, String serviceID) {
+    public void openActivityRequests(PaymentType req, Instant timpstamp) {
         Intent intent = new Intent(this, ActivityRequests.class);
         intent.putExtra("paymentType", req);
         intent.putExtra("instant",timpstamp);
-        intent.putExtra("serviceID", serviceID);
 
         startActivity(intent);
     }

@@ -5,26 +5,29 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
-import android.os.Parcelable;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.Random;
 
 import au.com.dmg.devices.TerminalDevice;
@@ -53,12 +56,7 @@ import au.com.dmg.fusion.request.paymentrequest.extenstiondata.Stop;
 import au.com.dmg.fusion.request.paymentrequest.extenstiondata.TransitData;
 import au.com.dmg.fusion.request.paymentrequest.extenstiondata.Trip;
 import au.com.dmg.fusion.request.transactionstatusrequest.MessageReference;
-import au.com.dmg.fusion.response.ResponseResult;
 import au.com.dmg.fusion.response.SaleToPOIResponse;
-import au.com.dmg.fusion.response.TransactionStatusResponse;
-import au.com.dmg.fusion.response.paymentresponse.PaymentResponse;
-import au.com.dmg.fusion.response.paymentresponse.PaymentResponseCardData;
-import au.com.dmg.fusion.response.paymentresponse.PaymentResult;
 import au.com.dmg.fusion.util.BigDecimalAdapter;
 import au.com.dmg.fusion.util.InstantAdapter;
 
@@ -73,6 +71,7 @@ public class ActivityPayment extends AppCompatActivity {
     private ImageView ivScan;
     private Button btnPay;
     private Button btnAbort;
+    private Button btnExtension;
     private TextView inputTotal;
     private TextView inputDiscount;
     private TextView inputTip;
@@ -89,6 +88,7 @@ public class ActivityPayment extends AppCompatActivity {
     private long pressedTime;
 
     String testServiceID;
+    ExtensionData customExtensionData = null;
     @Override
     public void onBackPressed() {
         if (pressedTime + 2000 > System.currentTimeMillis()) {
@@ -109,7 +109,6 @@ public class ActivityPayment extends AppCompatActivity {
 
         setContentView(R.layout.activity_payment);
 
-        String editableExtensionData = "{\"TransitData\":{\"IsWheelchairEnabled\":false,\"Trip\":{\"Stops\":[{\"Latitude\":\"3432423\",\"Longitude\":\"-3432423\",\"StopIndex\":0,\"StopName\":\"test0\",\"Timestamp\":\"2023-06-28T02:05:04.365Z\"},{\"Latitude\":\"3432423\",\"Longitude\":\"-3432423\",\"StopIndex\":1,\"StopName\":\"test1\",\"Timestamp\":\"2023-06-28T02:05:04.366Z\"}],\"TotalDistanceTravelled\":\"222.22\"}}}";
 
         ivScan = (ImageView) findViewById(R.id.ivScan);
         ivScan.setOnClickListener(v -> {
@@ -126,6 +125,9 @@ public class ActivityPayment extends AppCompatActivity {
         btnAbort = (Button) findViewById(R.id.btnAbort);
         btnAbort.setOnClickListener(this::testAbort);
 
+        btnExtension = (Button) findViewById(R.id.btnExtensionData);
+        btnExtension.setOnClickListener(this::viewExtensionData);
+
         inputTotal = (TextView) findViewById(R.id.inputTotal);
 
         inputDiscount = (TextView) findViewById(R.id.inputDiscount);
@@ -137,6 +139,68 @@ public class ActivityPayment extends AppCompatActivity {
 
     }
 
+    public void viewExtensionData(View view)  {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("TransitData");
+        ExtensionData extensionData;
+                if(customExtensionData==null){
+                    extensionData = createSampleExtensionData();
+                }else{
+                    extensionData = customExtensionData;
+                }
+
+        final View customLayout = getLayoutInflater().inflate(R.layout.dialog_extensiondata, null);
+        builder.setView(customLayout);
+        EditText editText = customLayout.findViewById(R.id.etExtenstionData);
+
+        JSONObject json;
+        try {
+            json = new JSONObject(printExtensionDatatoJson(extensionData));
+            editText.setText(json.toString(2));
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> {
+            Toast.makeText(this, "TransitData not update", Toast.LENGTH_SHORT).show();
+        });
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            sendDialogDataToActivity(editText.getText().toString());
+        });
+
+        builder.setCancelable(true);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void sendDialogDataToActivity(String data) {
+        try {
+            customExtensionData = buildExtensionDatafromJson(data);
+            //Validate TransitData using builder
+            TransitData td = new TransitData.Builder()
+                    .isWheelchairEnabled(customExtensionData.getTransitData().getIsWheelchairEnabled())
+                    .trip(customExtensionData.getTransitData().getTrip())
+                    .build();
+            //Validate Trip using builder
+            Trip trip = new Trip.Builder()
+                    .addStops(td.getTrip().getStops())
+                    .totalDistanceTravelled(td.getTrip().getTotalDistanceTravelled())
+                    .build();
+            //Validate stops; This just checks for the first stop entry as a sample
+            int stopsCount = trip.getStops().size();
+            for(int x = 0; x < stopsCount; x++){
+                Stop stop = new Stop.Builder()
+                        .stopIndex(trip.getStops().get(x).getStopIndex())
+                        .timestamp(trip.getStops().get(x).getTimestamp())
+                        .build();
+            }
+            Toast.makeText(this, data, Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            customExtensionData = null;
+            Toast.makeText(this, "Invalid TransitData. Ignoring.", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     @SuppressLint("HandlerLeak")
     private final Handler barcodeHandler = new Handler() {
@@ -192,6 +256,12 @@ public class ActivityPayment extends AppCompatActivity {
 
     private SaleToPOIRequest buildPaymentRequest(String serviceID) {
         SaleToPOIRequest paymentRequest;
+        ExtensionData extensionData;
+        if(customExtensionData==null){
+            extensionData = createSampleExtensionData();
+        }else{
+            extensionData = customExtensionData;
+        }
 
         //Computation
         bTotal = new BigDecimal(inputTotal.getText().toString());
@@ -255,28 +325,7 @@ public class ActivityPayment extends AppCompatActivity {
                         .paymentData(new PaymentData.Builder()
                                 .paymentType(PaymentType.Normal)
                                 .build())
-                        .extensionData(new ExtensionData.Builder().transitData(
-                                        new TransitData.Builder()
-                                                .isWheelchairEnabled(false)
-                                                .trip(new Trip.Builder()
-                                                        .totalDistanceTravelled(new BigDecimal("222.22"))
-                                                        .addStop(new Stop.Builder()
-                                                                .stopIndex(0)
-                                                                .stopName("test0")
-                                                                .latitude(new BigDecimal(3432423))
-                                                                .longitude(new BigDecimal(-3432423))
-                                                                .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
-                                                                .build())
-                                                        .addStop(new Stop.Builder()
-                                                                .stopIndex(1)
-                                                                .stopName("test1")
-                                                                .latitude(new BigDecimal(3432423))
-                                                                .longitude(new BigDecimal(-3432423))
-                                                                .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
-                                                                .build())
-                                                        .build())
-                                                .build())
-                                .build())
+                        .extensionData(extensionData)
                         .build()
                 )
                 .build();
@@ -406,6 +455,7 @@ public class ActivityPayment extends AppCompatActivity {
         JsonAdapter<ExtensionData> jsonAdapter = moshi.adapter(ExtensionData.class);
         return jsonAdapter.nonNull().fromJson(jsonString);
     }
+
     public String printExtensionDatatoJson(ExtensionData extensionData) {
         Moshi moshi = new Moshi.Builder()
                 .add(new BigDecimalAdapter())
@@ -415,6 +465,30 @@ public class ActivityPayment extends AppCompatActivity {
         return jsonAdapter.toJson(extensionData);
     }
 
+    public ExtensionData createSampleExtensionData(){
+        return new ExtensionData.Builder().transitData(
+                        new TransitData.Builder()
+                                .isWheelchairEnabled(false)
+                                .trip(new Trip.Builder()
+                                        .totalDistanceTravelled(new BigDecimal("222.22"))
+                                        .addStop(new Stop.Builder()
+                                                .stopIndex(0)
+                                                .stopName("test0")
+                                                .latitude(new BigDecimal(3432423))
+                                                .longitude(new BigDecimal(-3432423))
+                                                .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
+                                                .build())
+                                        .addStop(new Stop.Builder()
+                                                .stopIndex(1)
+                                                .stopName("test1")
+                                                .latitude(new BigDecimal(3432423))
+                                                .longitude(new BigDecimal(-3432423))
+                                                .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
+                                                .build())
+                                        .build())
+                                .build())
+                .build();
+    }
     public void openActivityResult(MessageCategory mc, SaleToPOIResponse r, Message message) {
         Intent intent = new Intent(this, ActivityResult.class);
 

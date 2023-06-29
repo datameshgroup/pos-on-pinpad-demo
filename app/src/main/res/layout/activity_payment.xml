@@ -104,12 +104,12 @@
         app:layout_constraintTop_toBottomOf="@+id/btnPay" />
 
     <Button
-        android:id="@+id/btnExtensionData"
+        android:id="@+id/btnCustomField"
         android:layout_width="150dp"
         android:layout_height="80dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="24dp"
-        android:text="View Transit Data"
+        android:text="View Custom Field"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btnAbort"

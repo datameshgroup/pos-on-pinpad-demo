@@ -26,7 +26,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -51,10 +50,6 @@ import au.com.dmg.fusion.request.paymentrequest.PaymentTransaction;
 import au.com.dmg.fusion.request.paymentrequest.SaleData;
 import au.com.dmg.fusion.request.paymentrequest.SaleItem;
 import au.com.dmg.fusion.request.paymentrequest.SaleTransactionID;
-import au.com.dmg.fusion.request.paymentrequest.extenstiondata.ExtensionData;
-import au.com.dmg.fusion.request.paymentrequest.extenstiondata.Stop;
-import au.com.dmg.fusion.request.paymentrequest.extenstiondata.TransitData;
-import au.com.dmg.fusion.request.paymentrequest.extenstiondata.Trip;
 import au.com.dmg.fusion.request.transactionstatusrequest.MessageReference;
 import au.com.dmg.fusion.response.SaleToPOIResponse;
 import au.com.dmg.fusion.util.BigDecimalAdapter;
@@ -71,7 +66,7 @@ public class ActivityPayment extends AppCompatActivity {
     private ImageView ivScan;
     private Button btnPay;
     private Button btnAbort;
-    private Button btnExtension;
+    private Button btnCustomField;
     private TextView inputTotal;
     private TextView inputDiscount;
     private TextView inputTip;
@@ -88,7 +83,7 @@ public class ActivityPayment extends AppCompatActivity {
     private long pressedTime;
 
     String testServiceID;
-    ExtensionData customExtensionData = null;
+    CustomField customField = null;
     @Override
     public void onBackPressed() {
         if (pressedTime + 2000 > System.currentTimeMillis()) {
@@ -125,8 +120,8 @@ public class ActivityPayment extends AppCompatActivity {
         btnAbort = (Button) findViewById(R.id.btnAbort);
         btnAbort.setOnClickListener(this::testAbort);
 
-        btnExtension = (Button) findViewById(R.id.btnExtensionData);
-        btnExtension.setOnClickListener(this::viewExtensionData);
+        btnCustomField = (Button) findViewById(R.id.btnCustomField);
+        btnCustomField.setOnClickListener(this::viewCustomField);
 
         inputTotal = (TextView) findViewById(R.id.inputTotal);
 
@@ -139,30 +134,30 @@ public class ActivityPayment extends AppCompatActivity {
 
     }
 
-    public void viewExtensionData(View view)  {
+    public void viewCustomField(View view)  {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("TransitData");
-        ExtensionData extensionData;
-                if(customExtensionData==null){
-                    extensionData = createSampleExtensionData();
+        builder.setTitle("CustomField");
+        CustomField customField;
+                if(this.customField ==null){
+                    customField = createCustomField();
                 }else{
-                    extensionData = customExtensionData;
+                    customField = this.customField;
                 }
 
-        final View customLayout = getLayoutInflater().inflate(R.layout.dialog_extensiondata, null);
+        final View customLayout = getLayoutInflater().inflate(R.layout.dialog_customfield, null);
         builder.setView(customLayout);
         EditText editText = customLayout.findViewById(R.id.etExtenstionData);
 
         JSONObject json;
         try {
-            json = new JSONObject(printExtensionDatatoJson(extensionData));
+            json = new JSONObject(printCustomFieldtoJson(customField));
             editText.setText(json.toString(2));
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
 
         builder.setNegativeButton("Cancel", (dialog, which) -> {
-            Toast.makeText(this, "TransitData not update", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "CustomField not update", Toast.LENGTH_SHORT).show();
         });
         builder.setPositiveButton("OK", (dialog, which) -> {
             sendDialogDataToActivity(editText.getText().toString());
@@ -176,29 +171,17 @@ public class ActivityPayment extends AppCompatActivity {
 
     private void sendDialogDataToActivity(String data) {
         try {
-            customExtensionData = buildExtensionDatafromJson(data);
-            //Validate TransitData using builder
-            TransitData td = new TransitData.Builder()
-                    .isWheelchairEnabled(customExtensionData.getTransitData().getIsWheelchairEnabled())
-                    .trip(customExtensionData.getTransitData().getTrip())
+            customField = buildCustomFieldfromJson(data);
+            //Validate CustomField using builder
+            CustomField cf = new CustomField.Builder()
+                    .key(customField.getKey())
+                    .type(customField.getType())
+                    .value(customField.getValue())
                     .build();
-            //Validate Trip using builder
-            Trip trip = new Trip.Builder()
-                    .addStops(td.getTrip().getStops())
-                    .totalDistanceTravelled(td.getTrip().getTotalDistanceTravelled())
-                    .build();
-            //Validate stops; This just checks for the first stop entry as a sample
-            int stopsCount = trip.getStops().size();
-            for(int x = 0; x < stopsCount; x++){
-                Stop stop = new Stop.Builder()
-                        .stopIndex(trip.getStops().get(x).getStopIndex())
-                        .timestamp(trip.getStops().get(x).getTimestamp())
-                        .build();
-            }
             Toast.makeText(this, data, Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
-            customExtensionData = null;
-            Toast.makeText(this, "Invalid TransitData. Ignoring.", Toast.LENGTH_SHORT).show();
+            customField = null;
+            Toast.makeText(this, "Invalid CustomField. Ignoring.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -256,11 +239,11 @@ public class ActivityPayment extends AppCompatActivity {
 
     private SaleToPOIRequest buildPaymentRequest(String serviceID) {
         SaleToPOIRequest paymentRequest;
-        ExtensionData extensionData;
-        if(customExtensionData==null){
-            extensionData = createSampleExtensionData();
+        CustomField customField1;
+        if(customField ==null){
+            customField1 = createCustomField();
         }else{
-            extensionData = customExtensionData;
+            customField1 = customField;
         }
 
         //Computation
@@ -273,15 +256,6 @@ public class ActivityPayment extends AppCompatActivity {
         }
         totalAmount = bTotal.subtract(bDiscount).add(bTip).add(BigDecimal.valueOf(1));
 
-        //CustomField
-        String[] strArray = {"\"sample1\"", "\"sample2\"", "\"sample3\""};
-
-        CustomData customData = new CustomData.Builder()
-                .GroupName("SampleCustomData")
-                .Quantity(100)
-                .Items(Arrays.asList(strArray))
-                .build();
-
         //Request creation
         paymentRequest = new SaleToPOIRequest.Builder()
                 .messageHeader(new MessageHeader.Builder()
@@ -291,11 +265,7 @@ public class ActivityPayment extends AppCompatActivity {
                         .serviceID(generateServiceID())
                         .build())
                 .request(new PaymentRequest.Builder()
-                        .addCustomField(new CustomField.Builder()
-                                .key("samplePaymentRequestCustomFieldKey")
-                                .type(CustomFieldType.Object)
-                                .value(customData.toString())
-                                .build())
+                        .addCustomField(customField1)
                         .saleData(new SaleData.Builder()
                                 .operatorLanguage("en")
                                 .saleTransactionID(new SaleTransactionID.Builder()
@@ -325,7 +295,6 @@ public class ActivityPayment extends AppCompatActivity {
                         .paymentData(new PaymentData.Builder()
                                 .paymentType(PaymentType.Normal)
                                 .build())
-                        .extensionData(extensionData)
                         .build()
                 )
                 .build();
@@ -446,47 +415,46 @@ public class ActivityPayment extends AppCompatActivity {
 
         }
     }
-    ExtensionData buildExtensionDatafromJson(String jsonString) throws IOException {
+    CustomField buildCustomFieldfromJson(String jsonString) throws IOException {
         Moshi moshi = new Moshi.Builder()
                 .add(new BigDecimalAdapter())
                 .add(new InstantAdapter())
                 .build();
 
-        JsonAdapter<ExtensionData> jsonAdapter = moshi.adapter(ExtensionData.class);
+        JsonAdapter<CustomField> jsonAdapter = moshi.adapter(CustomField.class);
         return jsonAdapter.nonNull().fromJson(jsonString);
     }
 
-    public String printExtensionDatatoJson(ExtensionData extensionData) {
+    public String printCustomFieldtoJson(CustomField customField) {
         Moshi moshi = new Moshi.Builder()
                 .add(new BigDecimalAdapter())
                 .add(new InstantAdapter())
                 .build();
-        JsonAdapter<ExtensionData> jsonAdapter = moshi.adapter(ExtensionData.class);
-        return jsonAdapter.toJson(extensionData);
+        JsonAdapter<CustomField> jsonAdapter = moshi.adapter(CustomField.class);
+        return jsonAdapter.toJson(customField);
     }
 
-    public ExtensionData createSampleExtensionData(){
-        return new ExtensionData.Builder().transitData(
-                        new TransitData.Builder()
-                                .isWheelchairEnabled(false)
-                                .trip(new Trip.Builder()
-                                        .totalDistanceTravelled(new BigDecimal("222.22"))
-                                        .addStop(new Stop.Builder()
-                                                .stopIndex(0)
-                                                .stopName("test0")
-                                                .latitude(new BigDecimal(3432423))
-                                                .longitude(new BigDecimal(-3432423))
-                                                .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
-                                                .build())
-                                        .addStop(new Stop.Builder()
-                                                .stopIndex(1)
-                                                .stopName("test1")
-                                                .latitude(new BigDecimal(3432423))
-                                                .longitude(new BigDecimal(-3432423))
-                                                .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
-                                                .build())
-                                        .build())
-                                .build())
+    public CustomField createCustomField(){
+        //CustomField. This example id for CustomFieldType==Object. You can also do:
+        //    Integer,
+        //    Number,
+        //    String,
+        //    Array,
+        //    Object,
+        //    Boolean,
+        //    Unknown;
+        String[] strArray = {"\"sample1\"", "\"sample2\"", "\"sample3\""};
+
+        CustomData customData = new CustomData.Builder()
+                .GroupName("SampleCustomData")
+                .Quantity(100)
+                .Items(Arrays.asList(strArray))
+                .build();
+
+        return new CustomField.Builder()
+                .key("samplePaymentRequestCustomFieldKey")
+                .type(CustomFieldType.Object)
+                .value(customData.toString())
                 .build();
     }
     public void openActivityResult(MessageCategory mc, SaleToPOIResponse r, Message message) {

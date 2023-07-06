@@ -72,7 +72,6 @@ public class ActivityPreauthorisationList extends AppCompatActivity {
     public void openActivityRequests(PaymentType req, Instant timpstamp) {
         Intent intent = new Intent(this, ActivityRequests.class);
         intent.putExtra("paymentType", req);
-
         intent.putExtra("instant",timpstamp);
 
         startActivity(intent);

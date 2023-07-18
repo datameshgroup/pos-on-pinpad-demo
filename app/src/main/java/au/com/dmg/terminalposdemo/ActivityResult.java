@@ -45,7 +45,7 @@ public class ActivityResult extends AppCompatActivity {
     private Button btnBack;
     WebView tvReceipt;
     String outputXHTML;
-
+    Bitmap bitmap;
     Boolean isApproved = false;
 
 //    Class prevClass;
@@ -66,6 +66,7 @@ public class ActivityResult extends AppCompatActivity {
         btnPrintReceipt = (Button) findViewById(R.id.btnPrintReceipt);
         btnBack = (Button) findViewById(R.id.btnBack);
         tvReceipt = (WebView) findViewById(R.id.tvReceipt);
+        tvReceipt.getSettings().setDefaultZoom(WebSettings.ZoomDensity.FAR);
         TextView tvMessageHead = (TextView) findViewById(R.id.tvMessageHead);
         TextView tvMessageDetail = (TextView) findViewById(R.id.tvMessageDetail);
 
@@ -252,7 +253,7 @@ public class ActivityResult extends AppCompatActivity {
                 try {
                     byte[] image = Utils.readAssetsFile(getApplicationContext(), "DMGReceipt.png");
                     Bitmap logoBitmap = BitmapFactory.decodeByteArray(image, 0,image.length);
-                    Bitmap bitmap = Utils.generateReceiptBitmap(getApplicationContext(), outputXHTML, isApproved);
+                    bitmap = Utils.generateReceiptBitmap(getApplicationContext(), outputXHTML, isApproved);
 
                     //TODO ADD print text or createbitmap
                     device.printBitmap(logoBitmap);

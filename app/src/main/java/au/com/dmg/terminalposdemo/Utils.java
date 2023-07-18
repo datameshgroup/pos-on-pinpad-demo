@@ -19,7 +19,9 @@ public class Utils {
         }
         else{
             String htmlStart =
-                    "<html><head><style>body { font-size: 18pt;font-family: 'Calibri', Helvetica, Arial, sans-serif;  }</style></head><body>";
+                    "<html><head><style>body { font-size: 18pt;font-family: 'Calibri', Helvetica, Arial, sans-serif;  }" +
+                            " div span {display: inline-block;}" +
+                            "</style></head><body>";
             String htmlEnd = "</body></html>";
             String status = "";
             if(isApproved) {
@@ -31,11 +33,11 @@ public class Utils {
 
             String htmlData = receiptData;
             String merchantCopyDelimiter = "*** MERCHANT COPY ***";
+            String customerCopyDelimiter = "*** CUSTOMER COPY ***";
             String paddingAfter = "<p></p><br><br><p></p><p>-------------------------</p>";
 
-            htmlData = htmlData.replaceAll("(\r\n|\n)", "<br />");
-
             if(htmlData.contains(merchantCopyDelimiter)){
+                htmlData = htmlData.replaceAll("(\r\n|\n)", "<br />");
                 String substringBefore = StringUtils.substringBefore(htmlData, merchantCopyDelimiter);
                 String substringAfter =  StringUtils.substringAfter(htmlData, merchantCopyDelimiter);
                 htmlData = htmlStart + "<center> <font size=\"4\">" +
@@ -46,6 +48,14 @@ public class Utils {
                         htmlEnd;
             }
             else{
+                String substringBefore = StringUtils.substringBefore(htmlData, customerCopyDelimiter);
+                String substringAfter =  StringUtils.substringAfter(htmlData, customerCopyDelimiter);
+                htmlData = htmlStart + "<center> <font size=\"4\">" +
+                        substringBefore + "</font><br /><b>" +
+                        customerCopyDelimiter + "</b></center>" +
+                        substringAfter + status +
+                        paddingAfter +
+                        htmlEnd;
                 htmlData = htmlStart + htmlData + paddingAfter + htmlEnd;
             }
 

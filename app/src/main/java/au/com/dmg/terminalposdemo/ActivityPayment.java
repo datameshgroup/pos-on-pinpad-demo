@@ -22,14 +22,11 @@ import com.squareup.moshi.Moshi;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Random;
-
 import au.com.dmg.devices.TerminalDevice;
 import au.com.dmg.fusion.Message;
 import au.com.dmg.fusion.MessageHeader;
@@ -51,6 +48,7 @@ import au.com.dmg.fusion.request.paymentrequest.PaymentTransaction;
 import au.com.dmg.fusion.request.paymentrequest.SaleData;
 import au.com.dmg.fusion.request.paymentrequest.SaleItem;
 import au.com.dmg.fusion.request.paymentrequest.SaleTransactionID;
+import au.com.dmg.fusion.request.paymentrequest.SponsoredMerchant;
 import au.com.dmg.fusion.request.paymentrequest.extenstiondata.ExtensionData;
 import au.com.dmg.fusion.request.paymentrequest.extenstiondata.Stop;
 import au.com.dmg.fusion.request.paymentrequest.extenstiondata.TransitData;
@@ -231,7 +229,7 @@ public class ActivityPayment extends AppCompatActivity {
 
         // wrapper of request.
         Message message = new Message(paymentRequest);
-        Log.d("Request", message.toJson());
+        Utils.showLog("Request", message.toJson());
         intent.putExtra(Message.INTENT_EXTRA_MESSAGE, message.toJson());
         intent.putExtra(Message.INTENT_EXTRA_APPLICATION_NAME, GlobalClass.APPLICATION_NAME);
         intent.putExtra(Message.INTENT_EXTRA_APPLICATION_VERSION, GlobalClass.APPLICATION_VERSION);
@@ -240,7 +238,7 @@ public class ActivityPayment extends AppCompatActivity {
         SaleToPOIRequest abortRequest = buildAbortRequest(testServiceID);
         Intent intentCancel = new Intent(Message.INTENT_ACTION_BROADCAST);
         Message messageCancel = new Message(abortRequest);
-        Log.d("AbortRequest", messageCancel.toJson());
+        Utils.showLog("AbortRequest", messageCancel.toJson());
         intentCancel.putExtra(Message.INTENT_EXTRA_MESSAGE, messageCancel.toJson());
         intentCancel.putExtra("RETURN_TO_PACKAGE", this.getPackageName());
 
@@ -298,9 +296,15 @@ public class ActivityPayment extends AppCompatActivity {
                                 .build())
                         .saleData(new SaleData.Builder()
                                 .operatorLanguage("en")
+                                .operatorID("TestOperatorID")
                                 .saleTransactionID(new SaleTransactionID.Builder()
                                         .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
                                         .transactionID(generateTransactionId())
+                                        .build())
+                                .sponsoredMerchant(new SponsoredMerchant.Builder()
+                                        .siteID("719428ed-8c98-4a1a-8b4f-853bbaa0a154")
+                                        .businessID("50110219460")
+                                        .registeredIdentifier("Taxi42")
                                         .build())
                                 .build())
                         .paymentTransaction(
@@ -312,13 +316,24 @@ public class ActivityPayment extends AppCompatActivity {
                                                 .cashBackAmount(bDiscount)
                                                 .build())
                                         .addSaleItem(new SaleItem.Builder()
-                                                .itemID(1)
+                                                .itemID(0)
                                                 .productCode(txtProductCode.getText().toString())
                                                 .unitOfMeasure(UnitOfMeasure.Kilometre)
                                                 .itemAmount(bTotal)
                                                 .unitPrice(bTotal)
                                                 .quantity(new BigDecimal(1))
                                                 .productLabel(getString(R.string.idProductLabel))
+                                                .tags(Arrays.asList(new String[]{"subtotal"}))
+                                                .build())
+                                        .addSaleItem(new SaleItem.Builder()
+                                                .itemID(1)
+                                                .productCode("TestProduct2")
+                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
+                                                .itemAmount(BigDecimal.valueOf(0))
+                                                .unitPrice(BigDecimal.valueOf(0))
+                                                .quantity(new BigDecimal(1))
+                                                .productLabel("TestProduct2Label")
+                                                .tags(Arrays.asList(new String[]{"extra"}))
                                                 .build())
                                         .build()
                         )
@@ -386,7 +401,7 @@ public class ActivityPayment extends AppCompatActivity {
 
         // wrapper of request.
         Message message = new Message(request);
-        Log.d("Request", message.toJson());
+        Utils.showLog("Request", message.toJson());
 
         intent.putExtra(Message.INTENT_EXTRA_MESSAGE, message.toJson());
         // name of this app, that gets treated as the POS label by the terminal.
@@ -407,7 +422,7 @@ public class ActivityPayment extends AppCompatActivity {
     }
 
     private void handleResponseIntent(Intent intent) {
-        Log.d("Response", intent.getStringExtra(Message.INTENT_EXTRA_MESSAGE));
+        Utils.showLog("Response", intent.getStringExtra(Message.INTENT_EXTRA_MESSAGE));
         Message message = null;
         try {
             message = Message.fromJson(intent.getStringExtra(Message.INTENT_EXTRA_MESSAGE));
@@ -427,7 +442,7 @@ public class ActivityPayment extends AppCompatActivity {
         if(response != null) {
             try {
                 TextView textViewJson = findViewById(R.id.tvResults);
-                Log.d("Response", response.toJson());
+                Utils.showLog("Response", response.toJson());
                 textViewJson.setText(response.toJson()); //prints to payment page
 
                 GlobalClass globalClass = (GlobalClass)getApplicationContext();
@@ -441,7 +456,7 @@ public class ActivityPayment extends AppCompatActivity {
 
                 }
                 catch (Exception e){
-                    Log.d("Error", "Invalid Response ==>" + e.getMessage() );
+                    Utils.showLog("Error", "Invalid Response ==>" + e.getMessage() );
                 }
 
         }

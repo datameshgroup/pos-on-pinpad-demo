@@ -41,7 +41,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvMessageHead"  />
 
-    <TextView
+    <WebView
         android:id="@+id/tvReceipt"
         android:layout_width="match_parent"
         android:layout_height="0dp"

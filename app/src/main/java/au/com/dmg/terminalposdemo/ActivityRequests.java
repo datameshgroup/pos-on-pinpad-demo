@@ -5,14 +5,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Random;
 import au.com.dmg.fusion.Message;
 import au.com.dmg.fusion.MessageHeader;
 import au.com.dmg.fusion.data.ErrorCondition;
@@ -31,10 +29,6 @@ import au.com.dmg.fusion.request.paymentrequest.PaymentRequest;
 import au.com.dmg.fusion.request.paymentrequest.PaymentTransaction;
 import au.com.dmg.fusion.request.paymentrequest.SaleData;
 import au.com.dmg.fusion.request.paymentrequest.SaleTransactionID;
-import au.com.dmg.fusion.request.paymentrequest.extenstiondata.ExtensionData;
-import au.com.dmg.fusion.request.paymentrequest.extenstiondata.Stop;
-import au.com.dmg.fusion.request.paymentrequest.extenstiondata.TransitData;
-import au.com.dmg.fusion.request.paymentrequest.extenstiondata.Trip;
 import au.com.dmg.fusion.request.reversalrequest.ReversalRequest;
 import au.com.dmg.fusion.request.transactionstatusrequest.TransactionStatusRequest;
 import au.com.dmg.fusion.response.SaleToPOIResponse;
@@ -368,7 +362,7 @@ public class ActivityRequests extends AppCompatActivity {
                                                 .amountsReq(
                                                         new AmountsReq.Builder()
                                                                 .currency("AUD")
-                                                                .requestedAmount(inputAuthorizedAmount) //vannn
+                                                                .requestedAmount(inputAuthorizedAmount)
                                                                 .build()
                                                 )
                                                 .originalPOITransaction(
@@ -442,7 +436,7 @@ public class ActivityRequests extends AppCompatActivity {
 
         // wrapper of request.
         Message message = new Message(request);
-        Log.d("Request", message.toJson());
+        Utils.showLog("Request", message.toJson());
 
         intent.putExtra(Message.INTENT_EXTRA_MESSAGE, message.toJson());
         // name of this app, that gets treated as the POS label by the terminal.
@@ -461,7 +455,7 @@ public class ActivityRequests extends AppCompatActivity {
     }
 
     private void handleResponseIntent(Intent intent) {
-        Log.d("Response", intent.getStringExtra(Message.INTENT_EXTRA_MESSAGE));
+        Utils.showLog("Response", intent.getStringExtra(Message.INTENT_EXTRA_MESSAGE));
         Message message = null;
         try {
             message = Message.fromJson(intent.getStringExtra(Message.INTENT_EXTRA_MESSAGE));
@@ -477,7 +471,7 @@ public class ActivityRequests extends AppCompatActivity {
         this.lastResponse = response;
 
         //TextView textViewJson = findViewById(R.id.tvResults);
-        Log.d("Response", response.toJson());
+        Utils.showLog("Response", response.toJson());
         //textViewJson.setText(response.toJson());
         MessageHeader mh = response.getMessageHeader();
         MessageCategory mc = mh.getMessageCategory();

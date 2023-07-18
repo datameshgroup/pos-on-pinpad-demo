@@ -7,29 +7,23 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.View;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.text.HtmlCompat;
-
-
 import org.apache.commons.lang3.StringUtils;
-
 import java.io.IOException;
 import java.util.List;
-
 import au.com.dmg.devices.TerminalDevice;
 import au.com.dmg.fusion.Message;
 import au.com.dmg.fusion.data.ErrorCondition;
 import au.com.dmg.fusion.data.MessageCategory;
 import au.com.dmg.fusion.data.PaymentType;
-import au.com.dmg.fusion.data.TransactionType;
 import au.com.dmg.fusion.request.paymentrequest.POIData;
 import au.com.dmg.fusion.response.CardAcquisitionResponse;
 import au.com.dmg.fusion.response.ResponseResult;
@@ -49,9 +43,11 @@ public class ActivityResult extends AppCompatActivity {
     private static String noValue = "Not received";
     private Button btnPrintReceipt;
     private Button btnBack;
-    private TextView tvResult;
+    WebView tvReceipt;
+    String outputXHTML;
 
-    TransactionType transactionType;
+    Boolean isApproved = false;
+
 //    Class prevClass;
 
     private TerminalDevice device = new TerminalDevice();
@@ -67,14 +63,11 @@ public class ActivityResult extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
 //        prevClass = (Class) bundle.get("prevClass");
 
-        tvResult = (TextView) findViewById(R.id.tvReceipt);
         btnPrintReceipt = (Button) findViewById(R.id.btnPrintReceipt);
         btnBack = (Button) findViewById(R.id.btnBack);
-        TextView tvReceipt = (TextView) findViewById(R.id.tvReceipt);
+        tvReceipt = (WebView) findViewById(R.id.tvReceipt);
         TextView tvMessageHead = (TextView) findViewById(R.id.tvMessageHead);
         TextView tvMessageDetail = (TextView) findViewById(R.id.tvMessageDetail);
-
-        tvReceipt.setMovementMethod(new ScrollingMovementMethod());
 
         ErrorCondition errorCondition = null;
         String additionalResponse = "";
@@ -101,7 +94,7 @@ public class ActivityResult extends AppCompatActivity {
             saleToPOIResponse = message.getResponse();
         } catch (IOException e) {
 //            throw new RuntimeException(e);
-            Log.d("Error", "Invalid Response ==>" + e.getMessage() );
+            Utils.showLog("Error", "Invalid Response ==>" + e.getMessage() );
         }
 
         //Check the response
@@ -125,14 +118,11 @@ public class ActivityResult extends AppCompatActivity {
             responseResult = paymentResponse.getResponse().getResult();
         } //TODO: add reversal and card acquisition responses here
 
-
-
         //TODO: add home button top? fix back button or do fullscreen
-
 
         ///PaymentReceipt
         List<PaymentReceipt> paymentReceipt = paymentResponse.getPaymentReceipt();
-        String outputXHTML = noValue;
+        outputXHTML = noValue;
         if(paymentReceipt!=null){
             outputXHTML = StringUtils.defaultIfEmpty(paymentReceipt.get(0).getReceiptContentAsHtml(), noValue);
         }
@@ -140,13 +130,17 @@ public class ActivityResult extends AppCompatActivity {
         // Show receipt if available, else show details
         if(!outputXHTML.equals(noValue)){
             tvMessageDetail.setVisibility(View.INVISIBLE);
-            tvReceipt.setText(HtmlCompat.fromHtml(outputXHTML, HtmlCompat.FROM_HTML_MODE_COMPACT));
+            WebSettings settings = tvReceipt.getSettings();
+            settings.setDefaultTextEncodingName("utf-8");
+            tvReceipt.loadDataWithBaseURL(null, outputXHTML, "text/html", "utf-8", null);
+
         } else {
             tvReceipt.setVisibility(View.INVISIBLE);
             btnPrintReceipt.setVisibility(View.GONE);
         }
 
         if(responseResult.equals(ResponseResult.Success)){
+            isApproved = true;
             paymentType = paymentResult.getPaymentType();
 
             ///AmountsResp
@@ -240,8 +234,6 @@ public class ActivityResult extends AppCompatActivity {
 
         }
 
-    tvReceipt.setMovementMethod(new ScrollingMovementMethod());
-
         btnPrintReceipt.setOnClickListener(v -> {
             try {
                 startPrint();
@@ -260,16 +252,14 @@ public class ActivityResult extends AppCompatActivity {
                 try {
                     byte[] image = Utils.readAssetsFile(getApplicationContext(), "DMGReceipt.png");
                     Bitmap logoBitmap = BitmapFactory.decodeByteArray(image, 0,image.length);
+                    Bitmap bitmap = Utils.generateReceiptBitmap(getApplicationContext(), outputXHTML, isApproved);
 
-                    String x = String.valueOf(tvResult.getText());
-                    Bitmap bitmap = Utils.generateReceiptBitmap(getApplicationContext(), x, true);
                     //TODO ADD print text or createbitmap
                     device.printBitmap(logoBitmap);
                     device.printBitmap(bitmap);
                 } catch (RemoteException | IOException e) {
                     e.printStackTrace();
                 }
-
             }
         }).start();
     }

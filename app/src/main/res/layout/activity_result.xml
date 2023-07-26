@@ -11,7 +11,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="24dp"
         android:background="#00555555"
@@ -19,8 +18,7 @@
         android:textAlignment="center"
         android:textColor="#43A047"
         android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/tvReceipt"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/tvMessageDetail"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
     <TextView
@@ -28,7 +26,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="16dp"
         android:background="#FDF7F7"
@@ -36,13 +34,13 @@
         android:scrollbars="vertical"
         android:text="@string/textview"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/btnBack"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/wvReceipt"
+        app:layout_constraintEnd_toEndOf="@+id/tvMessageHead"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvMessageHead"  />
 
     <WebView
-        android:id="@+id/tvReceipt"
+        android:id="@+id/wvReceipt"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
@@ -55,9 +53,10 @@
         android:textAlignment="center"
         android:textColor="#000000"
         app:layout_constraintBottom_toTopOf="@+id/btnBack"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/tvMessageDetail"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvMessageHead" />
+        app:layout_constraintTop_toBottomOf="@+id/tvMessageDetail" />
 
     <Button
         android:id="@+id/btnPrintReceipt"
@@ -84,6 +83,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvReceipt" />
+        app:layout_constraintTop_toBottomOf="@+id/wvReceipt" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

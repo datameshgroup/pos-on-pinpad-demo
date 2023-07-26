@@ -4,9 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-
 import android.os.RemoteException;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,21 +20,23 @@ import com.squareup.moshi.Moshi;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Random;
+
 import au.com.dmg.devices.TerminalDevice;
 import au.com.dmg.fusion.Message;
 import au.com.dmg.fusion.MessageHeader;
 import au.com.dmg.fusion.data.CustomFieldType;
-import au.com.dmg.fusion.data.ErrorCondition;
 import au.com.dmg.fusion.data.MessageCategory;
 import au.com.dmg.fusion.data.MessageClass;
 import au.com.dmg.fusion.data.MessageType;
 import au.com.dmg.fusion.data.PaymentType;
 import au.com.dmg.fusion.data.UnitOfMeasure;
+import au.com.dmg.fusion.request.SaleTerminalData;
 import au.com.dmg.fusion.request.SaleToPOIRequest;
 import au.com.dmg.fusion.request.aborttransactionrequest.AbortTransactionRequest;
 import au.com.dmg.fusion.request.paymentrequest.AmountsReq;
@@ -62,7 +62,6 @@ public class ActivityPayment extends AppCompatActivity {
 
     BigDecimal totalAmount = BigDecimal.valueOf(0);
     BigDecimal bTotal = BigDecimal.valueOf(0);
-    BigDecimal bDiscount = BigDecimal.valueOf(0);
     BigDecimal bTip = BigDecimal.valueOf(0);
     SaleToPOIResponse response = null;
 
@@ -70,15 +69,12 @@ public class ActivityPayment extends AppCompatActivity {
     private Button btnPay;
     private Button btnAbort;
     private Button btnExtension;
+    private Button btnOtherFields;
     private TextView inputTotal;
-    private TextView inputDiscount;
     private TextView inputTip;
     private TextView tvResults;
     private POITransactionID resPOI = null;
     private TextView txtProductCode = null;
-
-    ErrorCondition errorCondition = null;
-    String additionalResponse = "";
 
     //scanner
     private TerminalDevice device = new TerminalDevice();
@@ -87,6 +83,15 @@ public class ActivityPayment extends AppCompatActivity {
 
     String testServiceID;
     ExtensionData customExtensionData = null;
+
+    //Additional A2B Required fields:
+    String registeredIdentifier = "Taxi123"; //AKA SubMerchantID
+    String operatorID = "TestOpID123";
+    String businessID = "TestBusID123";
+    String deviceID = "TestDevID123";
+    String shiftNumber = "123Shift";
+    String siteID = "TestSitID123";
+
     @Override
     public void onBackPressed() {
         if (pressedTime + 2000 > System.currentTimeMillis()) {
@@ -126,10 +131,10 @@ public class ActivityPayment extends AppCompatActivity {
         btnExtension = (Button) findViewById(R.id.btnExtensionData);
         btnExtension.setOnClickListener(this::viewExtensionData);
 
+        btnOtherFields = (Button) findViewById(R.id.btnOtherFields);
+        btnOtherFields.setOnClickListener(this::viewOtherFields);
+
         inputTotal = (TextView) findViewById(R.id.inputTotal);
-
-        inputDiscount = (TextView) findViewById(R.id.inputDiscount);
-
         inputTip = (TextView) findViewById(R.id.inputTip);
 
         tvResults = (TextView) findViewById(R.id.tvResults);
@@ -137,6 +142,42 @@ public class ActivityPayment extends AppCompatActivity {
 
     }
 
+    public void viewOtherFields(View view) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Other Fields");
+
+        final View fieldsLayout = getLayoutInflater().inflate(R.layout.dialog_otherfields, null);
+
+        EditText etRegisteredIdentifier = fieldsLayout.findViewById(R.id.inputRegisteredIdentifier);
+        EditText etOperatorID = fieldsLayout.findViewById(R.id.inputOperatorID);
+        EditText etDeviceID = fieldsLayout.findViewById(R.id.inputDeviceID);
+        EditText etShiftNumber = fieldsLayout.findViewById(R.id.inputShiftNumber);
+        EditText etSiteID = fieldsLayout.findViewById(R.id.inputSiteID);
+
+        etRegisteredIdentifier.setText(registeredIdentifier);
+        etOperatorID.setText(operatorID);
+        etDeviceID.setText(deviceID);
+        etShiftNumber.setText(shiftNumber);
+        etSiteID.setText(siteID);
+
+        builder.setView(fieldsLayout);
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> {
+            Toast.makeText(this, "Other fields not update", Toast.LENGTH_SHORT).show();
+        });
+        builder.setPositiveButton("Update", (dialog, which) -> {
+            registeredIdentifier = String.valueOf(etRegisteredIdentifier.getText());
+            operatorID = String.valueOf(etOperatorID.getText());
+            deviceID = String.valueOf(etDeviceID.getText());
+            shiftNumber = String.valueOf(etShiftNumber.getText());
+            siteID = String.valueOf(etSiteID.getText());
+        });
+
+        builder.setCancelable(true);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
     public void viewExtensionData(View view)  {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("TransitData");
@@ -160,7 +201,7 @@ public class ActivityPayment extends AppCompatActivity {
         }
 
         builder.setNegativeButton("Cancel", (dialog, which) -> {
-            Toast.makeText(this, "TransitData not update", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "TransitData not updated", Toast.LENGTH_SHORT).show();
         });
         builder.setPositiveButton("OK", (dialog, which) -> {
             sendDialogDataToActivity(editText.getText().toString());
@@ -261,15 +302,15 @@ public class ActivityPayment extends AppCompatActivity {
             extensionData = customExtensionData;
         }
 
+
+
         //Computation
         bTotal = new BigDecimal(inputTotal.getText().toString());
-        if (inputDiscount != null && !inputDiscount.getText().toString().isEmpty()) {
-            bDiscount = new BigDecimal(inputDiscount.getText().toString());
-        }
+
         if (inputTip != null && !inputTip.getText().toString().isEmpty()) {
             bTip = new BigDecimal(inputTip.getText().toString());
         }
-        totalAmount = bTotal.subtract(bDiscount).add(bTip).add(BigDecimal.valueOf(1));
+        totalAmount = bTotal.add(bTip).add(BigDecimal.valueOf(1));
 
         //CustomField
         String[] strArray = {"\"sample1\"", "\"sample2\"", "\"sample3\""};
@@ -286,7 +327,7 @@ public class ActivityPayment extends AppCompatActivity {
                         .messageClass(MessageClass.Service)
                         .messageCategory(MessageCategory.Payment)
                         .messageType(MessageType.Request)
-                        .serviceID(generateServiceID())
+                        .serviceID(serviceID)
                         .build())
                 .request(new PaymentRequest.Builder()
                         .addCustomField(new CustomField.Builder()
@@ -296,15 +337,19 @@ public class ActivityPayment extends AppCompatActivity {
                                 .build())
                         .saleData(new SaleData.Builder()
                                 .operatorLanguage("en")
-                                .operatorID("TestOperatorID")
+                                .operatorID(operatorID)
                                 .saleTransactionID(new SaleTransactionID.Builder()
                                         .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
                                         .transactionID(generateTransactionId())
                                         .build())
                                 .sponsoredMerchant(new SponsoredMerchant.Builder()
-                                        .siteID("719428ed-8c98-4a1a-8b4f-853bbaa0a154")
-                                        .businessID("50110219460")
-                                        .registeredIdentifier("Taxi42")
+                                        .siteID(siteID)
+                                        .businessID(businessID)
+                                        .registeredIdentifier(registeredIdentifier)
+                                        .build())
+                                .shiftNumber(shiftNumber)
+                                .saleTerminalData(new SaleTerminalData.Builder()
+                                        .deviceID(deviceID)
                                         .build())
                                 .build())
                         .paymentTransaction(
@@ -313,7 +358,6 @@ public class ActivityPayment extends AppCompatActivity {
                                                 .currency("AUD")
                                                 .requestedAmount(totalAmount)
                                                 .tipAmount(bTip)
-                                                .cashBackAmount(bDiscount)
                                                 .build())
                                         .addSaleItem(new SaleItem.Builder()
                                                 .itemID(0)
@@ -327,12 +371,12 @@ public class ActivityPayment extends AppCompatActivity {
                                                 .build())
                                         .addSaleItem(new SaleItem.Builder()
                                                 .itemID(1)
-                                                .productCode("TestProduct2")
+                                                .productCode("MeteredFare")
                                                 .unitOfMeasure(UnitOfMeasure.Kilometre)
                                                 .itemAmount(BigDecimal.valueOf(0))
                                                 .unitPrice(BigDecimal.valueOf(0))
                                                 .quantity(new BigDecimal(1))
-                                                .productLabel("TestProduct2Label")
+                                                .productLabel("MeteredFareL")
                                                 .tags(Arrays.asList(new String[]{"extra"}))
                                                 .build())
                                         .build()
@@ -354,7 +398,6 @@ public class ActivityPayment extends AppCompatActivity {
 
         sendRequest(request);
 
-        bDiscount = BigDecimal.valueOf(0);
         bTip = BigDecimal.valueOf(0);
         totalAmount = BigDecimal.valueOf(0);
     }

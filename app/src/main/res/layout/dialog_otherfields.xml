@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:theme="@android:style/Theme.Dialog">
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:stretchColumns="1"
+        android:paddingLeft="5sp"
+        android:paddingRight="5sp"
+        android:paddingTop="5sp"
+        android:paddingBottom="5sp">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvRegisteredIdentifier"
+                android:text="RegIdentifier"
+                android:textSize="16sp"
+                android:layout_width="wrap_content"/>
+
+            <EditText
+                android:id="@+id/inputRegisteredIdentifier"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:background="@drawable/edit_text_border"
+                android:inputType="text"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:text="Taxi123"
+                android:textSize="16sp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvOperatorID"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="OperatorID"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/inputOperatorID"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:background="@drawable/edit_text_border"
+                android:inputType="text"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:text="TestOpID123"
+                android:textSize="16sp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <TextView
+                android:id="@+id/tvDeviceID"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DeviceID"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/inputDeviceID"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:background="@drawable/edit_text_border"
+                android:inputType="text"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:text="TestDevID123"
+                android:textSize="16sp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <TextView
+                android:id="@+id/tvShiftNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ShiftNumber"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/inputShiftNumber"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:background="@drawable/edit_text_border"
+                android:inputType="text"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:text="123Shift"
+                android:textSize="16sp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <TextView
+                android:id="@+id/tvSiteID"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SiteID"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/inputSiteID"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:background="@drawable/edit_text_border"
+                android:inputType="text"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:text="TestSitID123"
+                android:textSize="16sp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </TableLayout>
+
+</LinearLayout>

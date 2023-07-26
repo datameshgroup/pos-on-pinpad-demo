@@ -16,6 +16,6 @@
         android:maxLines="3"
         android:minLines="6"
         android:scrollbars="vertical"
-        android:text="TESTSETSETSETSETSETS" />
+        android:text="PLACEHOLDER" />
 
 </LinearLayout>

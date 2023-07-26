@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -29,6 +30,7 @@ import au.com.dmg.fusion.response.CardAcquisitionResponse;
 import au.com.dmg.fusion.response.ResponseResult;
 import au.com.dmg.fusion.response.SaleToPOIResponse;
 import au.com.dmg.fusion.response.TransactionStatusResponse;
+import au.com.dmg.fusion.response.paymentresponse.AdditionalAmount;
 import au.com.dmg.fusion.response.paymentresponse.AmountsResp;
 import au.com.dmg.fusion.response.paymentresponse.PaymentAcquirerData;
 import au.com.dmg.fusion.response.paymentresponse.PaymentInstrumentData;
@@ -65,7 +67,7 @@ public class ActivityResult extends AppCompatActivity {
 
         btnPrintReceipt = (Button) findViewById(R.id.btnPrintReceipt);
         btnBack = (Button) findViewById(R.id.btnBack);
-        tvReceipt = (WebView) findViewById(R.id.tvReceipt);
+        tvReceipt = (WebView) findViewById(R.id.wvReceipt);
         tvReceipt.getSettings().setDefaultZoom(WebSettings.ZoomDensity.FAR);
         TextView tvMessageHead = (TextView) findViewById(R.id.tvMessageHead);
         TextView tvMessageDetail = (TextView) findViewById(R.id.tvMessageDetail);
@@ -128,18 +130,6 @@ public class ActivityResult extends AppCompatActivity {
             outputXHTML = StringUtils.defaultIfEmpty(paymentReceipt.get(0).getReceiptContentAsHtml(), noValue);
         }
 
-        // Show receipt if available, else show details
-        if(!outputXHTML.equals(noValue)){
-            tvMessageDetail.setVisibility(View.INVISIBLE);
-            WebSettings settings = tvReceipt.getSettings();
-            settings.setDefaultTextEncodingName("utf-8");
-            tvReceipt.loadDataWithBaseURL(null, outputXHTML, "text/html", "utf-8", null);
-
-        } else {
-            tvReceipt.setVisibility(View.INVISIBLE);
-            btnPrintReceipt.setVisibility(View.GONE);
-        }
-
         if(responseResult.equals(ResponseResult.Success)){
             isApproved = true;
             paymentType = paymentResult.getPaymentType();
@@ -150,6 +140,16 @@ public class ActivityResult extends AppCompatActivity {
             String cashBackAmount = StringUtils.defaultIfEmpty(amountsResp.getCashBackAmount().toString(), noValue);
             String tipAmount = StringUtils.defaultIfEmpty(amountsResp.getTipAmount().toString(), noValue);
             String surchargeAmount = StringUtils.defaultIfEmpty(amountsResp.getSurchargeAmount().toString(), noValue);
+
+            List<AdditionalAmount> additionalAmounts = amountsResp.getAdditionalAmounts();
+            String surchargeTax = "0.00";
+            String liftFee = "0.00";
+
+            ///AdditionalAmounts
+            if(!(additionalAmounts ==null) && !additionalAmounts.isEmpty()){
+                surchargeTax =  StringUtils.defaultIfEmpty(additionalAmounts.get(additionalAmounts.indexOf("SurchargeTax")).toString(), noValue);
+                liftFee = StringUtils.defaultIfEmpty(additionalAmounts.get(additionalAmounts.indexOf("LiftFee")).toString(), noValue);
+            }
 
             ///PaymentInstrumentData
             PaymentInstrumentData paymentInstrumentData = paymentResult.getPaymentInstrumentData();
@@ -198,7 +198,8 @@ public class ActivityResult extends AppCompatActivity {
                             + "<b>Masked PAN:</b> " + maskedPAN  + "<br>"
                             + "<b>Entry Mode:</b> " + entryMode  + "<br>"
                             + "<b>Account:</b> " + account  + "<br>"
-                            + "<b>Payment Instrument Type:</b><br>" + paymentInstrumentType;
+                            + "<b>Payment Instrument Type:</b><br>" + paymentInstrumentType+ "<br>"
+                            + "<b>Full JSON Response:</b><br>" + message + "<br>";
 
                     tvMessageDetail.setText(HtmlCompat.fromHtml(details, HtmlCompat.FROM_HTML_MODE_COMPACT));
                     break;
@@ -219,9 +220,7 @@ public class ActivityResult extends AppCompatActivity {
             }
 
         }
-
-        else
-        {
+        else {
             String errorMessage = "";
             tvMessageHead.setTextColor(Color.parseColor("#FF0000"));
             errorCondition = paymentResponse.getResponse().getErrorCondition();
@@ -233,6 +232,16 @@ public class ActivityResult extends AppCompatActivity {
                     + "<b>AdditionalResponse:</b><br>" + additionalResponse;
             tvMessageDetail.setText(HtmlCompat.fromHtml(errorMessage, HtmlCompat.FROM_HTML_MODE_COMPACT));
 
+        }
+
+        tvMessageDetail.setMovementMethod(new ScrollingMovementMethod());
+
+        // Show receipt if available, else show details
+        if(!outputXHTML.equals(noValue)){
+            WebSettings settings = tvReceipt.getSettings();
+            settings.setDefaultTextEncodingName("utf-8");
+            tvReceipt.loadDataWithBaseURL(null, outputXHTML, "text/html", "utf-8", null);
+            settings.setTextSize(WebSettings.TextSize.SMALLER);
         }
 
         btnPrintReceipt.setOnClickListener(v -> {

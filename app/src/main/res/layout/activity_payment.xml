@@ -49,34 +49,21 @@
         android:inputType="numberDecimal"
         android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/inputDiscount" />
+        app:layout_constraintTop_toBottomOf="@+id/inputTotal" />
 
-    <EditText
-        android:id="@+id/inputDiscount"
-        android:layout_width="100dp"
-        android:layout_height="58dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="50dp"
-        android:ems="10"
-        android:text="0.50"
-        android:paddingStart="5dp"
-        android:paddingEnd="5dp"
-        android:inputType="numberDecimal"
-        android:textSize="30sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/inputTotal"
-        android:background="@drawable/edit_text_border" />
-
-    <TextView
-        android:id="@+id/tvDiscount"
-        android:layout_width="wrap_content"
+    <Button
+        android:id="@+id/btnOtherFields"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="32dp"
-        android:text="@string/discount"
-        android:textSize="34sp"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="45dp"
+        android:layout_marginEnd="100dp"
+        android:text="View/Edit \nOther Fields"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTotal" />
+        app:layout_constraintTop_toBottomOf="@+id/tvTip" />
 
     <Button
         android:id="@+id/btnPay"
@@ -90,7 +77,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTip" />
+        app:layout_constraintTop_toBottomOf="@+id/btnOtherFields" />
 
     <Button
         android:id="@+id/btnAbort"
@@ -152,7 +139,7 @@
         android:text="Tip"
         android:textSize="30sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvDiscount" />
+        app:layout_constraintTop_toBottomOf="@+id/tvTotal" />
 
     <TextView
         android:id="@+id/tvResults"
@@ -186,6 +173,5 @@
         android:text="Product Code"
         app:layout_constraintBottom_toTopOf="@+id/txtProductCode"
         app:layout_constraintStart_toStartOf="parent" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

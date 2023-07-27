@@ -131,12 +131,51 @@
 
         <TableRow
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent" >
+
+        <TextView
+            android:id="@+id/tvSampleFee"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="LateNightFee"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/inputSampleFee"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:background="@drawable/edit_text_border"
+            android:ems="10"
+            android:inputType="numberDecimal"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            android:text="2.10"
+            android:textSize="16sp" />
+        </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent" >
 
+            <TextView
+                android:id="@+id/tvLevy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Levy"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/inputLevy"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:background="@drawable/edit_text_border"
+                android:ems="10"
+                android:inputType="numberDecimal"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:text="10.00"
+                android:textSize="16sp" />
+        </TableRow>
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

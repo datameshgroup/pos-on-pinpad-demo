@@ -26,11 +26,9 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Random;
-
 import au.com.dmg.devices.TerminalDevice;
 import au.com.dmg.fusion.Message;
 import au.com.dmg.fusion.MessageHeader;
-import au.com.dmg.fusion.data.CustomFieldType;
 import au.com.dmg.fusion.data.MessageCategory;
 import au.com.dmg.fusion.data.MessageClass;
 import au.com.dmg.fusion.data.MessageType;
@@ -40,7 +38,6 @@ import au.com.dmg.fusion.request.SaleTerminalData;
 import au.com.dmg.fusion.request.SaleToPOIRequest;
 import au.com.dmg.fusion.request.aborttransactionrequest.AbortTransactionRequest;
 import au.com.dmg.fusion.request.paymentrequest.AmountsReq;
-import au.com.dmg.fusion.request.paymentrequest.CustomField;
 import au.com.dmg.fusion.request.paymentrequest.POITransactionID;
 import au.com.dmg.fusion.request.paymentrequest.PaymentData;
 import au.com.dmg.fusion.request.paymentrequest.PaymentRequest;
@@ -60,9 +57,7 @@ import au.com.dmg.fusion.util.InstantAdapter;
 
 public class ActivityPayment extends AppCompatActivity {
 
-    BigDecimal totalAmount = BigDecimal.valueOf(0);
-    BigDecimal bTotal = BigDecimal.valueOf(0);
-    BigDecimal bTip = BigDecimal.valueOf(0);
+    BigDecimal bAmount = BigDecimal.valueOf(0);
     SaleToPOIResponse response = null;
 
     private ImageView ivScan;
@@ -70,8 +65,7 @@ public class ActivityPayment extends AppCompatActivity {
     private Button btnAbort;
     private Button btnExtension;
     private Button btnOtherFields;
-    private TextView inputTotal;
-    private TextView inputTip;
+    private TextView inputAmount;
     private TextView tvResults;
     private POITransactionID resPOI = null;
     private TextView txtProductCode = null;
@@ -83,6 +77,10 @@ public class ActivityPayment extends AppCompatActivity {
 
     String testServiceID;
     ExtensionData customExtensionData = null;
+
+    //A2B-Specific Amounts
+    BigDecimal sampleFee = BigDecimal.valueOf(1.1);
+    BigDecimal sampleLevy = BigDecimal.valueOf(10);
 
     //Additional A2B Required fields:
     String registeredIdentifier = "Taxi123"; //AKA SubMerchantID
@@ -134,8 +132,7 @@ public class ActivityPayment extends AppCompatActivity {
         btnOtherFields = (Button) findViewById(R.id.btnOtherFields);
         btnOtherFields.setOnClickListener(this::viewOtherFields);
 
-        inputTotal = (TextView) findViewById(R.id.inputTotal);
-        inputTip = (TextView) findViewById(R.id.inputTip);
+        inputAmount = (TextView) findViewById(R.id.inputTotal);
 
         tvResults = (TextView) findViewById(R.id.tvResults);
         txtProductCode =  (TextView) findViewById(R.id.txtProductCode);
@@ -153,12 +150,16 @@ public class ActivityPayment extends AppCompatActivity {
         EditText etDeviceID = fieldsLayout.findViewById(R.id.inputDeviceID);
         EditText etShiftNumber = fieldsLayout.findViewById(R.id.inputShiftNumber);
         EditText etSiteID = fieldsLayout.findViewById(R.id.inputSiteID);
+        EditText etSampleFee = fieldsLayout.findViewById(R.id.inputSampleFee);
+        EditText etLevy = fieldsLayout.findViewById(R.id.inputLevy);
 
         etRegisteredIdentifier.setText(registeredIdentifier);
         etOperatorID.setText(operatorID);
         etDeviceID.setText(deviceID);
         etShiftNumber.setText(shiftNumber);
         etSiteID.setText(siteID);
+        etSampleFee.setText(sampleFee.toString());
+        etLevy.setText(sampleLevy.toString());
 
         builder.setView(fieldsLayout);
 
@@ -171,6 +172,9 @@ public class ActivityPayment extends AppCompatActivity {
             deviceID = String.valueOf(etDeviceID.getText());
             shiftNumber = String.valueOf(etShiftNumber.getText());
             siteID = String.valueOf(etSiteID.getText());
+
+            sampleFee = new BigDecimal(etSampleFee.getText().toString());
+            sampleLevy = new BigDecimal(etLevy.getText().toString());
         });
 
         builder.setCancelable(true);
@@ -294,32 +298,17 @@ public class ActivityPayment extends AppCompatActivity {
     }
 
     private SaleToPOIRequest buildPaymentRequest(String serviceID) {
+
         SaleToPOIRequest paymentRequest;
         ExtensionData extensionData;
+
         if(customExtensionData==null){
             extensionData = createSampleExtensionData();
         }else{
             extensionData = customExtensionData;
         }
 
-
-
-        //Computation
-        bTotal = new BigDecimal(inputTotal.getText().toString());
-
-        if (inputTip != null && !inputTip.getText().toString().isEmpty()) {
-            bTip = new BigDecimal(inputTip.getText().toString());
-        }
-        totalAmount = bTotal.add(bTip).add(BigDecimal.valueOf(1));
-
-        //CustomField
-        String[] strArray = {"\"sample1\"", "\"sample2\"", "\"sample3\""};
-
-        CustomData customData = new CustomData.Builder()
-                .GroupName("SampleCustomData")
-                .Quantity(100)
-                .Items(Arrays.asList(strArray))
-                .build();
+        bAmount = new BigDecimal(inputAmount.getText().toString());
 
         //Request creation
         paymentRequest = new SaleToPOIRequest.Builder()
@@ -330,11 +319,6 @@ public class ActivityPayment extends AppCompatActivity {
                         .serviceID(serviceID)
                         .build())
                 .request(new PaymentRequest.Builder()
-                        .addCustomField(new CustomField.Builder()
-                                .key("samplePaymentRequestCustomFieldKey")
-                                .type(CustomFieldType.Object)
-                                .value(customData.toString())
-                                .build())
                         .saleData(new SaleData.Builder()
                                 .operatorLanguage("en")
                                 .operatorID(operatorID)
@@ -356,27 +340,36 @@ public class ActivityPayment extends AppCompatActivity {
                                 new PaymentTransaction.Builder()
                                         .amountsReq(new AmountsReq.Builder()
                                                 .currency("AUD")
-                                                .requestedAmount(totalAmount)
-                                                .tipAmount(bTip)
+                                                .requestedAmount(bAmount.add(sampleFee).add(sampleLevy)) //Total of all sale items
+                                                .tipAmount(null)
                                                 .build())
                                         .addSaleItem(new SaleItem.Builder()
                                                 .itemID(0)
                                                 .productCode(txtProductCode.getText().toString())
                                                 .unitOfMeasure(UnitOfMeasure.Kilometre)
-                                                .itemAmount(bTotal)
-                                                .unitPrice(bTotal)
+                                                .itemAmount(bAmount)
+                                                .unitPrice(bAmount)
                                                 .quantity(new BigDecimal(1))
-                                                .productLabel(getString(R.string.idProductLabel))
-                                                .tags(Arrays.asList(new String[]{"subtotal"}))
+                                                .productLabel("TRF 1 SINGLE")
                                                 .build())
                                         .addSaleItem(new SaleItem.Builder()
                                                 .itemID(1)
-                                                .productCode("MeteredFare")
+                                                .productCode("SAGovLevy")
                                                 .unitOfMeasure(UnitOfMeasure.Kilometre)
-                                                .itemAmount(BigDecimal.valueOf(0))
-                                                .unitPrice(BigDecimal.valueOf(0))
+                                                .itemAmount(sampleLevy)
+                                                .unitPrice(sampleLevy)
                                                 .quantity(new BigDecimal(1))
-                                                .productLabel("MeteredFareL")
+                                                .productLabel("SA GOV LEVY")
+                                                .tags(Arrays.asList(new String[]{"subtotal"}))
+                                                .build())
+                                        .addSaleItem(new SaleItem.Builder()
+                                                .itemID(2)
+                                                .productCode("LateNightFee")
+                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
+                                                .itemAmount(sampleFee)
+                                                .unitPrice(sampleFee)
+                                                .quantity(new BigDecimal(1))
+                                                .productLabel("Late Night Fee")
                                                 .tags(Arrays.asList(new String[]{"extra"}))
                                                 .build())
                                         .build()
@@ -393,13 +386,8 @@ public class ActivityPayment extends AppCompatActivity {
 
     private void sendPaymentRequest(View view) {
         this.testServiceID = generateServiceID();
-        //Computation
         SaleToPOIRequest request = buildPaymentRequest(testServiceID);
-
         sendRequest(request);
-
-        bTip = BigDecimal.valueOf(0);
-        totalAmount = BigDecimal.valueOf(0);
     }
 
     private SaleToPOIRequest buildAbortRequest(String refServiceID) {

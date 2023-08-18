@@ -11,10 +11,13 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.RemoteException;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.IOException;
@@ -124,6 +127,58 @@ public class MainActivity extends AppCompatActivity {
     public void openActivitySatellite() {
         Intent intent = new Intent(this, ActivitySatellite.class);
         startActivity(intent);
+    }
+
+    private int tapCount = 0;
+    private long tapCounterStartMillis = 0;
+
+//detect any touch event in the screen (instead of an specific view)
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
+        int eventaction = event.getAction();
+        if (eventaction == MotionEvent.ACTION_UP) {
+
+            //get system current milliseconds
+            long time= System.currentTimeMillis();
+
+
+            //if it is the first time, or if it has been more than 3 seconds since the first tap ( so it is like a new try), we reset everything
+            if (tapCounterStartMillis == 0 || (time-tapCounterStartMillis > 3000) ) {
+                tapCounterStartMillis = time;
+                tapCount = 1;
+            }
+
+            else{
+                tapCount ++;
+            }
+
+            if (tapCount == 5) {
+                //do whatever you need
+                System.out.println("HAHAHAHAHAHAHAHA");
+                forceExitApplication();
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private void forceExitApplication() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Closing application...");
+        builder.setMessage("Do you want to close the application?");
+        builder.setPositiveButton("YES", (dialog, which) -> {
+            this.finish();
+            System.exit(0);
+        });
+        builder.setNegativeButton("NO", (dialog, which) -> {
+            Toast.makeText(this, "Close cancelled", Toast.LENGTH_SHORT).show();
+        });
+        builder.setCancelable(false);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
 }

@@ -136,27 +136,17 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
-        int eventaction = event.getAction();
-        if (eventaction == MotionEvent.ACTION_UP) {
-
-            //get system current milliseconds
+        int eventAction = event.getAction();
+        if (eventAction == MotionEvent.ACTION_UP) {
             long time= System.currentTimeMillis();
-
-
-            //if it is the first time, or if it has been more than 3 seconds since the first tap ( so it is like a new try), we reset everything
             if (tapCounterStartMillis == 0 || (time-tapCounterStartMillis > 3000) ) {
                 tapCounterStartMillis = time;
                 tapCount = 1;
             }
-
             else{
                 tapCount ++;
             }
-
             if (tapCount == 5) {
-                //do whatever you need
-                System.out.println("HAHAHAHAHAHAHAHA");
                 forceExitApplication();
             }
             return true;

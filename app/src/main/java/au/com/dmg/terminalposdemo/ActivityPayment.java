@@ -222,6 +222,8 @@ public class ActivityPayment extends AppCompatActivity {
             customExtensionData = buildExtensionDatafromJson(data);
             //Validate TransitData using builder
             TransitData td = new TransitData.Builder()
+                    .nswAllowTSSSubsidy(customExtensionData.getTransitData().getNswAllowTSSSubsidy())
+                    .nswAllowTSSLift(customExtensionData.getTransitData().getNswAllowTSSLift())
                     .isWheelchairEnabled(customExtensionData.getTransitData().getIsWheelchairEnabled())
                     .trip(customExtensionData.getTransitData().getTrip())
                     .build();
@@ -514,6 +516,8 @@ public class ActivityPayment extends AppCompatActivity {
     public ExtensionData createSampleExtensionData(){
         return new ExtensionData.Builder().transitData(
                         new TransitData.Builder()
+                                .nswAllowTSSSubsidy(true)
+                                .nswAllowTSSLift(false)
                                 .isWheelchairEnabled(false)
                                 .trip(new Trip.Builder()
                                         .totalDistanceTravelled(new BigDecimal("222.22"))

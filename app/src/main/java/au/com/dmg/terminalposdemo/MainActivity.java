@@ -27,8 +27,9 @@ import au.com.dmg.devices.TerminalDevice;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button btnCart;
+    private Button btnPayment;
     private Button btnSatellite;
+    private Button btnOtherRequests;
     private Button btnPrint;
     private Button btnScan;
     private TerminalDevice device = new TerminalDevice();
@@ -41,11 +42,14 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        btnCart = (Button) findViewById(R.id.btnPayment);
-        btnCart.setOnClickListener(v -> openActivityCart());
+        btnPayment = (Button) findViewById(R.id.btnUpgrade);
+        btnPayment.setOnClickListener(v -> openActivityCart());
 
         btnSatellite = (Button) findViewById(R.id.btnSatellite);
         btnSatellite.setOnClickListener(v -> openActivitySatellite());
+
+        btnOtherRequests = (Button) findViewById(R.id.btnTerminalInfo);
+        btnOtherRequests.setOnClickListener(v -> openActivityOtherRequests());
 
         btnPrint = (Button) findViewById(R.id.btnPrint);
         btnPrint.setOnClickListener(v -> {
@@ -64,6 +68,11 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         });
+    }
+
+    private void openActivitySatellite() {
+        Intent intent = new Intent(this, ActivitySatellite.class);
+        startActivity(intent);
     }
 
     public void testPrint() throws RemoteException {
@@ -124,8 +133,8 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void openActivitySatellite() {
-        Intent intent = new Intent(this, ActivitySatellite.class);
+    public void openActivityOtherRequests() {
+        Intent intent = new Intent(this, ActivityOtherRequests.class);
         startActivity(intent);
     }
 

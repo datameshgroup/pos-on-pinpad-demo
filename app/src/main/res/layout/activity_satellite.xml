@@ -3,90 +3,59 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context="au.com.dmg.terminalposdemo.ActivitySatellite">
 
     <Button
-        android:id="@+id/btnReversalReq"
-        android:layout_width="250dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="30dp"
-        android:enabled="@bool/enableReversal"
-        android:text="Reversal"
+        android:id="@+id/btnLaunchSatellite"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="50dp"
+        android:text="@string/satellite_launch"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.486"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/btnCashoutReq"
-        android:layout_width="250dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="20dp"
-        android:enabled="@bool/enableCashout"
-        android:text="Cashout"
-        app:layout_constraintEnd_toEndOf="@+id/btnReversalReq"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/btnReversalReq"
-        app:layout_constraintTop_toBottomOf="@+id/btnReversalReq" />
+        android:id="@+id/btnUpgrade"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="50dp"
+        android:text="@string/satellite_upgrade"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.486"
+        app:layout_constraintStart_toStartOf="@+id/btnLaunchSatellite"
+        app:layout_constraintTop_toBottomOf="@+id/btnLaunchSatellite"  />
 
     <Button
-        android:id="@+id/btnTransactionStatusReq"
-        android:layout_width="250dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="20dp"
-        android:enabled="@bool/enableTransactionStatus"
-        android:text="Transaction Status"
-        app:layout_constraintEnd_toEndOf="@+id/btnCompletionReq"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/btnCompletionReq"
-        app:layout_constraintTop_toBottomOf="@+id/btnCompletionReq" />
+        android:id="@+id/btnTerminalInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="50dp"
+        android:text="@string/terminal_info"
+        app:layout_constraintEnd_toEndOf="@+id/btnUpgrade"
+        app:layout_constraintHorizontal_bias="0.48"
+        app:layout_constraintStart_toStartOf="@+id/btnUpgrade"
+        app:layout_constraintTop_toBottomOf="@+id/btnUpgrade" />
 
-    <Button
-        android:id="@+id/btnCardAcquisitionReq"
-        android:layout_width="250dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="20dp"
-        android:enabled="@bool/enableCardAcquisition"
-        android:text="Card Acquisition"
-        app:layout_constraintEnd_toEndOf="@+id/btnTransactionStatusReq"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/btnTransactionStatusReq"
-        app:layout_constraintTop_toBottomOf="@+id/btnTransactionStatusReq" />
-
-    <Button
-        android:id="@+id/btnPreauthReq"
-        android:layout_width="250dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="20dp"
-        android:enabled="@bool/enablePreAuth"
-        android:text="Preauth"
-        app:layout_constraintEnd_toEndOf="@+id/btnRefundReq"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/btnRefundReq"
-        app:layout_constraintTop_toBottomOf="@+id/btnRefundReq" />
-
-    <Button
-        android:id="@+id/btnCompletionReq"
-        android:layout_width="250dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="20dp"
-        android:enabled="@bool/enableCompletion"
-        android:text="Completion"
-        app:layout_constraintEnd_toEndOf="@+id/btnPreauthReq"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/btnPreauthReq"
-        app:layout_constraintTop_toBottomOf="@+id/btnPreauthReq" />
-
-    <Button
-        android:id="@+id/btnRefundReq"
-        android:layout_width="250dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="20dp"
-        android:enabled="@bool/enableRefund"
-        android:text="Refund"
-        app:layout_constraintEnd_toEndOf="@+id/btnCashoutReq"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/btnCashoutReq"
-        app:layout_constraintTop_toBottomOf="@+id/btnCashoutReq" />
+    <TextView
+        android:id="@+id/tvTerminalInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="50dp"
+        app:layout_constraintEnd_toEndOf="@+id/btnTerminalInfo"
+        app:layout_constraintHorizontal_bias="0.48"
+        app:layout_constraintStart_toStartOf="@+id/btnTerminalInfo"
+        app:layout_constraintTop_toBottomOf="@+id/btnTerminalInfo"
+        android:text="-" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -287,7 +287,7 @@ public class ActivityPayment extends AppCompatActivity {
         Message messageCancel = new Message(abortRequest);
         Utils.showLog("AbortRequest", messageCancel.toJson());
         intentCancel.putExtra(Message.INTENT_EXTRA_MESSAGE, messageCancel.toJson());
-        intentCancel.putExtra("RETURN_TO_PACKAGE", this.getPackageName());
+        intentCancel.putExtra(Message.RETURN_TO_PACKAGE, this.getPackageName());
 
         startActivityForResult(intent, 1);
 

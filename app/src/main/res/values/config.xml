@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <bool name="enableOtherRequests">true</bool>
     <bool name="enableSatellite">true</bool>
     <bool name="enableTestScan">true</bool>
     <bool name="enableTestPrint">true</bool>

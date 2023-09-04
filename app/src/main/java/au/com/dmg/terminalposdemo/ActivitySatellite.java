@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,11 +20,16 @@ import au.com.dmg.fusion.MessageHeader;
 import au.com.dmg.fusion.data.MessageCategory;
 import au.com.dmg.fusion.data.MessageClass;
 import au.com.dmg.fusion.data.MessageType;
+import au.com.dmg.fusion.data.ServiceIdentification;
 import au.com.dmg.fusion.request.SaleToPOIRequest;
-import au.com.dmg.fusion.request.terminalinformationrequest.TerminalInformationRequest;
-import au.com.dmg.fusion.response.terminalinformationresponse.TerminalInformationResponse;
+import au.com.dmg.fusion.request.adminrequest.AdminRequest;
+import au.com.dmg.fusion.request.paymentrequest.extenstiondata.POIInformation;
+import au.com.dmg.fusion.response.diagnosisresponse.DiagnosisResponse;
 
 public class ActivitySatellite extends AppCompatActivity {
+    private Button btnPrintLastCustomerReceipt;
+    private Button btnPrintLastMerchantReceipt;
+    private Button btnPrintShiftReport;
     private Button btnLaunchSatellite;
     private Button btnUpgrade;
     private Button btnTerminalInfo;
@@ -37,16 +43,18 @@ public class ActivitySatellite extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             Utils.showLog("TerminalPOSDemo", intent.getStringExtra(Message.INTENT_EXTRA_MESSAGE));
             Message message = null;
-            TerminalInformationResponse terminalInformationResponse = null;
+            DiagnosisResponse diagnosisResponse = null;
+            POIInformation terminalInformationResponse = null;
             try {
                 message = Message.fromJson(intent.getStringExtra(Message.INTENT_EXTRA_MESSAGE));
-                terminalInformationResponse =  message.getResponse().getTerminalInformationResponse();
-                String stringTerminalInfo = "TID: " + terminalInformationResponse.getTid() + " \n" +
+                terminalInformationResponse =  message.getResponse().getDiagnosisResponse().getExtensionData().getPoiInformation();
+
+                String stringTerminalInfo = "TID: " + terminalInformationResponse.getTid()  + " \n" +
                         "MID: " + terminalInformationResponse.getMid() + " \n" +
-                        "Address1: " + terminalInformationResponse.getLocation().getAddress1() + " \n" +
-                        "Address2: " + terminalInformationResponse.getLocation().getAddress2() + " \n" +
-                        "AddressState: " + terminalInformationResponse.getLocation().getAddressState() + " \n" +
-                        "Location: " + terminalInformationResponse.getLocation().getLocation() + " \n" +
+                        "Address1: " + terminalInformationResponse.getAddressLocation().getAddress1() + " \n" +
+                        "Address2: " + terminalInformationResponse.getAddressLocation().getAddress2() + " \n" +
+                        "AddressState: " + terminalInformationResponse.getAddressLocation().getAddressState() + " \n" +
+                        "Location: " + terminalInformationResponse.getAddressLocation().getLocation() + " \n" +
                         "SoftwareVersion: " + terminalInformationResponse.getSoftwareVersion(); // This will include app version + "-" + hash code
                 tvTerminalInfo.setText(stringTerminalInfo);
             } catch (Exception e) {
@@ -67,6 +75,15 @@ public class ActivitySatellite extends AppCompatActivity {
 
         setContentView(R.layout.activity_satellite);
 
+        btnPrintLastCustomerReceipt = (Button) findViewById(R.id.btnPrintLastCustomerReceipt);
+        btnPrintLastCustomerReceipt.setOnClickListener(v -> printLastCustomerReceipt());
+
+        btnPrintLastMerchantReceipt = (Button) findViewById(R.id.btnPrintLastMerchantReceipt);
+        btnPrintLastMerchantReceipt.setOnClickListener(v -> printLastMerchantReceipt());
+
+        btnPrintShiftReport = (Button) findViewById(R.id.btnPrintShiftReport);
+        btnPrintShiftReport.setOnClickListener(v -> printShiftReport());
+
         btnLaunchSatellite = (Button) findViewById(R.id.btnLaunchSatellite);
         btnLaunchSatellite.setOnClickListener(v -> launchSatelliteApp());
 
@@ -80,6 +97,79 @@ public class ActivitySatellite extends AppCompatActivity {
 
         registerReceiver(terminalInfoReceiver,  new IntentFilter("fusion_broadcast_receiver"));
     }
+
+    private void printLastCustomerReceipt() {
+        Log.d("TerminalPOSDemo","Printing last customer receipt...");
+
+        SaleToPOIRequest adminRequest = new SaleToPOIRequest.Builder()
+                .messageHeader(
+                        new MessageHeader.Builder()
+                                .messageClass(MessageClass.Service)
+                                .messageCategory(MessageCategory.Admin)
+                                .messageType(MessageType.Request)
+                                .serviceID("")
+                                .build()
+                )
+                .request(new AdminRequest.Builder()
+                        .serviceIdentification(ServiceIdentification.PrintLastCustomerReceipt)
+                        .build())
+                .build();
+
+        Intent intent = new Intent(Message.INTENT_ACTION_BROADCAST);
+        Message adminRequestMessage = new Message(adminRequest);
+        Utils.showLog("adminRequestMessage", adminRequestMessage.toJson());
+        intent.putExtra(Message.INTENT_EXTRA_MESSAGE, adminRequestMessage.toJson());
+        sendBroadcast(intent);
+    }
+
+    private void printLastMerchantReceipt() {
+        Log.d("TerminalPOSDemo","Printing last merchant receipt...");
+
+        SaleToPOIRequest adminRequest = new SaleToPOIRequest.Builder()
+                .messageHeader(
+                        new MessageHeader.Builder()
+                                .messageClass(MessageClass.Service)
+                                .messageCategory(MessageCategory.Admin)
+                                .messageType(MessageType.Request)
+                                .serviceID("")
+                                .build()
+                )
+                .request(new AdminRequest.Builder()
+                        .serviceIdentification(ServiceIdentification.PrintLastMerchantReceipt)
+                        .build())
+                .build();
+
+        Intent intent = new Intent(Message.INTENT_ACTION_BROADCAST);
+        Message adminRequestMessage = new Message(adminRequest);
+        Utils.showLog("adminRequestMessage", adminRequestMessage.toJson());
+        intent.putExtra(Message.INTENT_EXTRA_MESSAGE, adminRequestMessage.toJson());
+        sendBroadcast(intent);
+    }
+
+    private void printShiftReport() {
+        Log.d("TerminalPOSDemo","Printing shift report...");
+
+        SaleToPOIRequest adminRequest = new SaleToPOIRequest.Builder()
+                .messageHeader(
+                        new MessageHeader.Builder()
+                                .messageClass(MessageClass.Service)
+                                .messageCategory(MessageCategory.Admin)
+                                .messageType(MessageType.Request)
+                                .serviceID("")
+                                .build()
+                )
+                .request(new AdminRequest.Builder()
+                        .serviceIdentification(ServiceIdentification.PrintShiftTotals)
+                        .build())
+                .build();
+
+        Intent intent = new Intent(Message.INTENT_ACTION_BROADCAST);
+        Message adminRequestMessage = new Message(adminRequest);
+        Utils.showLog("adminRequestMessage", adminRequestMessage.toJson());
+        intent.putExtra(Message.INTENT_EXTRA_MESSAGE, adminRequestMessage.toJson());
+        sendBroadcast(intent);
+    }
+
 
     private void launchSatelliteApp() {
         Log.d("TerminalPOSDemo","Launching Satellite app...");
@@ -97,12 +187,11 @@ public class ActivitySatellite extends AppCompatActivity {
                 .messageHeader(
                         new MessageHeader.Builder()
                                 .messageClass(MessageClass.Service)
-                                .messageCategory(MessageCategory.TerminalInformation)
+                                .messageCategory(MessageCategory.Diagnosis)
                                 .messageType(MessageType.Request)
                                 .serviceID("")
                                 .build()
                 )
-                .request(new TerminalInformationRequest())
                 .build();
 
         Intent intent = new Intent(Message.INTENT_ACTION_BROADCAST);

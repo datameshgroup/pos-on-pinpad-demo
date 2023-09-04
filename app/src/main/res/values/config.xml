@@ -13,5 +13,7 @@
     <bool name="enableCompletion">true</bool>
     <bool name="enableTransactionStatus">true</bool>
     <bool name="enableCardAcquisition">false</bool>
+    <bool name="enableProductCode">false</bool>
+    <bool name="enableTags">true</bool>
 <!--    <bool name="enable">false</bool>-->
 </resources>

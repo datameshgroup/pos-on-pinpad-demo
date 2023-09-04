@@ -7,37 +7,76 @@
     tools:context="au.com.dmg.terminalposdemo.ActivitySatellite">
 
     <Button
-        android:id="@+id/btnLaunchSatellite"
+        android:id="@+id/btnPrintLastCustomerReceipt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="15dp"
         android:layout_marginEnd="50dp"
-        android:text="@string/satellite_launch"
+        android:text="Print last customer receipt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.486"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+    <Button
+        android:id="@+id/btnPrintLastMerchantReceipt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="50dp"
+        android:text="Print last merchant receipt"
+        app:layout_constraintEnd_toEndOf="@+id/btnPrintLastCustomerReceipt"
+        app:layout_constraintHorizontal_bias="0.486"
+        app:layout_constraintStart_toStartOf="@+id/btnPrintLastCustomerReceipt"
+        app:layout_constraintTop_toBottomOf="@+id/btnPrintLastCustomerReceipt" />
+    <Button
+        android:id="@+id/btnPrintShiftReport"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="50dp"
+        android:text="Print shift report"
+        app:layout_constraintEnd_toEndOf="@+id/btnPrintLastMerchantReceipt"
+        app:layout_constraintHorizontal_bias="0.486"
+        app:layout_constraintStart_toStartOf="@+id/btnPrintLastMerchantReceipt"
+        app:layout_constraintTop_toBottomOf="@+id/btnPrintLastMerchantReceipt" />
+
+
+    <Button
+        android:id="@+id/btnLaunchSatellite"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="50dp"
+        android:visibility="gone"
+        android:text="@string/satellite_launch"
+        app:layout_constraintEnd_toEndOf="@+id/btnPrintShiftReport"
+        app:layout_constraintHorizontal_bias="0.486"
+        app:layout_constraintStart_toStartOf="@+id/btnPrintShiftReport"
+        app:layout_constraintTop_toBottomOf="@+id/btnPrintShiftReport" />
 
     <Button
         android:id="@+id/btnUpgrade"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="15dp"
         android:layout_marginEnd="50dp"
         android:text="@string/satellite_upgrade"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/btnLaunchSatellite"
         app:layout_constraintHorizontal_bias="0.486"
         app:layout_constraintStart_toStartOf="@+id/btnLaunchSatellite"
-        app:layout_constraintTop_toBottomOf="@+id/btnLaunchSatellite"  />
+        app:layout_constraintTop_toBottomOf="@+id/btnLaunchSatellite" />
 
     <Button
         android:id="@+id/btnTerminalInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="15dp"
         android:layout_marginEnd="50dp"
         android:text="@string/terminal_info"
         app:layout_constraintEnd_toEndOf="@+id/btnUpgrade"
@@ -50,12 +89,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="15dp"
         android:layout_marginEnd="50dp"
+        android:text="-"
         app:layout_constraintEnd_toEndOf="@+id/btnTerminalInfo"
-        app:layout_constraintHorizontal_bias="0.48"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/btnTerminalInfo"
-        app:layout_constraintTop_toBottomOf="@+id/btnTerminalInfo"
-        android:text="-" />
+        app:layout_constraintTop_toBottomOf="@+id/btnTerminalInfo" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

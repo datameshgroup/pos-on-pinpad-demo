@@ -7,7 +7,6 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,8 +22,8 @@ import au.com.dmg.fusion.data.MessageType;
 import au.com.dmg.fusion.data.ServiceIdentification;
 import au.com.dmg.fusion.request.SaleToPOIRequest;
 import au.com.dmg.fusion.request.adminrequest.AdminRequest;
-import au.com.dmg.fusion.request.paymentrequest.extenstiondata.POIInformation;
 import au.com.dmg.fusion.response.diagnosisresponse.DiagnosisResponse;
+import au.com.dmg.fusion.response.responseextensiondata.POIInformation;
 
 public class ActivitySatellite extends AppCompatActivity {
     private Button btnPrintLastCustomerReceipt;
@@ -44,18 +43,18 @@ public class ActivitySatellite extends AppCompatActivity {
             Utils.showLog("TerminalPOSDemo", intent.getStringExtra(Message.INTENT_EXTRA_MESSAGE));
             Message message = null;
             DiagnosisResponse diagnosisResponse = null;
-            POIInformation terminalInformationResponse = null;
+            POIInformation poiInformation = null;
             try {
                 message = Message.fromJson(intent.getStringExtra(Message.INTENT_EXTRA_MESSAGE));
-                terminalInformationResponse =  message.getResponse().getDiagnosisResponse().getExtensionData().getPoiInformation();
+                poiInformation =  message.getResponse().getDiagnosisResponse().getExtensionData().getPoiInformation();
 
-                String stringTerminalInfo = "TID: " + terminalInformationResponse.getTid()  + " \n" +
-                        "MID: " + terminalInformationResponse.getMid() + " \n" +
-                        "Address1: " + terminalInformationResponse.getAddressLocation().getAddress1() + " \n" +
-                        "Address2: " + terminalInformationResponse.getAddressLocation().getAddress2() + " \n" +
-                        "AddressState: " + terminalInformationResponse.getAddressLocation().getAddressState() + " \n" +
-                        "Location: " + terminalInformationResponse.getAddressLocation().getLocation() + " \n" +
-                        "SoftwareVersion: " + terminalInformationResponse.getSoftwareVersion(); // This will include app version + "-" + hash code
+                String stringTerminalInfo = "TID: " + poiInformation.getTid()  + " \n" +
+                        "MID: " + poiInformation.getMid() + " \n" +
+                        "Address1: " + poiInformation.getAddressLocation().getAddress1() + " \n" +
+                        "Address2: " + poiInformation.getAddressLocation().getAddress2() + " \n" +
+                        "AddressState: " + poiInformation.getAddressLocation().getAddressState() + " \n" +
+                        "Location: " + poiInformation.getAddressLocation().getLocation() + " \n" +
+                        "SoftwareVersion: " + poiInformation.getSoftwareVersion(); // This will include app version + "-" + hash code
                 tvTerminalInfo.setText(stringTerminalInfo);
             } catch (Exception e) {
                 Utils.showLog("TerminalPOSDemo", "Error reading intent.");
@@ -63,7 +62,7 @@ public class ActivitySatellite extends AppCompatActivity {
                 return;
             }
 
-            Log.d("TerminalPOSDemo", terminalInformationResponse.toString());
+            Log.d("TerminalPOSDemo", poiInformation.toString());
         }
     };
 

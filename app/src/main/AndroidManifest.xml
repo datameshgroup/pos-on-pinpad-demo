@@ -29,8 +29,16 @@
             android:name=".ActivityRequests"
             android:exported="false" />
         <activity
-            android:name=".ActivitySatellite"
+            android:name=".ActivityOtherRequests"
             android:exported="false" />
+        <activity
+            android:name=".ActivitySatellite"
+            android:exported="true" >
+        <intent-filter>
+            <action android:name="fusion_broadcast_receiver"/>
+            <category android:name="android.intent.category.DEFAULT"/>
+        </intent-filter>
+        </activity>
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -47,6 +55,14 @@
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".TerminalInfoReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="fusion_broadcast_receiver" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>

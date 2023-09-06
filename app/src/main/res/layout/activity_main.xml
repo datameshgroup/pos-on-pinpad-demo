@@ -8,6 +8,20 @@
 
 
     <Button
+        android:id="@+id/btnSatellite"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="50dp"
+        android:enabled="@bool/enableSatellite"
+        android:text="@string/satellite"
+        app:layout_constraintEnd_toEndOf="@+id/btnTerminalInfo"
+        app:layout_constraintHorizontal_bias="0.666"
+        app:layout_constraintStart_toStartOf="@+id/btnTerminalInfo"
+        app:layout_constraintTop_toBottomOf="@+id/btnTerminalInfo" />
+
+    <Button
         android:id="@+id/btnPrint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -36,30 +50,30 @@
         app:layout_constraintTop_toBottomOf="@+id/btnPrint" />
 
     <Button
-        android:id="@+id/btnPayment"
+        android:id="@+id/btnUpgrade"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
         android:layout_marginTop="50dp"
         android:layout_marginEnd="50dp"
-        android:text="@string/Payment"
+        android:text="@string/payment"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.486"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/btnSatellite"
+        android:id="@+id/btnTerminalInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
         android:layout_marginTop="40dp"
         android:layout_marginEnd="50dp"
-        android:text="@string/satellite"
-        android:enabled="@bool/enableSatellite"
-        app:layout_constraintEnd_toEndOf="@+id/btnPayment"
+        android:text="@string/other_request"
+        android:enabled="@bool/enableOtherRequests"
+        app:layout_constraintEnd_toEndOf="@+id/btnUpgrade"
         app:layout_constraintHorizontal_bias="0.48"
-        app:layout_constraintStart_toStartOf="@+id/btnPayment"
-        app:layout_constraintTop_toBottomOf="@+id/btnPayment" />
+        app:layout_constraintStart_toStartOf="@+id/btnUpgrade"
+        app:layout_constraintTop_toBottomOf="@+id/btnUpgrade" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,7 +6,16 @@
     android:layout_height="match_parent"
     tools:context="au.com.dmg.terminalposdemo.ActivityPayment">
 
-
+    <TextView
+        android:id="@+id/lblProductCode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginBottom="8dp"
+        android:text="Product Code"
+        app:layout_constraintBottom_toTopOf="@+id/txtProductCode"
+        app:layout_constraintStart_toStartOf="parent"
+        android:enabled="@bool/enableProductCode"/>
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/txtProductCode"
         android:layout_width="0dp"
@@ -23,8 +32,8 @@
         app:layout_constraintEnd_toStartOf="@+id/ivScan"
         app:layout_constraintHorizontal_bias="0.322"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
+        app:layout_constraintTop_toTopOf="parent"
+        android:enabled="@bool/enableProductCode"/>
     <ImageView
         android:id="@+id/ivScan"
         android:layout_width="58dp"
@@ -33,7 +42,41 @@
         android:layout_marginEnd="50dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@android:drawable/ic_menu_camera" />
+        app:srcCompat="@android:drawable/ic_menu_camera"
+        android:enabled="@bool/enableProductCode"/>
+
+
+    <TextView
+        android:id="@+id/lblTags"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginBottom="8dp"
+        android:text="Tags"
+        app:layout_constraintBottom_toTopOf="@+id/txtProductCode"
+        app:layout_constraintStart_toStartOf="parent"
+        android:enabled="@bool/enableTags"/>
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/txtTags"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="50dp"
+        android:background="@drawable/edit_text_border"
+        android:enabled="@bool/enableTags"
+        android:inputType="text"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:text="NSWAllowTSSSubsidy, NSWAllowTSSLift"
+        android:theme="@style/AppEditText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.322"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
 
 
     <Button
@@ -139,14 +182,7 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="22dp" />
 
-    <TextView
-        android:id="@+id/lblProductCode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="50dp"
-        android:layout_marginBottom="8dp"
-        android:text="Product Code"
-        app:layout_constraintBottom_toTopOf="@+id/txtProductCode"
-        app:layout_constraintStart_toStartOf="parent" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

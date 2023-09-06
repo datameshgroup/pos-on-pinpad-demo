@@ -278,7 +278,7 @@ public class ActivityResult extends AppCompatActivity {
 //        Class nextClass = MainActivity.class;
 //        //Redirect to previous page
 //        if(prevClass.equals(ActivityRequests.class)){
-//            nextClass = ActivitySatellite.class;
+//            nextClass = ActivityOtherRequests.class;
 //        }else{
 //            nextClass = ActivityPayment.class;
 //        }

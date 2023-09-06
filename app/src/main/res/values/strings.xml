@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">TerminalPOSDemo</string>
-    <string name="Payment">Payment</string>
-    <string name="satellite">Satellite</string>
+    <string name="payment">Payment</string>
+    <string name="other_request">Other Requests</string>
     <string name="discount">Discount</string>
     <string name="idProductCode">5</string>
     <string name="idProductLabel">Test Product</string>
@@ -9,7 +9,12 @@
     <string name="gPOIID">VA POS</string>
     <string name="gsaleID">DMGVA001</string>
 
+    <string name="satellite">Satellite</string>
     <string name="test_print">Test Print</string>
     <string name="test_scan">Test Scan</string>
     <string name="textview">TextView</string>
+
+    <string name="satellite_launch">Launch Satellite</string>
+    <string name="satellite_upgrade">Pull Upgrade</string>
+    <string name="terminal_info">Get Terminal Info</string>
 </resources>

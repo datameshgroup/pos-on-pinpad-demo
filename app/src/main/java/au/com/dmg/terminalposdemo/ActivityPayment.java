@@ -24,7 +24,9 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import au.com.dmg.devices.TerminalDevice;
 import au.com.dmg.fusion.Message;
@@ -69,6 +71,7 @@ public class ActivityPayment extends AppCompatActivity {
     private TextView tvResults;
     private POITransactionID resPOI = null;
     private TextView txtProductCode = null;
+    private TextView txtTags = null;
 
     //scanner
     private TerminalDevice device = new TerminalDevice();
@@ -136,6 +139,7 @@ public class ActivityPayment extends AppCompatActivity {
 
         tvResults = (TextView) findViewById(R.id.tvResults);
         txtProductCode =  (TextView) findViewById(R.id.txtProductCode);
+        txtTags = (TextView) findViewById(R.id.txtTags);
 
     }
 
@@ -222,8 +226,6 @@ public class ActivityPayment extends AppCompatActivity {
             customExtensionData = buildExtensionDatafromJson(data);
             //Validate TransitData using builder
             TransitData td = new TransitData.Builder()
-                    .nswAllowTSSSubsidy(customExtensionData.getTransitData().getNswAllowTSSSubsidy())
-                    .nswAllowTSSLift(customExtensionData.getTransitData().getNswAllowTSSLift())
                     .isWheelchairEnabled(customExtensionData.getTransitData().getIsWheelchairEnabled())
                     .trip(customExtensionData.getTransitData().getTrip())
                     .build();
@@ -287,7 +289,7 @@ public class ActivityPayment extends AppCompatActivity {
         Message messageCancel = new Message(abortRequest);
         Utils.showLog("AbortRequest", messageCancel.toJson());
         intentCancel.putExtra(Message.INTENT_EXTRA_MESSAGE, messageCancel.toJson());
-        intentCancel.putExtra("RETURN_TO_PACKAGE", this.getPackageName());
+        intentCancel.putExtra(Message.RETURN_TO_PACKAGE, this.getPackageName());
 
         startActivityForResult(intent, 1);
 
@@ -514,10 +516,12 @@ public class ActivityPayment extends AppCompatActivity {
     }
 
     public ExtensionData createSampleExtensionData(){
+        //        List<String> tags = new ArrayList();
+        String inputTags = txtTags.getText().toString();
+        List<String> tags = Arrays.asList(inputTags.split("\\s*,\\s*"));
+
         return new ExtensionData.Builder().transitData(
                         new TransitData.Builder()
-                                .nswAllowTSSSubsidy(true)
-                                .nswAllowTSSLift(false)
                                 .isWheelchairEnabled(false)
                                 .trip(new Trip.Builder()
                                         .totalDistanceTravelled(new BigDecimal("222.22"))
@@ -536,6 +540,7 @@ public class ActivityPayment extends AppCompatActivity {
                                                 .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
                                                 .build())
                                         .build())
+                                .tags(tags)
                                 .build())
                 .build();
     }

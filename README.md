@@ -15,7 +15,7 @@ This app demonstrates how to send the following requests via intents to the Sate
 * Completion
 * Satellite Update (Minimum versions: fusion-sdk 1.3.10, Satellite version: 48D)
 * Abort (Minimum versions: fusion-sdk 1.3.10, Satellite version: 48D)
-* Terminal Information (Minimum versions: fusion-sdk 1.3.10, Satellite version: 48D)
+* Terminal Information (Minimum versions: fusion-sdk 1.3.12, Satellite version: 48D)
   
 #### Other features of the demo
 

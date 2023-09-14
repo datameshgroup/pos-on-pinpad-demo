@@ -14,6 +14,8 @@
     <bool name="enableTransactionStatus">true</bool>
     <bool name="enableCardAcquisition">false</bool>
     <bool name="enableProductCode">false</bool>
-    <bool name="enableTags">true</bool>
+    <bool name="enableTransactionID">true</bool>
+    <bool name="enableLogon">true</bool>
+    <bool name="enableUpgrade">false</bool>
 <!--    <bool name="enable">false</bool>-->
 </resources>

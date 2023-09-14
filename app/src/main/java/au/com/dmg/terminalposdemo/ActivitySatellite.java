@@ -14,14 +14,23 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
 import au.com.dmg.fusion.Message;
 import au.com.dmg.fusion.MessageHeader;
 import au.com.dmg.fusion.data.MessageCategory;
 import au.com.dmg.fusion.data.MessageClass;
 import au.com.dmg.fusion.data.MessageType;
 import au.com.dmg.fusion.data.ServiceIdentification;
+import au.com.dmg.fusion.data.TerminalEnvironment;
+import au.com.dmg.fusion.request.SaleTerminalData;
 import au.com.dmg.fusion.request.SaleToPOIRequest;
 import au.com.dmg.fusion.request.adminrequest.AdminRequest;
+import au.com.dmg.fusion.request.loginrequest.LoginRequest;
+import au.com.dmg.fusion.request.loginrequest.SaleSoftware;
 import au.com.dmg.fusion.response.diagnosisresponse.DiagnosisResponse;
 import au.com.dmg.fusion.response.responseextensiondata.POIInformation;
 
@@ -32,21 +41,28 @@ public class ActivitySatellite extends AppCompatActivity {
     private Button btnLaunchSatellite;
     private Button btnUpgrade;
     private Button btnTerminalInfo;
+    private Button btnLogon;
 //    private final TerminalDevice device = new TerminalDevice();
     private TextView tvTerminalInfo;
     private int tapCount = 0;
     private long tapCounterStartMillis = 0;
 
+    private String sentServiceID = "";
+
     TerminalInfoReceiver terminalInfoReceiver = new TerminalInfoReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Utils.showLog("TerminalPOSDemo", intent.getStringExtra(Message.INTENT_EXTRA_MESSAGE));
+
             Message message = null;
             DiagnosisResponse diagnosisResponse = null;
             POIInformation poiInformation = null;
             try {
                 message = Message.fromJson(intent.getStringExtra(Message.INTENT_EXTRA_MESSAGE));
                 poiInformation =  message.getResponse().getDiagnosisResponse().getExtensionData().getPoiInformation();
+
+                String receivedServiceID = message.getResponse().getMessageHeader().getServiceID();
+                Utils.showLog("TerminalPOSDemo", "received serviceID:" + receivedServiceID);
 
                 String stringTerminalInfo = "TID: " + poiInformation.getTid()  + " \n" +
                         "MID: " + poiInformation.getMid() + " \n" +
@@ -92,21 +108,62 @@ public class ActivitySatellite extends AppCompatActivity {
         btnTerminalInfo = (Button) findViewById(R.id.btnTerminalInfo);
         btnTerminalInfo.setOnClickListener(v -> getTerminalInformation());
 
+        btnLogon = (Button) findViewById(R.id.btnLogon);
+        btnLogon.setOnClickListener(v -> dologon());
+
         tvTerminalInfo = findViewById(R.id.tvTerminalInfo);
 
         registerReceiver(terminalInfoReceiver,  new IntentFilter("fusion_broadcast_receiver"));
     }
 
-    private void printLastCustomerReceipt() {
-        Log.d("TerminalPOSDemo","Printing last customer receipt...");
+    private void dologon() {
+        this.sentServiceID = generateServiceID();
 
+        Log.d("TerminalPOSDemo","Sending Login Request...ServiceID: " + this.sentServiceID);
+        SaleToPOIRequest loginRequest = new SaleToPOIRequest.Builder()
+                .messageHeader(
+                        new MessageHeader.Builder()
+                                .messageClass(MessageClass.Service)
+                                .messageCategory(MessageCategory.Login)
+                                .messageType(MessageType.Request)
+                                .serviceID(this.sentServiceID)
+                                .saleID("")
+                                .POIID("")
+                                .build()
+
+                ).request(new LoginRequest.Builder()
+                        .dateTime("")
+                        .saleSoftware(new SaleSoftware.Builder()
+                                .providerIdentification("")
+                                .applicationName("TerminalPOSDemo")
+                                .softwareVersion("")
+                                .certificationCode("")
+                                .build()
+                        )
+                        .saleTerminalData(new SaleTerminalData.Builder()
+                                .terminalEnvironment(TerminalEnvironment.Attended)
+                                .build())
+                        .operatorLanguage("en")
+                        .build())
+                .build();
+
+        Intent intent = new Intent(Message.INTENT_ACTION_BROADCAST);
+        Message loginRequestMessage = new Message(loginRequest);
+        Utils.showLog("loginRequestMessage", loginRequestMessage.toJson());
+        intent.putExtra(Message.INTENT_EXTRA_MESSAGE, loginRequestMessage.toJson());
+        sendBroadcast(intent);
+    }
+
+    private void printLastCustomerReceipt() {
+        this.sentServiceID = generateServiceID();
+        Log.d("TerminalPOSDemo","Printing last customer receipt...ServiceID: " + this.sentServiceID);
         SaleToPOIRequest adminRequest = new SaleToPOIRequest.Builder()
                 .messageHeader(
                         new MessageHeader.Builder()
                                 .messageClass(MessageClass.Service)
                                 .messageCategory(MessageCategory.Admin)
                                 .messageType(MessageType.Request)
-                                .serviceID("")
+                                .serviceID(this.sentServiceID)
                                 .build()
                 )
                 .request(new AdminRequest.Builder()
@@ -122,7 +179,8 @@ public class ActivitySatellite extends AppCompatActivity {
     }
 
     private void printLastMerchantReceipt() {
-        Log.d("TerminalPOSDemo","Printing last merchant receipt...");
+        this.sentServiceID = generateServiceID();
+        Log.d("TerminalPOSDemo","Printing last merchant receipt...ServiceID: " + this.sentServiceID);
 
         SaleToPOIRequest adminRequest = new SaleToPOIRequest.Builder()
                 .messageHeader(
@@ -130,7 +188,7 @@ public class ActivitySatellite extends AppCompatActivity {
                                 .messageClass(MessageClass.Service)
                                 .messageCategory(MessageCategory.Admin)
                                 .messageType(MessageType.Request)
-                                .serviceID("")
+                                .serviceID(this.sentServiceID)
                                 .build()
                 )
                 .request(new AdminRequest.Builder()
@@ -146,7 +204,8 @@ public class ActivitySatellite extends AppCompatActivity {
     }
 
     private void printShiftReport() {
-        Log.d("TerminalPOSDemo","Printing shift report...");
+        this.sentServiceID = generateServiceID();
+        Log.d("TerminalPOSDemo","Printing shift report...ServiceID: " + this.sentServiceID);
 
         SaleToPOIRequest adminRequest = new SaleToPOIRequest.Builder()
                 .messageHeader(
@@ -154,7 +213,7 @@ public class ActivitySatellite extends AppCompatActivity {
                                 .messageClass(MessageClass.Service)
                                 .messageCategory(MessageCategory.Admin)
                                 .messageType(MessageType.Request)
-                                .serviceID("")
+                                .serviceID(this.sentServiceID)
                                 .build()
                 )
                 .request(new AdminRequest.Builder()
@@ -179,7 +238,8 @@ public class ActivitySatellite extends AppCompatActivity {
     }
 
     private void getTerminalInformation() {
-        Log.d("TerminalPOSDemo","Getting Terminal information...");
+        this.sentServiceID = generateServiceID();
+        Log.d("TerminalPOSDemo","Getting Terminal information...ServiceID: " + this.sentServiceID);
 
 
         SaleToPOIRequest terminalInfoRequest = new SaleToPOIRequest.Builder()
@@ -188,7 +248,7 @@ public class ActivitySatellite extends AppCompatActivity {
                                 .messageClass(MessageClass.Service)
                                 .messageCategory(MessageCategory.Diagnosis)
                                 .messageType(MessageType.Request)
-                                .serviceID("")
+                                .serviceID(this.sentServiceID)
                                 .build()
                 )
                 .build();
@@ -199,6 +259,9 @@ public class ActivitySatellite extends AppCompatActivity {
         intent.putExtra(Message.INTENT_EXTRA_MESSAGE, terminalInfoRequestMessage.toJson());
         sendBroadcast(intent);
     }
+    private String generateServiceID() {
+        return java.util.UUID.randomUUID().toString();
+    }
 
     public void pullUpgrade() {
         Log.d("TerminalPOSDemo","Updating Satellite...");
@@ -206,9 +269,7 @@ public class ActivitySatellite extends AppCompatActivity {
         Intent intent = new Intent(Message.AXIS_PULL_UPDATE);
 
         // AXIS_RESULT_ACTIVITY = Activity to go back to after the update
-//        System.out.println(getComponentName());
         intent.putExtra(Message.AXIS_RESULT_ACTIVITY, "au.com.dmg.terminalposdemo.ActivitySatellite");
-//        startActivityForResult(intent,100);
         startActivity(intent);
     }
 

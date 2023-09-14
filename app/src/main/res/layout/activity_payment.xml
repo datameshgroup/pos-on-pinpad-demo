@@ -47,29 +47,31 @@
 
 
     <TextView
-        android:id="@+id/lblTags"
+        android:id="@+id/tblTransactionID"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
         android:layout_marginBottom="8dp"
-        android:text="Tags"
+        android:text="TransactionID"
+        android:onClick="TransactionID_OnClick"
+        android:clickable="true"
         app:layout_constraintBottom_toTopOf="@+id/txtProductCode"
         app:layout_constraintStart_toStartOf="parent"
-        android:enabled="@bool/enableTags"/>
+        android:enabled="@bool/enableTransactionID"/>
 
     <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/txtTags"
+        android:id="@+id/txtTransactionID"
         android:layout_width="0dp"
         android:layout_height="40dp"
         android:layout_marginStart="50dp"
         android:layout_marginTop="50dp"
         android:layout_marginEnd="50dp"
         android:background="@drawable/edit_text_border"
-        android:enabled="@bool/enableTags"
+        android:enabled="@bool/enableTransactionID"
         android:inputType="text"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
-        android:text="NSWAllowTSSSubsidy, NSWAllowTSSLift"
+        android:text="a3200b40-cd48-4d70-a1a5-8f2cb5f2e39e"
         android:theme="@style/AppEditText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.322"

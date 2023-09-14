@@ -24,10 +24,9 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
+
 import au.com.dmg.devices.TerminalDevice;
 import au.com.dmg.fusion.Message;
 import au.com.dmg.fusion.MessageHeader;
@@ -71,7 +70,7 @@ public class ActivityPayment extends AppCompatActivity {
     private TextView tvResults;
     private POITransactionID resPOI = null;
     private TextView txtProductCode = null;
-    private TextView txtTags = null;
+    private TextView txtTransactionID = null;
 
     //scanner
     private TerminalDevice device = new TerminalDevice();
@@ -89,7 +88,7 @@ public class ActivityPayment extends AppCompatActivity {
     String registeredIdentifier = "Taxi123"; //AKA SubMerchantID
     String operatorID = "TestOpID123";
     String businessID = "TestBusID123";
-    String deviceID = "TestDevID123";
+    String deviceID = generateRandomUUID();
     String shiftNumber = "123Shift";
     String siteID = "TestSitID123";
 
@@ -139,7 +138,8 @@ public class ActivityPayment extends AppCompatActivity {
 
         tvResults = (TextView) findViewById(R.id.tvResults);
         txtProductCode =  (TextView) findViewById(R.id.txtProductCode);
-        txtTags = (TextView) findViewById(R.id.txtTags);
+        txtTransactionID = (TextView) findViewById(R.id.txtTransactionID);
+        txtTransactionID.setText(generateRandomUUID());
 
     }
 
@@ -152,6 +152,8 @@ public class ActivityPayment extends AppCompatActivity {
         EditText etRegisteredIdentifier = fieldsLayout.findViewById(R.id.inputRegisteredIdentifier);
         EditText etOperatorID = fieldsLayout.findViewById(R.id.inputOperatorID);
         EditText etDeviceID = fieldsLayout.findViewById(R.id.inputDeviceID);
+        TextView tvDeviceID = fieldsLayout.findViewById(R.id.tvDeviceID);
+        tvDeviceID.setOnClickListener(v -> etDeviceID.setText(generateRandomUUID()));
         EditText etShiftNumber = fieldsLayout.findViewById(R.id.inputShiftNumber);
         EditText etSiteID = fieldsLayout.findViewById(R.id.inputSiteID);
         EditText etSampleFee = fieldsLayout.findViewById(R.id.inputSampleFee);
@@ -228,6 +230,7 @@ public class ActivityPayment extends AppCompatActivity {
             TransitData td = new TransitData.Builder()
                     .isWheelchairEnabled(customExtensionData.getTransitData().getIsWheelchairEnabled())
                     .trip(customExtensionData.getTransitData().getTrip())
+                    .tags(customExtensionData.getTransitData().getTags())
                     .build();
             //Validate Trip using builder
             Trip trip = new Trip.Builder()
@@ -270,7 +273,7 @@ public class ActivityPayment extends AppCompatActivity {
     private void testAbort(View view) {
         //This simulates an abort request during a payment. For this code, we delay the intentCancel
 
-        this.testServiceID = generateServiceID();
+        this.testServiceID = generateRandomUUID();
         //create payment request first
         SaleToPOIRequest paymentRequest = buildPaymentRequest(testServiceID);
 
@@ -321,6 +324,7 @@ public class ActivityPayment extends AppCompatActivity {
                         .messageCategory(MessageCategory.Payment)
                         .messageType(MessageType.Request)
                         .serviceID(serviceID)
+                        .saleID("test")
                         .build())
                 .request(new PaymentRequest.Builder()
                         .saleData(new SaleData.Builder()
@@ -328,7 +332,7 @@ public class ActivityPayment extends AppCompatActivity {
                                 .operatorID(operatorID)
                                 .saleTransactionID(new SaleTransactionID.Builder()
                                         .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
-                                        .transactionID(generateTransactionId())
+                                        .transactionID(generateRandomUUID())
                                         .build())
                                 .sponsoredMerchant(new SponsoredMerchant.Builder()
                                         .siteID(siteID)
@@ -345,7 +349,8 @@ public class ActivityPayment extends AppCompatActivity {
                                         .amountsReq(new AmountsReq.Builder()
                                                 .currency("AUD")
                                                 .requestedAmount(bAmount.add(sampleFee).add(sampleLevy)) //Total of all sale items
-                                                .tipAmount(null)
+                                                .tipAmount(BigDecimal.valueOf(0))
+                                                .cashBackAmount(BigDecimal.valueOf(0))
                                                 .build())
                                         .addSaleItem(new SaleItem.Builder()
                                                 .itemID(0)
@@ -389,7 +394,7 @@ public class ActivityPayment extends AppCompatActivity {
     }
 
     private void sendPaymentRequest(View view) {
-        this.testServiceID = generateServiceID();
+        this.testServiceID = generateRandomUUID();
         SaleToPOIRequest request = buildPaymentRequest(testServiceID);
         sendRequest(request);
     }
@@ -410,24 +415,15 @@ public class ActivityPayment extends AppCompatActivity {
                         .messageClass(MessageClass.Service)
                         .messageCategory(MessageCategory.Abort)
                         .messageType(MessageType.Request)
-                        .serviceID(generateServiceID())
+                        .serviceID(generateRandomUUID())
                         .build())
                 .request(abortTransactionRequest)
                 .build();
 
         return abortRequest;
     }
-    private String generateTransactionId() {
-        String s = "";
-        Random r = new Random();
-        for (int i = 0; i < 10; ++i) {
-            int x = r.nextInt(10);
-            s += x;
-        }
-        return s;
-    }
 
-    private String generateServiceID() {
+    private String generateRandomUUID() {
         return java.util.UUID.randomUUID().toString();
     }
 
@@ -516,9 +512,8 @@ public class ActivityPayment extends AppCompatActivity {
     }
 
     public ExtensionData createSampleExtensionData(){
-        //        List<String> tags = new ArrayList();
-        String inputTags = txtTags.getText().toString();
-        List<String> tags = Arrays.asList(inputTags.split("\\s*,\\s*"));
+        String tagsString = "NSWAllowTSSSubsidy, NSWAllowTSSLift";
+        List<String> tags = Arrays.asList(tagsString.split("\\s*,\\s*"));
 
         return new ExtensionData.Builder().transitData(
                         new TransitData.Builder()
@@ -527,6 +522,7 @@ public class ActivityPayment extends AppCompatActivity {
                                         .totalDistanceTravelled(new BigDecimal("222.22"))
                                         .addStop(new Stop.Builder()
                                                 .stopIndex(0)
+                                                .stopID("0")
                                                 .stopName("test0")
                                                 .latitude(new BigDecimal(3432423))
                                                 .longitude(new BigDecimal(-3432423))
@@ -534,6 +530,7 @@ public class ActivityPayment extends AppCompatActivity {
                                                 .build())
                                         .addStop(new Stop.Builder()
                                                 .stopIndex(1)
+                                                .stopID("1")
                                                 .stopName("test1")
                                                 .latitude(new BigDecimal(3432423))
                                                 .longitude(new BigDecimal(-3432423))
@@ -555,5 +552,8 @@ public class ActivityPayment extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("prevClass", this.getClass());
         startActivity(intent);
+    }
+    public void TransactionID_OnClick(View view) {
+        txtTransactionID.setText(generateRandomUUID());
     }
 }

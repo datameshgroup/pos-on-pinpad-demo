@@ -91,6 +91,8 @@ public class ActivityPayment extends AppCompatActivity {
     String deviceID = generateRandomUUID();
     String shiftNumber = "123Shift";
     String siteID = "TestSitID123";
+    String appName = "";
+    String appVersion = "";
 
     @Override
     public void onBackPressed() {
@@ -112,6 +114,8 @@ public class ActivityPayment extends AppCompatActivity {
 
         setContentView(R.layout.activity_payment);
 
+        appName = getResources().getString(R.string.application_name);
+        appVersion = getResources().getString(R.string.application_version);
 
         ivScan = (ImageView) findViewById(R.id.ivScan);
         ivScan.setOnClickListener(v -> {
@@ -283,8 +287,8 @@ public class ActivityPayment extends AppCompatActivity {
         Message message = new Message(paymentRequest);
         Utils.showLog("Request", message.toJson());
         intent.putExtra(Message.INTENT_EXTRA_MESSAGE, message.toJson());
-        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_NAME, GlobalClass.APPLICATION_NAME);
-        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_VERSION, GlobalClass.APPLICATION_VERSION);
+        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_NAME, appName);
+        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_VERSION, appVersion);
 
         //create abort request
         SaleToPOIRequest abortRequest = buildAbortRequest(testServiceID);
@@ -436,9 +440,9 @@ public class ActivityPayment extends AppCompatActivity {
 
         intent.putExtra(Message.INTENT_EXTRA_MESSAGE, message.toJson());
         // name of this app, that gets treated as the POS label by the terminal.
-        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_NAME, GlobalClass.APPLICATION_NAME);
+        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_NAME, appName);
         // version of of this POS app.
-        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_VERSION, GlobalClass.APPLICATION_VERSION);
+        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_VERSION, appVersion);
 
         startActivityForResult(intent, 100);
     }

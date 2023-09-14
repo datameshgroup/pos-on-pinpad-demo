@@ -14,11 +14,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
-
 import au.com.dmg.fusion.Message;
 import au.com.dmg.fusion.MessageHeader;
 import au.com.dmg.fusion.data.MessageCategory;
@@ -31,6 +26,9 @@ import au.com.dmg.fusion.request.SaleToPOIRequest;
 import au.com.dmg.fusion.request.adminrequest.AdminRequest;
 import au.com.dmg.fusion.request.loginrequest.LoginRequest;
 import au.com.dmg.fusion.request.loginrequest.SaleSoftware;
+import au.com.dmg.fusion.response.LoginResponse;
+import au.com.dmg.fusion.response.SaleToPOIResponse;
+import au.com.dmg.fusion.response.adminresponse.AdminResponse;
 import au.com.dmg.fusion.response.diagnosisresponse.DiagnosisResponse;
 import au.com.dmg.fusion.response.responseextensiondata.POIInformation;
 
@@ -43,7 +41,7 @@ public class ActivitySatellite extends AppCompatActivity {
     private Button btnTerminalInfo;
     private Button btnLogon;
 //    private final TerminalDevice device = new TerminalDevice();
-    private TextView tvTerminalInfo;
+    private TextView tvInfo;
     private int tapCount = 0;
     private long tapCounterStartMillis = 0;
 
@@ -52,33 +50,56 @@ public class ActivitySatellite extends AppCompatActivity {
     TerminalInfoReceiver terminalInfoReceiver = new TerminalInfoReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Utils.showLog("TerminalPOSDemo", intent.getStringExtra(Message.INTENT_EXTRA_MESSAGE));
+            Utils.showLog("TerminalPOSDemo", "broadcast" + intent.getStringExtra(Message.INTENT_EXTRA_MESSAGE));
+            //TODO switch case here admin, login
 
+            String responseInfo = "";
             Message message = null;
+            SaleToPOIResponse response = null;
+
             DiagnosisResponse diagnosisResponse = null;
-            POIInformation poiInformation = null;
             try {
                 message = Message.fromJson(intent.getStringExtra(Message.INTENT_EXTRA_MESSAGE));
-                poiInformation =  message.getResponse().getDiagnosisResponse().getExtensionData().getPoiInformation();
 
+                response = message.getResponse();
+                MessageCategory mc = response.getMessageHeader().getMessageCategory();
                 String receivedServiceID = message.getResponse().getMessageHeader().getServiceID();
                 Utils.showLog("TerminalPOSDemo", "received serviceID:" + receivedServiceID);
 
-                String stringTerminalInfo = "TID: " + poiInformation.getTid()  + " \n" +
-                        "MID: " + poiInformation.getMid() + " \n" +
-                        "Address1: " + poiInformation.getAddressLocation().getAddress1() + " \n" +
-                        "Address2: " + poiInformation.getAddressLocation().getAddress2() + " \n" +
-                        "AddressState: " + poiInformation.getAddressLocation().getAddressState() + " \n" +
-                        "Location: " + poiInformation.getAddressLocation().getLocation() + " \n" +
-                        "SoftwareVersion: " + poiInformation.getSoftwareVersion(); // This will include app version + "-" + hash code
-                tvTerminalInfo.setText(stringTerminalInfo);
+                switch (mc){
+                    case Diagnosis:
+                        POIInformation poiInformation =  response.getDiagnosisResponse().getExtensionData().getPoiInformation();
+                        responseInfo = "ServiceID: " + receivedServiceID  + " \n" +
+                                "TID: " + poiInformation.getTid()  + " \n" +
+                                "MID: " + poiInformation.getMid() + " \n" +
+                                "Address1: " + poiInformation.getAddressLocation().getAddress1() + " \n" +
+                                "Address2: " + poiInformation.getAddressLocation().getAddress2() + " \n" +
+                                "AddressState: " + poiInformation.getAddressLocation().getAddressState() + " \n" +
+                                "Location: " + poiInformation.getAddressLocation().getLocation() + " \n" +
+                                "SoftwareVersion: " + poiInformation.getSoftwareVersion(); // This will include app version + "-" + hash code
+                        break;
+                    case Admin:
+                        AdminResponse adminResponse = response.getAdminResponse();
+                        responseInfo = "ServiceID: " + receivedServiceID + " \n" +
+                                        "Result: " + adminResponse.getResponse().getResult() + " \n" +
+                                        "ErrorCondition: " + adminResponse.getResponse().getErrorCondition() + " \n" +
+                                        "AdditionalResponse: " + adminResponse.getResponse().getAdditionalResponse();
+                        break;
+                    case Login:
+                        LoginResponse loginResponse = response.getLoginResponse();
+                        responseInfo = "ServiceID: " + receivedServiceID + " \n" +
+                                "Result: " + loginResponse.getResponse().getResult() + " \n" +
+                                "ErrorCondition: " + loginResponse.getResponse().getErrorCondition() + " \n" +
+                                "AdditionalResponse: " + loginResponse.getResponse().getAdditionalResponse();
+                        break;
+                }
+                tvInfo.setText(responseInfo);
             } catch (Exception e) {
-                Utils.showLog("TerminalPOSDemo", "Error reading intent.");
+                Utils.showLog("TerminalPOSDemo", "Error reading intent broadcast. : " + intent.getStringExtra(Message.INTENT_EXTRA_MESSAGE));
                 e.printStackTrace();
                 return;
             }
-
-            Log.d("TerminalPOSDemo", poiInformation.toString());
+            Log.d("TerminalPOSDemo", responseInfo);
         }
     };
 
@@ -111,7 +132,7 @@ public class ActivitySatellite extends AppCompatActivity {
         btnLogon = (Button) findViewById(R.id.btnLogon);
         btnLogon.setOnClickListener(v -> dologon());
 
-        tvTerminalInfo = findViewById(R.id.tvTerminalInfo);
+        tvInfo = findViewById(R.id.tvInfo);
 
         registerReceiver(terminalInfoReceiver,  new IntentFilter("fusion_broadcast_receiver"));
     }

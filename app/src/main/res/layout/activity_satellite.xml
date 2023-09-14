@@ -100,7 +100,7 @@
         app:layout_constraintTop_toBottomOf="@+id/btnUpgrade" />
 
     <TextView
-        android:id="@+id/tvTerminalInfo"
+        android:id="@+id/tvInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"

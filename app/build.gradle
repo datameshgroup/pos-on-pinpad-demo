@@ -20,6 +20,8 @@ android {
         versionName "${majorVersion}${minorVersion}"
         setProperty("archivesBaseName", appName + "-v" + versionCode + "(" + versionName + ")")
         resValue "string", "app_name_display", appName + "v" + versionName
+        resValue "string", "application_name", appName
+        resValue "string", "application_version", versionName
 
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

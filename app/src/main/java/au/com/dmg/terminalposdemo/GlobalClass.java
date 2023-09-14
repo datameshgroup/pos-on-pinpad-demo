@@ -2,7 +2,10 @@ package au.com.dmg.terminalposdemo;
 
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.preference.PreferenceManager;
+
+import androidx.viewbinding.BuildConfig;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -18,8 +21,6 @@ import au.com.dmg.fusion.response.SaleToPOIResponse;
 
 // Storing last response on this class for transaction status and completion request
 public class GlobalClass extends Application {
-    public static String APPLICATION_VERSION = "BuildConfig.VERSION_NAME";
-    public static String APPLICATION_NAME = "BuildConfig.APPLICATION_NAME";
 
     ///Temporary response storage used for Transaction Status Request
     private SaleToPOIResponse gResponse;

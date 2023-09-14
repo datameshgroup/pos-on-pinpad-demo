@@ -57,6 +57,8 @@ public class ActivityRequests extends AppCompatActivity {
     private long pressedTime;
 
     GlobalClass globalClass;
+    String appName = "";
+    String appVersion = "";
 
     @Override
     public void onBackPressed() {
@@ -75,6 +77,8 @@ public class ActivityRequests extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_requests);
 
+        appName = getResources().getString(R.string.application_name);
+        appVersion = getResources().getString(R.string.application_version);
         // Getting latest transaction response
         globalClass = (GlobalClass)getApplicationContext();
         this.lastResponse = globalClass.getResponse();
@@ -440,8 +444,8 @@ public class ActivityRequests extends AppCompatActivity {
 
         intent.putExtra(Message.INTENT_EXTRA_MESSAGE, message.toJson());
         // name of this app, that gets treated as the POS label by the terminal.
-        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_NAME, GlobalClass.APPLICATION_NAME);
-        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_VERSION, GlobalClass.APPLICATION_VERSION);
+        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_NAME, appName);
+        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_VERSION, appVersion);
 
         startActivityForResult(intent, 100);
     }

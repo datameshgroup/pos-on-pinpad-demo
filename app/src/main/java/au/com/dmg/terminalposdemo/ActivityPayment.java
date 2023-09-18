@@ -353,6 +353,7 @@ public class ActivityPayment extends AppCompatActivity {
                                         .amountsReq(new AmountsReq.Builder()
                                                 .currency("AUD")
                                                 .requestedAmount(bAmount.add(sampleFee).add(sampleLevy)) //Total of all sale items
+
                                                 .tipAmount(BigDecimal.valueOf(0))
                                                 .cashBackAmount(BigDecimal.valueOf(0))
                                                 .build())

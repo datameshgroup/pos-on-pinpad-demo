@@ -161,6 +161,7 @@ public class ActivityResult extends AppCompatActivity {
             String maskedPAN =  StringUtils.defaultIfEmpty(cardData.getMaskedPAN(), noValue);
             String entryMode = StringUtils.defaultIfEmpty(cardData.getEntryMode().toString(), noValue);
             String account = StringUtils.defaultIfEmpty(cardData.getAccount(), noValue);
+            String cardExpiry = StringUtils.defaultIfEmpty(cardData.getExpiry(), noValue);
 
             ///PaymentAcquirerData
             PaymentAcquirerData paymentAcquirerData = paymentResult.getPaymentAcquirerData();
@@ -198,6 +199,7 @@ public class ActivityResult extends AppCompatActivity {
                             + "<b>Masked PAN:</b> " + maskedPAN  + "<br>"
                             + "<b>Entry Mode:</b> " + entryMode  + "<br>"
                             + "<b>Account:</b> " + account  + "<br>"
+                            + "<b>Card Expiry:</b> " + cardExpiry  + "<br>"
                             + "<b>Payment Instrument Type:</b><br>" + paymentInstrumentType+ "<br>"
                             + "<b>Full JSON Response:</b><br>" + message + "<br>";
 

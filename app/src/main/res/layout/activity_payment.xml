@@ -47,7 +47,7 @@
 
 
     <TextView
-        android:id="@+id/tblTransactionID"
+        android:id="@+id/lblTransactionID"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
@@ -76,87 +76,96 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.322"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
+        app:layout_constraintTop_toTopOf="parent"
+        android:focusable="false"/>
 
 
     <Button
         android:id="@+id/btnOtherFields"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="100dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="100dp"
+        android:layout_width="150dp"
+        android:layout_height="67dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="28dp"
         android:text="View/Edit \nOther Fields"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvTotal" />
+
+    <Button
+        android:id="@+id/btnUpdateSaleItems"
+        android:layout_width="150dp"
+        android:layout_height="67dp"
+        android:layout_marginTop="28dp"
+        android:layout_marginEnd="24dp"
+        android:text="Update \nSaleItems"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvTotal" />
 
     <Button
         android:id="@+id/btnPay"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="100dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginEnd="100dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="28dp"
+        android:layout_marginEnd="24dp"
+        android:backgroundTint="@color/datameshCobalt"
         android:text="Pay"
-        android:textSize="34sp"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnOtherFields" />
+        app:layout_constraintTop_toBottomOf="@+id/btnExtensionData" />
 
     <Button
         android:id="@+id/btnAbort"
         android:layout_width="150dp"
         android:layout_height="80dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="28dp"
+        android:layout_marginEnd="24dp"
         android:text="Pay &amp; Abort"
-        android:textSize="20sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnPay" />
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnUpdateSaleItems" />
 
     <Button
         android:id="@+id/btnExtensionData"
         android:layout_width="150dp"
         android:layout_height="80dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="24dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="28dp"
         android:text="View Transit Data"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/btnAbort"
-        app:layout_constraintTop_toBottomOf="@+id/btnPay" />
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnOtherFields" />
 
     <TextView
         android:id="@+id/tvTotal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="110dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="116dp"
         android:text="Amount"
         android:textSize="30sp"
+        app:layout_constraintEnd_toStartOf="@+id/inputTotal"
+        app:layout_constraintHorizontal_bias="0.472"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/inputTotal"
-        android:layout_width="100dp"
+        android:layout_width="165dp"
         android:layout_height="58dp"
         android:layout_marginTop="110dp"
-        android:layout_marginEnd="50dp"
+        android:layout_marginEnd="24dp"
         android:background="@drawable/edit_text_border"
         android:ems="10"
         android:hint="0.00"
         android:inputType="numberDecimal"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
-        android:textSize="30sp"
         android:text="22.00"
+        android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

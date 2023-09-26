@@ -19,11 +19,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.text.HtmlCompat;
 import org.apache.commons.lang3.StringUtils;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
+
 import au.com.dmg.devices.TerminalDevice;
 import au.com.dmg.fusion.Message;
 import au.com.dmg.fusion.data.ErrorCondition;
 import au.com.dmg.fusion.data.MessageCategory;
+import au.com.dmg.fusion.data.PaymentInstrumentType;
 import au.com.dmg.fusion.data.PaymentType;
 import au.com.dmg.fusion.request.paymentrequest.POIData;
 import au.com.dmg.fusion.response.CardAcquisitionResponse;
@@ -130,16 +134,29 @@ public class ActivityResult extends AppCompatActivity {
             outputXHTML = StringUtils.defaultIfEmpty(paymentReceipt.get(0).getReceiptContentAsHtml(), noValue);
         }
 
-        if(responseResult.equals(ResponseResult.Success)){
+        if(responseResult.equals(ResponseResult.Success) || responseResult.equals(ResponseResult.Partial)){
             isApproved = true;
             paymentType = paymentResult.getPaymentType();
 
             ///AmountsResp
             AmountsResp amountsResp = paymentResult.getAmountsResp();
             String authorizedAmount = StringUtils.defaultIfEmpty(amountsResp.getAuthorizedAmount().toString(), noValue);
+//            String totalFeesAmount = StringUtils.defaultIfEmpty(amountsResp.getTotalFeesAmount().toString(), noValue);
             String cashBackAmount = StringUtils.defaultIfEmpty(amountsResp.getCashBackAmount().toString(), noValue);
             String tipAmount = StringUtils.defaultIfEmpty(amountsResp.getTipAmount().toString(), noValue);
             String surchargeAmount = StringUtils.defaultIfEmpty(amountsResp.getSurchargeAmount().toString(), noValue);
+            String partialAuthorizedAmount = StringUtils.defaultIfEmpty(amountsResp.getPartialAuthorizedAmount().toString(), noValue);
+            String requestedAmount =  StringUtils.defaultIfEmpty(amountsResp.getRequestedAmount().toString(), noValue);
+
+            // Partial Payment Logic
+            GlobalClass globalClass = (GlobalClass)getApplicationContext();
+            if(responseResult.equals(ResponseResult.Partial)){
+                BigDecimal remainingAmount = amountsResp.getRequestedAmount().subtract(amountsResp.getPartialAuthorizedAmount());
+                String transactionID = paymentResponse.getSaleData().getSaleTransactionID().getTransactionID();
+                globalClass.updatePartialPayment(true, remainingAmount ,transactionID);
+            }else{
+                globalClass.updatePartialPayment(false, new BigDecimal(0) ,"");
+            }
 
             List<AdditionalAmount> additionalAmounts = amountsResp.getAdditionalAmounts();
             String surchargeTax = "0.00";
@@ -153,7 +170,8 @@ public class ActivityResult extends AppCompatActivity {
 
             ///PaymentInstrumentData
             PaymentInstrumentData paymentInstrumentData = paymentResult.getPaymentInstrumentData();
-            String paymentInstrumentType = StringUtils.defaultIfEmpty(paymentInstrumentData.getPaymentInstrumentType(), noValue);
+            PaymentInstrumentType paymentInstrumentType = Optional.ofNullable(paymentInstrumentData.getPaymentInstrumentType())
+                    .orElse(PaymentInstrumentType.Other);
 
             ///CardData
             PaymentResponseCardData cardData = paymentInstrumentData.getCardData();
@@ -191,6 +209,9 @@ public class ActivityResult extends AppCompatActivity {
                     tvMessageHead.setTextColor(Color.parseColor("#FF4CAF50"));
 
                     details = "<b>Authorized Amount:</b> $" + authorizedAmount + "<br>"
+//                            + "<b>Total Fees Amount:</b> $" + totalFeesAmount + "<br>"
+                            + "<b>Partial Auth Amount:</b> $" + partialAuthorizedAmount + "<br>"
+                            + "<b>Requested Amount:</b> $" + requestedAmount + "<br>"
                             + "<b>Surcharge:</b> $" + surchargeAmount + "<br>"
                             + "<b>Tip:</b> $" + tipAmount  + "<br>"
                             + "<b>Payment Brand:</b> " + paymentBrand  + "<br>"
@@ -220,9 +241,7 @@ public class ActivityResult extends AppCompatActivity {
                     tvMessageHead.setText("Error \n" + mc);
                     break;
             }
-
-        }
-        else {
+        } else {
             String errorMessage = "";
             tvMessageHead.setTextColor(Color.parseColor("#FF0000"));
             errorCondition = paymentResponse.getResponse().getErrorCondition();

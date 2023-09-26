@@ -20,12 +20,27 @@ import au.com.dmg.fusion.request.paymentrequest.POITransactionID;
 import au.com.dmg.fusion.response.SaleToPOIResponse;
 
 // Storing last response on this class for transaction status and completion request
+// Storing partial payment
 public class GlobalClass extends Application {
 
+    public void updatePartialPayment(Boolean hasPendingPartial, BigDecimal remainingAmount, String transactionID){
+        PartialPayment.hasPendingPartial = hasPendingPartial;
+        PartialPayment.remainingAmount = remainingAmount;
+        PartialPayment.transactionID = transactionID;
+
+    };
     ///Temporary response storage used for Transaction Status Request
     private SaleToPOIResponse gResponse;
     public SaleToPOIResponse getResponse() { return gResponse; }
     public void setResponse(SaleToPOIResponse response){ this.gResponse = response; }
+
+    ///Storage for ongoing partial payment
+
+    static class PartialPayment {
+        static Boolean hasPendingPartial = false;
+        static BigDecimal remainingAmount = new BigDecimal(0);
+        static String transactionID = "";
+    }
 
     ///Temporary preauthorisation storage used for Completion Request
     static class Preauthorisation {

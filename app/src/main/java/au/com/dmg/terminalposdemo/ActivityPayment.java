@@ -65,6 +65,7 @@ public class ActivityPayment extends AppCompatActivity {
     private Button btnPay;
     private Button btnAbort;
     private Button btnExtension;
+    private Button btnAddSalteItems;
     private Button btnOtherFields;
     private TextView inputAmount;
     private TextView tvResults;
@@ -81,7 +82,7 @@ public class ActivityPayment extends AppCompatActivity {
     ExtensionData customExtensionData = null;
 
     //A2B-Specific Amounts
-    BigDecimal sampleFee = BigDecimal.valueOf(1.1);
+    BigDecimal lateNightFee = BigDecimal.valueOf(1.1);
     BigDecimal sampleLevy = BigDecimal.valueOf(10);
 
     //Additional A2B Required fields:
@@ -93,6 +94,10 @@ public class ActivityPayment extends AppCompatActivity {
     String siteID = "TestSitID123";
     String appName = "";
     String appVersion = "";
+
+    Boolean pendingPartialPayment = false;
+    BigDecimal remainingAmount;
+    String pendingTransactionID;
 
     @Override
     public void onBackPressed() {
@@ -135,6 +140,9 @@ public class ActivityPayment extends AppCompatActivity {
         btnExtension = (Button) findViewById(R.id.btnExtensionData);
         btnExtension.setOnClickListener(this::viewExtensionData);
 
+        btnAddSalteItems = (Button) findViewById(R.id.btnUpdateSaleItems);
+        btnAddSalteItems.setOnClickListener(this::updateSalteItems);
+
         btnOtherFields = (Button) findViewById(R.id.btnOtherFields);
         btnOtherFields.setOnClickListener(this::viewOtherFields);
 
@@ -143,8 +151,47 @@ public class ActivityPayment extends AppCompatActivity {
         tvResults = (TextView) findViewById(R.id.tvResults);
         txtProductCode =  (TextView) findViewById(R.id.txtProductCode);
         txtTransactionID = (TextView) findViewById(R.id.txtTransactionID);
-        txtTransactionID.setText(generateRandomUUID());
 
+        // TODO Add logic for saleitems
+        // Check Partial Payment
+        pendingPartialPayment = GlobalClass.PartialPayment.hasPendingPartial;
+        if (pendingPartialPayment){
+            pendingTransactionID = GlobalClass.PartialPayment.transactionID;
+            remainingAmount = GlobalClass.PartialPayment.remainingAmount;
+
+            btnPay.setText("Pay Remaining");
+            inputAmount.setText(remainingAmount.toString());
+            inputAmount.setFocusable(false);
+            txtTransactionID.setText(pendingTransactionID);
+
+        }else{
+            txtTransactionID.setText(generateRandomUUID());
+            inputAmount.setFocusable(true);
+            btnPay.setText("PAY");
+        }
+    }
+
+    private void updateSalteItems(View view) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("SaleItems");
+        SaleItem saleItem;
+
+
+        final View customLayout = getLayoutInflater().inflate(R.layout.dialog_saleitems, null);
+        builder.setView(customLayout);
+//        EditText editText = customLayout.findViewById(R.id.etExtenstionData);
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> {
+            Toast.makeText(this, "SaleItem/s not saved", Toast.LENGTH_SHORT).show();
+        });
+        builder.setPositiveButton("OK", (dialog, which) -> {
+//            sendDialogDataToActivity(editText.getText().toString()); //TODO update this to updateSaleItems create new
+        });
+
+        builder.setCancelable(true);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     public void viewOtherFields(View view) {
@@ -160,16 +207,12 @@ public class ActivityPayment extends AppCompatActivity {
         tvDeviceID.setOnClickListener(v -> etDeviceID.setText(generateRandomUUID()));
         EditText etShiftNumber = fieldsLayout.findViewById(R.id.inputShiftNumber);
         EditText etSiteID = fieldsLayout.findViewById(R.id.inputSiteID);
-        EditText etSampleFee = fieldsLayout.findViewById(R.id.inputSampleFee);
-        EditText etLevy = fieldsLayout.findViewById(R.id.inputLevy);
 
         etRegisteredIdentifier.setText(registeredIdentifier);
         etOperatorID.setText(operatorID);
         etDeviceID.setText(deviceID);
         etShiftNumber.setText(shiftNumber);
         etSiteID.setText(siteID);
-        etSampleFee.setText(sampleFee.toString());
-        etLevy.setText(sampleLevy.toString());
 
         builder.setView(fieldsLayout);
 
@@ -182,9 +225,6 @@ public class ActivityPayment extends AppCompatActivity {
             deviceID = String.valueOf(etDeviceID.getText());
             shiftNumber = String.valueOf(etShiftNumber.getText());
             siteID = String.valueOf(etSiteID.getText());
-
-            sampleFee = new BigDecimal(etSampleFee.getText().toString());
-            sampleLevy = new BigDecimal(etLevy.getText().toString());
         });
 
         builder.setCancelable(true);
@@ -352,38 +392,78 @@ public class ActivityPayment extends AppCompatActivity {
                                 new PaymentTransaction.Builder()
                                         .amountsReq(new AmountsReq.Builder()
                                                 .currency("AUD")
-                                                .requestedAmount(bAmount.add(sampleFee).add(sampleLevy)) //Total of all sale items
-
+                                                .requestedAmount(bAmount) //Total of all sale items
                                                 .tipAmount(BigDecimal.valueOf(0))
                                                 .cashBackAmount(BigDecimal.valueOf(0))
                                                 .build())
                                         .addSaleItem(new SaleItem.Builder()
-                                                .itemID(0)
-                                                .productCode(txtProductCode.getText().toString())
-                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
-                                                .itemAmount(bAmount)
-                                                .unitPrice(bAmount)
-                                                .quantity(new BigDecimal(1))
-                                                .productLabel("TRF 1 SINGLE")
-                                                .build())
-                                        .addSaleItem(new SaleItem.Builder()
                                                 .itemID(1)
-                                                .productCode("SAGovLevy")
+                                                .productCode("MeteredFare")
                                                 .unitOfMeasure(UnitOfMeasure.Kilometre)
-                                                .itemAmount(sampleLevy)
-                                                .unitPrice(sampleLevy)
+                                                .itemAmount(BigDecimal.valueOf(3.9))
+                                                .unitPrice(BigDecimal.valueOf(3.9))
                                                 .quantity(new BigDecimal(1))
-                                                .productLabel("SA GOV LEVY")
-                                                .tags(Arrays.asList(new String[]{"subtotal"}))
+                                                .productLabel("TARIFF 3")
+                                                .tags(Arrays.asList(new String[]{""}))
                                                 .build())
                                         .addSaleItem(new SaleItem.Builder()
-                                                .itemID(2)
-                                                .productCode("LateNightFee")
+                                                .itemID(100)
+                                                .productCode("Levy")
                                                 .unitOfMeasure(UnitOfMeasure.Kilometre)
-                                                .itemAmount(sampleFee)
-                                                .unitPrice(sampleFee)
+                                                .itemAmount(BigDecimal.valueOf(1.1))
+                                                .unitPrice(BigDecimal.valueOf(1.1))
                                                 .quantity(new BigDecimal(1))
-                                                .productLabel("Late Night Fee")
+                                                .productLabel("Levy")
+                                                .tags(Arrays.asList(new String[]{"extra"}))
+                                                .build())
+                                        .addSaleItem(new SaleItem.Builder()
+                                                .itemID(205)
+                                                .productCode("Lifting Fee")
+                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
+                                                .itemAmount(BigDecimal.valueOf(20.0))
+                                                .unitPrice(BigDecimal.valueOf(20.0))
+                                                .quantity(new BigDecimal(1))
+                                                .productLabel("Lifting Fee")
+                                                .tags(Arrays.asList(new String[]{"extra"}))
+                                                .build())
+                                        .addSaleItem(new SaleItem.Builder()
+                                                .itemID(204)
+                                                .productCode("Cleaning Fee")
+                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
+                                                .itemAmount(BigDecimal.valueOf(120.0))
+                                                .unitPrice(BigDecimal.valueOf(120.0))
+                                                .quantity(new BigDecimal(1))
+                                                .productLabel("Cleaning Fee")
+                                                .tags(Arrays.asList(new String[]{"extra"}))
+                                                .build())
+                                        .addSaleItem(new SaleItem.Builder()
+                                                .itemID(203)
+                                                .productCode("HOV")
+                                                .unitOfMeasure(UnitOfMeasure.Other)
+                                                .itemAmount(BigDecimal.valueOf(5.0))
+                                                .unitPrice(BigDecimal.valueOf(5.0))
+                                                .quantity(new BigDecimal(1))
+                                                .productLabel("HOV")
+                                                .tags(Arrays.asList(new String[]{"extra"}))
+                                                .build())
+                                        .addSaleItem(new SaleItem.Builder()
+                                                .itemID(201)
+                                                .productCode("Peak")
+                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
+                                                .itemAmount(BigDecimal.valueOf(2.5))
+                                                .unitPrice(BigDecimal.valueOf(2.5))
+                                                .quantity(new BigDecimal(1))
+                                                .productLabel("Peak")
+                                                .tags(Arrays.asList(new String[]{"extra"}))
+                                                .build())
+                                        .addSaleItem(new SaleItem.Builder()
+                                                .itemID(202)
+                                                .productCode("Airport")
+                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
+                                                .itemAmount(BigDecimal.valueOf(20.0))
+                                                .unitPrice(BigDecimal.valueOf(20.0))
+                                                .quantity(new BigDecimal(1))
+                                                .productLabel("Airport")
                                                 .tags(Arrays.asList(new String[]{"extra"}))
                                                 .build())
                                         .build()
@@ -559,6 +639,11 @@ public class ActivityPayment extends AppCompatActivity {
         startActivity(intent);
     }
     public void TransactionID_OnClick(View view) {
-        txtTransactionID.setText(generateRandomUUID());
+        if(!pendingPartialPayment){
+            txtTransactionID.setText(generateRandomUUID());
+        }else{
+            Toast.makeText(getBaseContext(), "Complete pending partial payment first before generating a new TransactionID", Toast.LENGTH_LONG).show();
+        }
+
     }
 }

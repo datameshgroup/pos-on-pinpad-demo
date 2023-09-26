@@ -140,13 +140,13 @@ public class ActivityResult extends AppCompatActivity {
 
             ///AmountsResp
             AmountsResp amountsResp = paymentResult.getAmountsResp();
-            String authorizedAmount = StringUtils.defaultIfEmpty(amountsResp.getAuthorizedAmount().toString(), noValue);
-//            String totalFeesAmount = StringUtils.defaultIfEmpty(amountsResp.getTotalFeesAmount().toString(), noValue);
-            String cashBackAmount = StringUtils.defaultIfEmpty(amountsResp.getCashBackAmount().toString(), noValue);
-            String tipAmount = StringUtils.defaultIfEmpty(amountsResp.getTipAmount().toString(), noValue);
-            String surchargeAmount = StringUtils.defaultIfEmpty(amountsResp.getSurchargeAmount().toString(), noValue);
-            String partialAuthorizedAmount = StringUtils.defaultIfEmpty(amountsResp.getPartialAuthorizedAmount().toString(), noValue);
-            String requestedAmount =  StringUtils.defaultIfEmpty(amountsResp.getRequestedAmount().toString(), noValue);
+            String authorizedAmount = Optional.ofNullable(amountsResp.getAuthorizedAmount()).orElse(BigDecimal.ZERO).toString();
+            String totalFeesAmount = Optional.ofNullable(amountsResp.getTotalFeesAmount()).orElse(BigDecimal.ZERO).toString();
+            String cashBackAmount = Optional.ofNullable(amountsResp.getCashBackAmount()).orElse(BigDecimal.ZERO).toString();
+            String tipAmount = Optional.ofNullable(amountsResp.getTipAmount()).orElse(BigDecimal.ZERO).toString();
+            String surchargeAmount = Optional.ofNullable(amountsResp.getSurchargeAmount()).orElse(BigDecimal.ZERO).toString();
+            String partialAuthorizedAmount = Optional.ofNullable(amountsResp.getPartialAuthorizedAmount()).orElse(BigDecimal.ZERO).toString();
+            String requestedAmount =  Optional.ofNullable(amountsResp.getRequestedAmount()).orElse(BigDecimal.ZERO).toString();
 
             // Partial Payment Logic
             GlobalClass globalClass = (GlobalClass)getApplicationContext();
@@ -209,7 +209,7 @@ public class ActivityResult extends AppCompatActivity {
                     tvMessageHead.setTextColor(Color.parseColor("#FF4CAF50"));
 
                     details = "<b>Authorized Amount:</b> $" + authorizedAmount + "<br>"
-//                            + "<b>Total Fees Amount:</b> $" + totalFeesAmount + "<br>"
+                            + "<b>Total Fees Amount:</b> $" + totalFeesAmount + "<br>"
                             + "<b>Partial Auth Amount:</b> $" + partialAuthorizedAmount + "<br>"
                             + "<b>Requested Amount:</b> $" + requestedAmount + "<br>"
                             + "<b>Surcharge:</b> $" + surchargeAmount + "<br>"

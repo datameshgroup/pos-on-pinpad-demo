@@ -376,7 +376,7 @@ public class ActivityPayment extends AppCompatActivity {
                                 .operatorID(operatorID)
                                 .saleTransactionID(new SaleTransactionID.Builder()
                                         .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
-                                        .transactionID(generateRandomUUID())
+                                        .transactionID(txtTransactionID.getText().toString())
                                         .build())
                                 .sponsoredMerchant(new SponsoredMerchant.Builder()
                                         .siteID(siteID)

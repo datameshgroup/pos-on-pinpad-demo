@@ -267,6 +267,7 @@ public class ActivityRequests extends AppCompatActivity {
                                                         new AmountsReq.Builder()
                                                                 .currency("AUD")
                                                                 .requestedAmount(bAmt)
+                                                                .cashBackAmount(bAmt)
                                                                 .build()
                                                 )
                                                 .build()

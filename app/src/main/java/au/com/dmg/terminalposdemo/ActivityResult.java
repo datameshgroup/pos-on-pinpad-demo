@@ -17,9 +17,23 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.text.HtmlCompat;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -208,6 +222,8 @@ public class ActivityResult extends AppCompatActivity {
                     }
                     tvMessageHead.setTextColor(Color.parseColor("#FF4CAF50"));
 
+                    String trimmedJSON = replaceOutputXHTML(message);
+
                     details = "<b>Authorized Amount:</b> $" + authorizedAmount + "<br>"
                             + "<b>Total Fees Amount:</b> $" + totalFeesAmount + "<br>"
                             + "<b>Partial Auth Amount:</b> $" + partialAuthorizedAmount + "<br>"
@@ -222,7 +238,9 @@ public class ActivityResult extends AppCompatActivity {
                             + "<b>Account:</b> " + account  + "<br>"
                             + "<b>Card Expiry:</b> " + cardExpiry  + "<br>"
                             + "<b>Payment Instrument Type:</b><br>" + paymentInstrumentType+ "<br>"
-                            + "<b>Full JSON Response:</b><br>" + message + "<br>";
+                            + "<b>Trimmed JSON Response:</b><br>" + prettyPrintJson(trimmedJSON) + "<br>"
+//                            + "<b>Full JSON Response:</b><br>" + message + "<br>"
+                    ;
 
                     tvMessageDetail.setText(HtmlCompat.fromHtml(details, HtmlCompat.FROM_HTML_MODE_COMPACT));
                     break;
@@ -233,7 +251,8 @@ public class ActivityResult extends AppCompatActivity {
 
                     details = "<b>Authorized Amount:</b> $" + authorizedAmount + "<br>"
                             + "<b>Surcharge:</b> $" + surchargeAmount + "<br>"
-                            + "<b>Tip:</b> $" + tipAmount  + "<br>";
+                            + "<b>Tip:</b> $" + tipAmount  + "</b><br>"
+                            + "<b>Full JSON Response:</b><br>" + message + "<br>";
 
                     tvMessageDetail.setText(HtmlCompat.fromHtml(details, HtmlCompat.FROM_HTML_MODE_COMPACT));
                     break;
@@ -250,7 +269,8 @@ public class ActivityResult extends AppCompatActivity {
             tvMessageHead.setText("Transaction " + responseResult);
             errorMessage = "<b>ErrorCode:</b> " + errorCondition
                     + "<br><br>"
-                    + "<b>AdditionalResponse:</b><br>" + additionalResponse;
+                    + "<b>AdditionalResponse:</b><br>" + additionalResponse + "</b><br>"
+                    + "<b>Full JSON Response:</b><br>" + message + "<br>";
             tvMessageDetail.setText(HtmlCompat.fromHtml(errorMessage, HtmlCompat.FROM_HTML_MODE_COMPACT));
 
         }
@@ -258,12 +278,12 @@ public class ActivityResult extends AppCompatActivity {
         tvMessageDetail.setMovementMethod(new ScrollingMovementMethod());
 
         // Show receipt if available, else show details
-        if(!outputXHTML.equals(noValue)){
-            WebSettings settings = tvReceipt.getSettings();
-            settings.setDefaultTextEncodingName("utf-8");
-            tvReceipt.loadDataWithBaseURL(null, outputXHTML, "text/html", "utf-8", null);
-            settings.setTextSize(WebSettings.TextSize.SMALLER);
-        }
+//        if(!outputXHTML.equals(noValue)){
+//            WebSettings settings = tvReceipt.getSettings();
+//            settings.setDefaultTextEncodingName("utf-8");
+//            tvReceipt.loadDataWithBaseURL(null, outputXHTML, "text/html", "utf-8", null);
+//            settings.setTextSize(WebSettings.TextSize.SMALLER);
+//        }
 
         btnPrintReceipt.setOnClickListener(v -> {
             try {
@@ -314,5 +334,40 @@ public class ActivityResult extends AppCompatActivity {
     }
     public static <T> T defaultWhenNull(@Nullable T object, @NonNull T def) {
         return (object == null) ? def : object;
+    }
+
+    public String replaceOutputXHTML(Message message){
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+        JsonFactory factory = mapper.getFactory();
+        JsonParser createParser = null;
+        String path = null;
+        String path2 = null;
+        String trimmedMessage = "";
+        try {
+            createParser = factory.createParser(message.toString());
+            JsonNode actualObj1 = mapper.readTree(createParser);
+            path = actualObj1.findPath("PaymentReceipt").get(0).get("OutputContent").get("OutputXHTML").toString();
+            path2 = actualObj1.findPath("PaymentReceipt").get(1).get("OutputContent").get("OutputXHTML").toString();
+            trimmedMessage = message.toString().replace(path, "\"\"");
+            trimmedMessage = trimmedMessage.replace(path2, "\"\"");
+        } catch (IOException e) {
+            // TODO log cannot trim
+            trimmedMessage = message.toString();
+        }
+        return trimmedMessage;
+    }
+
+    public String prettyPrintJson(String uglyJsonString) {
+        JSONObject json = null;
+        String prettyJson = null;
+        try {
+            json = new JSONObject(uglyJsonString);
+            prettyJson = json.toString(2);
+        } catch (JSONException e) {
+            //TODO
+            prettyJson = uglyJsonString;
+        }
+        return prettyJson;
     }
 }

@@ -34,6 +34,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -162,6 +163,17 @@ public class ActivityResult extends AppCompatActivity {
             String partialAuthorizedAmount = Optional.ofNullable(amountsResp.getPartialAuthorizedAmount()).orElse(BigDecimal.ZERO).toString();
             String requestedAmount =  Optional.ofNullable(amountsResp.getRequestedAmount()).orElse(BigDecimal.ZERO).toString();
 
+            Boolean isLiftFeeApplied = false;
+            List<String> responseTags = null;
+            try{
+                paymentResponse.getExtensionData().getTransitData().getTags();
+                if(responseTags.contains("LiftFeeApplied")){
+                    isLiftFeeApplied = true;
+                }
+            }catch(NullPointerException e){
+                //TODO change logic? This is just created to skip null
+            }
+
             // Partial Payment Logic
             GlobalClass globalClass = (GlobalClass)getApplicationContext();
             if(responseResult.equals(ResponseResult.Partial)){
@@ -224,12 +236,14 @@ public class ActivityResult extends AppCompatActivity {
 
                     String trimmedJSON = replaceOutputXHTML(message);
 
+
                     details = "<b>Authorized Amount:</b> $" + authorizedAmount + "<br>"
                             + "<b>Total Fees Amount:</b> $" + totalFeesAmount + "<br>"
                             + "<b>Partial Auth Amount:</b> $" + partialAuthorizedAmount + "<br>"
                             + "<b>Requested Amount:</b> $" + requestedAmount + "<br>"
                             + "<b>Surcharge:</b> $" + surchargeAmount + "<br>"
                             + "<b>Tip:</b> $" + tipAmount  + "<br>"
+                            + "<b>LiftFeeApplied? </b> " + isLiftFeeApplied  + "<br>"
                             + "<b>Payment Brand:</b> " + paymentBrand  + "<br>"
                             + "<b>Acquirer Transaction ID:</b><br>" + acquirerTransactionID  + "<br>"
                             + "<b>POI Transaction ID:</b><br>" + poiTransactionID  + "<br>"

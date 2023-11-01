@@ -597,7 +597,9 @@ public class ActivityPayment extends AppCompatActivity {
     }
 
     public ExtensionData createSampleExtensionData(){
-        String tagsString = "NSWAllowTSSSubsidy, NSWAllowTSSLift";
+//        String tagsString = "NSWAllowTSSSubsidy, NSWAllowTSSLift";
+//        String tagsString = "QLDAllowTSSSubsidy";
+        String tagsString = "NTAllowTSSSubsidy, NTAllowTSSLift";
         List<String> tags = Arrays.asList(tagsString.split("\\s*,\\s*"));
 
         return new ExtensionData.Builder().transitData(

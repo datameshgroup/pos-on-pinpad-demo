@@ -166,7 +166,7 @@ public class ActivityResult extends AppCompatActivity {
             Boolean isLiftFeeApplied = false;
             List<String> responseTags = null;
             try{
-                paymentResponse.getExtensionData().getTransitData().getTags();
+                responseTags = paymentResponse.getExtensionData().getTransitData().getTags();
                 if(responseTags.contains("LiftFeeApplied")){
                     isLiftFeeApplied = true;
                 }

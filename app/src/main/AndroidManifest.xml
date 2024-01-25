@@ -32,6 +32,10 @@
             android:name=".ActivityOtherRequests"
             android:exported="false" />
         <activity
+            android:name=".ActivityShiftReport"
+            android:exported="true" >
+        </activity>
+        <activity
             android:name=".ActivitySatellite"
             android:exported="true" >
         <intent-filter>

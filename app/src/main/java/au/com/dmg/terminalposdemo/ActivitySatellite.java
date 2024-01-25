@@ -225,31 +225,11 @@ public class ActivitySatellite extends AppCompatActivity {
     }
 
     private void printShiftReport() {
-        this.sentServiceID = generateServiceID();
-        Log.d("TerminalPOSDemo","Printing shift report...ServiceID: " + this.sentServiceID);
-
-        SaleToPOIRequest adminRequest = new SaleToPOIRequest.Builder()
-                .messageHeader(
-                        new MessageHeader.Builder()
-                                .messageClass(MessageClass.Service)
-                                .messageCategory(MessageCategory.Admin)
-                                .messageType(MessageType.Request)
-                                .serviceID(this.sentServiceID)
-                                .build()
-                )
-                .request(new AdminRequest.Builder()
-                        .serviceIdentification(ServiceIdentification.PrintShiftTotals)
-                        .build())
-                .build();
-
-        Intent intent = new Intent(Message.INTENT_ACTION_BROADCAST);
-        Message adminRequestMessage = new Message(adminRequest);
-        Utils.showLog("adminRequestMessage", adminRequestMessage.toJson());
-        intent.putExtra(Message.INTENT_EXTRA_MESSAGE, adminRequestMessage.toJson());
-        sendBroadcast(intent);
+        Log.d("TerminalPOSDemo","Tapped Print Shift Report, will navigate to the new window");
+        Intent intent = new Intent(this, ActivityShiftReport.class);
+        tvInfo.setText("");
+        startActivity(intent);
     }
-
-
     private void launchSatelliteApp() {
         Log.d("TerminalPOSDemo","Launching Satellite app...");
 

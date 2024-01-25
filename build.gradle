@@ -4,8 +4,8 @@ buildscript {
 
         app_id = 'au.com.dmg.terminalposdemo'
         app_name = 'TerminalPOSDemo'
-        major_version = '1.0.0'
-        minor_version = 'J-NT' // Update every build
+        major_version = '1.0.1'
+        minor_version = 'A-NT' // Update every build
     }
     ext.kotlin_version = '1.5.21'
     dependencies {

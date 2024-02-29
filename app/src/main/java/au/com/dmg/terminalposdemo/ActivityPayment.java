@@ -254,7 +254,7 @@ public class ActivityPayment extends AppCompatActivity {
         if (inputTip != null && !inputTip.getText().toString().isEmpty()) {
             bTip = new BigDecimal(inputTip.getText().toString());
         }
-        totalAmount = bTotal.subtract(bDiscount).add(bTip).add(BigDecimal.valueOf(1));
+        totalAmount = bTotal.subtract(bDiscount).add(bTip);
 
         //Request creation
         paymentRequest = new SaleToPOIRequest.Builder()

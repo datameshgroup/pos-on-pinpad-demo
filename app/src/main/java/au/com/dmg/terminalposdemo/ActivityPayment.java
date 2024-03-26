@@ -351,25 +351,53 @@ public class ActivityPayment extends AppCompatActivity {
     }
 
     private void sendRequest(SaleToPOIRequest request) {
-        Intent intent = new Intent(Message.INTENT_ACTION_SALETOPOI_REQUEST);
+        // V2
 
-        // wrapper of request.
-        Message message = new Message(request);
-        Log.d("Request", message.toJson());
+//        Intent intent = new Intent(Message.INTENT_ACTION_SALETOPOI_REQUEST);
+//
+//        // wrapper of request.
+//        Message message = new Message(request);
+//        Log.d("Request", message.toJson());
+//
+//        intent.putExtra(Message.INTENT_EXTRA_MESSAGE, message.toJson());
+//        // name of this app, that gets treated as the POS label by the terminal.
+//        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_NAME, GlobalClass.APPLICATION_NAME);
+//        // version of of this POS app.
+//        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_VERSION, GlobalClass.APPLICATION_VERSION);
 
-        intent.putExtra(Message.INTENT_EXTRA_MESSAGE, message.toJson());
-        // name of this app, that gets treated as the POS label by the terminal.
-        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_NAME, GlobalClass.APPLICATION_NAME);
-        // version of of this POS app.
-        intent.putExtra(Message.INTENT_EXTRA_APPLICATION_VERSION, GlobalClass.APPLICATION_VERSION);
+
+        //v1
+        Intent intent = new Intent("au.com.dmg.axispay");
+        intent.putExtra("TransType", "Purchase Transaction");
+        intent.putExtra("Amount", 2345);
+        intent.putExtra("CashOut", 0);
+        intent.putExtra("POS", "Android POS App!");
+        intent.putExtra("Source", "POS App V0.00.00");
 
         startActivityForResult(intent, 100);
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int responseCode, Intent data) {
         super.onActivityResult(requestCode, responseCode, data);
+        // V1 Only for Logs
+        if (requestCode == 100) {
+            if (responseCode == RESULT_OK) {
+                if (data != null) {
+                    String state = data.getStringExtra("TransState");
+                    if (state != null)
+                        System.out.println("=====V1 Result Transaction " + state);
+                    String id = data.getStringExtra("TransID");
+                    if (id != null)
+                        System.out.println("=====V1 Result TXN ID = " + id);
+                }
+            } else if (responseCode == RESULT_CANCELED) {
+                System.out.println("=====V1 Result Transaction aborted!");
+                System.out.println("=====V1 Result ");
+            }
+        }
+
+        //V2
         if (data != null && data.hasExtra(Message.INTENT_EXTRA_MESSAGE)) {
             this.handleResponseIntent(data);
         }

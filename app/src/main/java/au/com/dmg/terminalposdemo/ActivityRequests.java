@@ -177,6 +177,7 @@ public class ActivityRequests extends AppCompatActivity {
                                 .messageCategory(MessageCategory.Payment)
                                 .messageType(MessageType.Request)
                                 .serviceID(generateServiceID())
+                                .protocolVersion("3.1-dmg")
                                 .build()
                 )
                 .request(
@@ -225,6 +226,7 @@ public class ActivityRequests extends AppCompatActivity {
                                 .messageCategory(MessageCategory.Reversal)
                                 .messageType(MessageType.Request)
                                 .serviceID(generateServiceID())
+                                .protocolVersion("3.1-dmg")
                                 .build()
                 )
                 .request(new ReversalRequest.Builder()
@@ -249,6 +251,7 @@ public class ActivityRequests extends AppCompatActivity {
                                 .messageCategory(MessageCategory.Payment)
                                 .messageType(MessageType.Request)
                                 .serviceID(generateServiceID())
+                                .protocolVersion("3.1-dmg")
                                 .build()
                 )
                 .request(
@@ -295,6 +298,7 @@ public class ActivityRequests extends AppCompatActivity {
                                 .messageCategory(MessageCategory.Payment)
                                 .messageType(MessageType.Request)
                                 .serviceID(generateServiceID())
+                                .protocolVersion("3.1-dmg")
                                 .build()
                 )
                 .request(
@@ -349,6 +353,7 @@ public class ActivityRequests extends AppCompatActivity {
                                 .messageCategory(MessageCategory.Payment)
                                 .messageType(MessageType.Request)
                                 .serviceID(generateServiceID())
+                                .protocolVersion("3.1-dmg")
                                 .build()
                 )
                 .request(
@@ -405,6 +410,7 @@ public class ActivityRequests extends AppCompatActivity {
                                 .messageCategory(MessageCategory.TransactionStatus)
                                 .messageType(MessageType.Request)
                                 .serviceID(lastServiceID)
+                                .protocolVersion("3.1-dmg")
                                 .build()
                 )
                 .request(new TransactionStatusRequest())
@@ -420,6 +426,7 @@ public class ActivityRequests extends AppCompatActivity {
                         .messageClass(MessageClass.Service)
                         .messageCategory(MessageCategory.CardAcquisition)
                         .messageType(MessageType.Request)
+                        .protocolVersion("3.1-dmg")
                         .build()
                 )
                 .request(new CardAcquisitionRequest.Builder()

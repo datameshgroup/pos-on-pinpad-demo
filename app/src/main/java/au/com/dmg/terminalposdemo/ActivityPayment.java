@@ -59,7 +59,6 @@ public class ActivityPayment extends AppCompatActivity {
 
     BigDecimal totalAmount = BigDecimal.valueOf(0);
     BigDecimal bTotal = BigDecimal.valueOf(0);
-    BigDecimal bDiscount = BigDecimal.valueOf(0);
     BigDecimal bTip = BigDecimal.valueOf(0);
     SaleToPOIResponse response = null;
 
@@ -68,7 +67,6 @@ public class ActivityPayment extends AppCompatActivity {
     private Button btnAbort;
     private Button btnCustomField;
     private TextView inputTotal;
-    private TextView inputDiscount;
     private TextView inputTip;
     private TextView tvResults;
     private POITransactionID resPOI = null;
@@ -124,8 +122,6 @@ public class ActivityPayment extends AppCompatActivity {
         btnCustomField.setOnClickListener(this::viewCustomField);
 
         inputTotal = (TextView) findViewById(R.id.inputTotal);
-
-        inputDiscount = (TextView) findViewById(R.id.inputDiscount);
 
         inputTip = (TextView) findViewById(R.id.inputTip);
 
@@ -248,13 +244,11 @@ public class ActivityPayment extends AppCompatActivity {
 
         //Computation
         bTotal = new BigDecimal(inputTotal.getText().toString());
-        if (inputDiscount != null && !inputDiscount.getText().toString().isEmpty()) {
-            bDiscount = new BigDecimal(inputDiscount.getText().toString());
-        }
+
         if (inputTip != null && !inputTip.getText().toString().isEmpty()) {
             bTip = new BigDecimal(inputTip.getText().toString());
         }
-        totalAmount = bTotal.subtract(bDiscount).add(bTip);
+        totalAmount = bTotal.add(bTip);
 
         //Request creation
         paymentRequest = new SaleToPOIRequest.Builder()
@@ -263,6 +257,8 @@ public class ActivityPayment extends AppCompatActivity {
                         .messageCategory(MessageCategory.Payment)
                         .messageType(MessageType.Request)
                         .serviceID(generateServiceID())
+                        .saleID("")
+                        .protocolVersion("3.1-dmg")
                         .build())
                 .request(new PaymentRequest.Builder()
                         .addCustomField(customField1)
@@ -279,7 +275,7 @@ public class ActivityPayment extends AppCompatActivity {
                                                 .currency("AUD")
                                                 .requestedAmount(totalAmount)
                                                 .tipAmount(bTip)
-                                                .cashBackAmount(bDiscount)
+                                                .cashBackAmount(new BigDecimal(0))
                                                 .build())
                                         .addSaleItem(new SaleItem.Builder()
                                                 .itemID(1)
@@ -308,7 +304,6 @@ public class ActivityPayment extends AppCompatActivity {
 
         sendRequest(request);
 
-        bDiscount = BigDecimal.valueOf(0);
         bTip = BigDecimal.valueOf(0);
         totalAmount = BigDecimal.valueOf(0);
     }
@@ -330,6 +325,7 @@ public class ActivityPayment extends AppCompatActivity {
                         .messageCategory(MessageCategory.Abort)
                         .messageType(MessageType.Request)
                         .serviceID(generateServiceID())
+                        .protocolVersion("3.1-dmg")
                         .build())
                 .request(abortTransactionRequest)
                 .build();

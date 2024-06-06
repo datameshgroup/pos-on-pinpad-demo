@@ -12,7 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Random;
+
 import au.com.dmg.fusion.Message;
 import au.com.dmg.fusion.MessageHeader;
 import au.com.dmg.fusion.data.ErrorCondition;
@@ -31,10 +31,6 @@ import au.com.dmg.fusion.request.paymentrequest.PaymentRequest;
 import au.com.dmg.fusion.request.paymentrequest.PaymentTransaction;
 import au.com.dmg.fusion.request.paymentrequest.SaleData;
 import au.com.dmg.fusion.request.paymentrequest.SaleTransactionID;
-import au.com.dmg.fusion.request.paymentrequest.extenstiondata.ExtensionData;
-import au.com.dmg.fusion.request.paymentrequest.extenstiondata.Stop;
-import au.com.dmg.fusion.request.paymentrequest.extenstiondata.TransitData;
-import au.com.dmg.fusion.request.paymentrequest.extenstiondata.Trip;
 import au.com.dmg.fusion.request.reversalrequest.ReversalRequest;
 import au.com.dmg.fusion.request.transactionstatusrequest.TransactionStatusRequest;
 import au.com.dmg.fusion.response.SaleToPOIResponse;
@@ -137,7 +133,8 @@ public class ActivityRequests extends AppCompatActivity {
 //                tvSalesReference.setVisibility(View.VISIBLE);
                 txtTransactionIDLabel.setVisibility(View.VISIBLE);
                 tvTransactionID.setVisibility(View.VISIBLE);
-                btnSendReq.setOnClickListener(v -> sendCompletion());
+//                btnSendReq.setOnClickListener(v -> sendCompletion());
+                btnSendReq.setOnClickListener(v -> sendRequestv1Completion());
                 break;
             case Normal:
                 tvRequestTitle.setText("TRANSACTION STATUS REQUEST");
@@ -332,7 +329,8 @@ public class ActivityRequests extends AppCompatActivity {
                 )
                 .build();
 
-        sendRequest(request);
+//        sendRequest(request);
+        sendRequestv1PreAuth(request);
     }
 
     private void sendCompletion() {
@@ -459,9 +457,54 @@ public class ActivityRequests extends AppCompatActivity {
         startActivityForResult(intent, 100);
     }
 
+    private void sendRequestv1PreAuth(SaleToPOIRequest request) {
+        Intent reqIntent = new Intent("au.com.dmg.axispay");
+        reqIntent.putExtra("TransType", "Pre-authorisation Transaction");
+        reqIntent.putExtra("Amount",10000);
+        reqIntent.putExtra("CashOut", 0);
+        reqIntent.putExtra("TokenRequestedType", "Customer");
+        reqIntent.putExtra("POS", "Android POS App!");
+        reqIntent.putExtra("Source", "POS App V0.00.00");
+        startActivityForResult(reqIntent, 100);
+    }
+
+    private void sendRequestv1Completion() {
+        Intent reqIntent = new Intent("au.com.dmg.axispay");
+        reqIntent.putExtra("TransType", "Completion Transaction");
+        reqIntent.putExtra("Amount",5700);
+        reqIntent.putExtra("OrigTransId" , "xxx");
+        reqIntent.putExtra("POS", "Android POS App!");
+        reqIntent.putExtra("EntryMode" , "File");
+        reqIntent.putExtra("TokenRequestedType", "Customer");
+        reqIntent.putExtra("TokenValue" , "xxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+        reqIntent.putExtra("Source", "POS App V0.00.00");
+
+
+        startActivityForResult(reqIntent, 100);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int responseCode, Intent data) {
         super.onActivityResult(requestCode, responseCode, data);
+        if (requestCode == 100) {
+            if (responseCode == RESULT_OK) {
+                if (data != null) {
+                    String state = data.getStringExtra("TransState");
+                    if (state != null)
+                        System.out.println("v1 Response ==> Transaction: " + state);
+                    String id = data.getStringExtra("TransID");
+                    if (id != null)
+                        System.out.println("v1 Response ==> TXN ID: " + id);
+                    String token = data.getStringExtra("TokenValue");
+                    if (token != null)
+                        System.out.println("v1 Response ==> TokenValue: " + token);
+                }
+            } else if (responseCode == RESULT_CANCELED) {
+                System.out.println("v1 Response ==>  Transaction aborted!");
+                System.out.println("v1 Response ==>  ");
+            }
+        }
+
         if (data != null && data.hasExtra(Message.INTENT_EXTRA_MESSAGE)) {
             this.handleResponseIntent(data);
         }

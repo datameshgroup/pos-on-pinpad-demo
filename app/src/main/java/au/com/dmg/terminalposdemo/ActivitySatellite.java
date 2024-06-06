@@ -40,8 +40,22 @@ public class ActivitySatellite extends AppCompatActivity {
     }
 
     public void openActivityPreauthorisationList(){
-        Intent intent = new Intent(this, ActivityPreauthorisationList.class);
-        startActivity(intent);
+//        Intent intent = new Intent(this, ActivityPreauthorisationList.class);
+//        startActivity(intent);
+
+
+        Intent reqIntent = new Intent("au.com.dmg.axispay");
+        reqIntent.putExtra("TransType", "Completion Transaction");
+        reqIntent.putExtra("Amount",5000);
+        reqIntent.putExtra("OrigTransId" , "665eb261e5e25233ac024c4b");
+        reqIntent.putExtra("POS", "Android POS App!");
+        reqIntent.putExtra("EntryMode" , "File");
+        reqIntent.putExtra("TokenRequestedType", "Customer");
+        reqIntent.putExtra("TokenValue" , "6E5B3B37C880AE5DBD97168342D7377527F9149431B235");
+        reqIntent.putExtra("Source", "POS App V0.00.00");
+
+
+        startActivityForResult(reqIntent, 100);
     }
 
 }

@@ -358,14 +358,39 @@ public class ActivityPayment extends AppCompatActivity {
         intent.putExtra(Message.INTENT_EXTRA_APPLICATION_NAME, GlobalClass.APPLICATION_NAME);
         // version of of this POS app.
         intent.putExtra(Message.INTENT_EXTRA_APPLICATION_VERSION, GlobalClass.APPLICATION_VERSION);
-
         startActivityForResult(intent, 100);
+//        //v1
+//
+//        Intent reqIntent = new Intent("au.com.dmg.axispay");
+//        reqIntent.putExtra("TransType", "Purchase Transaction");
+//        reqIntent.putExtra("Amount",2250);
+//        reqIntent.putExtra("CashOut", 0);
+//        reqIntent.putExtra("POS", "Android POS App!");
+//        reqIntent.putExtra("Source", "POS App V0.00.00");
+//        startActivityForResult(reqIntent, 100);
     }
 
 
     @Override
     protected void onActivityResult(int requestCode, int responseCode, Intent data) {
         super.onActivityResult(requestCode, responseCode, data);
+
+        if (requestCode == 100) {
+            if (responseCode == RESULT_OK) {
+                if (data != null) {
+                    String state = data.getStringExtra("TransState");
+                    if (state != null)
+                        System.out.println("v1 Response ==> Transaction $state");
+                    String id = data.getStringExtra("TransID");
+                    if (id != null)
+                        System.out.println("v1 Response ==> TXN ID = $id");
+                }
+            } else if (responseCode == RESULT_CANCELED) {
+                System.out.println("v1 Response ==>  Transaction aborted!");
+                System.out.println("v1 Response ==>  ");
+            }
+        }
+
         if (data != null && data.hasExtra(Message.INTENT_EXTRA_MESSAGE)) {
             this.handleResponseIntent(data);
         }

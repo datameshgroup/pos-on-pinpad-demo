@@ -230,7 +230,7 @@ fun ShoppingCartScreen(context: Context,paymentLauncher: ActivityResultLauncher<
                 val quantity = itemQuantity.toDoubleOrNull() ?: 1.0
                 if (price != null) {
                     cart.addItem(Item(code = selectedItemCode.name, price = price, quantity = quantity))
-                    unitPrice = ""
+                    unitPrice = "10.00"
                     itemQuantity = "1.0"
                 }
             },
@@ -446,6 +446,7 @@ private fun buildPaymentRequest(testCase: String?, saleItems: MutableList<SaleIt
                 .messageCategory(MessageCategory.Payment)
                 .messageType(MessageType.Request)
                 .serviceID(serviceID)
+                .saleID("f635ab18-09be-4205-963c-6f8ee8ebb409")
                 .protocolVersion("3.1-dmg")
                 .build()
         )

@@ -25,6 +25,9 @@
             android:name=".ActivityPayment"
             android:exported="false" />
         <activity
+            android:name=".ActivityFuelProducts"
+            android:exported="false" />
+        <activity
             android:name=".ActivityRequests"
             android:exported="false" />
         <activity

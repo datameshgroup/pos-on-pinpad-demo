@@ -24,10 +24,12 @@ import au.com.dmg.devices.TerminalDevice;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button btnCart;
+    private Button btnPayment;
     private Button btnSatellite;
     private Button btnPrint;
     private Button btnScan;
+
+    private Button btnFuelProducts;
     private TerminalDevice device = new TerminalDevice();
 
     @Override
@@ -38,13 +40,16 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        btnCart = (Button) findViewById(R.id.btnPayment);
-        btnCart.setOnClickListener(v -> openActivityCart());
+        btnPayment = findViewById(R.id.btnPayment);
+        btnPayment.setOnClickListener(v -> openActivityPayment());
 
-        btnSatellite = (Button) findViewById(R.id.btnSatellite);
+        btnFuelProducts = findViewById(R.id.btnFuelProducts);
+        btnFuelProducts.setOnClickListener(v -> openActivityFuelProducts());
+
+        btnSatellite = findViewById(R.id.btnSatellite);
         btnSatellite.setOnClickListener(v -> openActivitySatellite());
 
-        btnPrint = (Button) findViewById(R.id.btnPrint);
+        btnPrint = findViewById(R.id.btnPrint);
         btnPrint.setOnClickListener(v -> {
             try {
                 testPrint();
@@ -53,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        btnScan = (Button) findViewById(R.id.btnScan);
+        btnScan = findViewById(R.id.btnScan);
         btnScan.setOnClickListener(v -> {
             try {
                 testScan();
@@ -63,17 +68,20 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void testPrint() throws RemoteException {
-        new Thread(new Runnable(){
-            public void run() {
-                    try {
-                        Bitmap img = getBitmapFromAsset(getApplicationContext(),"DMGReceipt.png");
-                        device.printBitmap(img);
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }
+    private void openActivityFuelProducts() {
+        Intent intent = new Intent(this, ActivityFuelProducts.class);
+        startActivity(intent);
+    }
 
-            }
+    public void testPrint() throws RemoteException {
+        new Thread(() -> {
+                try {
+                    Bitmap img = getBitmapFromAsset(getApplicationContext(),"DMGReceipt.png");
+                    device.printBitmap(img);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+
         }).start();
 
     }
@@ -116,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void openActivityCart() {
+    public void openActivityPayment() {
         Intent intent = new Intent(this, ActivityPayment.class);
         startActivity(intent);
     }

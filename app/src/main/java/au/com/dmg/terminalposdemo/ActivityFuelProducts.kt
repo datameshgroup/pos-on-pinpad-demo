@@ -536,12 +536,7 @@ fun buildSaleItems(cart: Cart): List<SaleItem> {
 }
 
 private fun buildSaleItem(productCode: String, unitPrice: Double, quantity: Double, itemAmount: Double, itemID: Int): SaleItem? {
-    val customField = CustomField.Builder()
-        .key(productCode)
-        .type(CustomFieldType.String)
-        .value(1)
-        .build();
-    return SaleItem.Builder()
+    val builder = SaleItem.Builder()
         .itemID(itemID) // Set the itemID
         .productCode(productCode)
         .unitOfMeasure(UnitOfMeasure.Litre)
@@ -549,8 +544,17 @@ private fun buildSaleItem(productCode: String, unitPrice: Double, quantity: Doub
         .quantity(BigDecimal(quantity))
         .itemAmount(BigDecimal(itemAmount))
         .productLabel(productCode)
-        .addCustomField(customField)
-        .build()
+
+    if (productCode != ProductCode.NonFuel.name) {
+        val customField = CustomField.Builder()
+            .key(productCode)
+            .type(CustomFieldType.String)
+            .value(1)
+            .build()
+        builder.addCustomField(customField)
+    }
+
+    return builder.build()
 }
 
 

@@ -69,10 +69,10 @@ import au.com.dmg.fusion.request.paymentrequest.SaleData
 import au.com.dmg.fusion.request.paymentrequest.SaleItem
 import au.com.dmg.fusion.request.paymentrequest.SaleTransactionID
 import au.com.dmg.fusion.response.SaleToPOIResponse
+import au.com.dmg.fusion.response.paymentresponse.PaymentResponse
 import java.math.BigDecimal
 import java.time.Instant
 import java.util.UUID
-
 
 class ActivityFuelProducts : ComponentActivity(), PaymentResultListener {
     private lateinit var paymentLauncher: ActivityResultLauncher<Intent>
@@ -117,6 +117,20 @@ class ActivityFuelProducts : ComponentActivity(), PaymentResultListener {
                 //parse response
                 val mh: MessageHeader = response.messageHeader
                 val mc = mh.messageCategory
+
+                val pr = response.paymentResponse
+                val paymentResult = pr!!.response.result.name
+                val currentPaymentType = pr.paymentResult!!.paymentType
+
+                // Add to completion page list
+                if (paymentResult == "Success") {
+                    if (currentPaymentType == PaymentType.FirstReservation) {
+                        globalClass.response = response
+                        globalClass.addPreauthorisation(response)
+                    }
+                }
+
+
                 openActivityResult(this@ActivityFuelProducts, mc, response, message)
             } catch (e: java.lang.Exception) {
                 Log.d("Error", "Invalid Response ==>" + e.message)
@@ -177,7 +191,7 @@ fun ShoppingCartScreen(context: Context,paymentLauncher: ActivityResultLauncher<
             TextField(
                 value = selectedItemCode.displayName,
                 onValueChange = {},
-                label = { Text("Product Code") },
+                label = { Text("Product") },
                 readOnly = true,
                 enabled = false,
                 modifier = Modifier
@@ -276,7 +290,117 @@ fun ShoppingCartScreen(context: Context,paymentLauncher: ActivityResultLauncher<
         ) {
             Text("PAY NOW", color = Color.White) // Set text color to white for better visibility
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = {
+                val firstItem = cart.getItems().firstOrNull()
+                val firstItemProductCode = ProductCode.values().find { it.name == firstItem?.code }
+                val firstItemTestCase = firstItemProductCode?.testCase
+                println("firstItemTestCase ---- ${firstItemProductCode?.testCase}")
+
+                val paymentRequest = buildPreauthorisationRequest(firstItemTestCase, buildSaleItems(cart) as MutableList<SaleItem>, cart.getTotalPrice())
+                val intent = Intent(Message.INTENT_ACTION_SALETOPOI_REQUEST)
+
+                val message: Message = Message(paymentRequest)
+                Log.d("Fuel PaymentRequest", message.toJson())
+
+                intent.putExtra(Message.INTENT_EXTRA_MESSAGE, message.toJson())
+                // name of this app, that gets treated as the POS label by the terminal.
+                // name of this app, that gets treated as the POS label by the terminal.
+                intent.putExtra(Message.INTENT_EXTRA_APPLICATION_NAME, GlobalClass.APPLICATION_NAME)
+                // version of of this POS app.
+                // version of of this POS app.
+                intent.putExtra(
+                    Message.INTENT_EXTRA_APPLICATION_VERSION,
+                    GlobalClass.APPLICATION_VERSION
+                )
+
+                paymentLauncher?.launch(intent)
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(Color(ContextCompat.getColor(context, R.color.datameshPurple)))
+        ) {
+            Text("PREAUTHORIZE", color = Color.White) // Set text color to white for better visibility
+        }
     }
+}
+
+fun buildPreauthorisationRequest(testCase: String?, saleItems: MutableList<SaleItem>, totalAmount: Double): SaleToPOIRequest?  {
+    val serviceID = UUID.randomUUID().toString()
+    val transactionID = UUID.randomUUID().toString()
+    val preauthTimestamp = Instant.ofEpochMilli(System.currentTimeMillis())
+
+    val paymentTransactionBuilder = PaymentTransaction.Builder()
+        .amountsReq(
+            AmountsReq.Builder()
+                .currency("AUD")
+                .requestedAmount(BigDecimal(totalAmount))
+                .tipAmount(BigDecimal(0))
+                .build()
+        )
+        .saleItems(saleItems)
+
+    // Add SaleItem with zero amount if testCase is not empty
+    if (!testCase.isNullOrEmpty()) {
+        val testItemProduct = ProductCode.values().find { it.testCase == testCase }
+        val testCaseProductCode = testItemProduct?.name
+        println("testCaseProductCode ---- $testCaseProductCode")
+        val customField = CustomField.Builder()
+            .key(testCaseProductCode)
+            .type(CustomFieldType.String)
+            .value(1)
+            .build();
+
+        paymentTransactionBuilder.addSaleItem(
+            SaleItem.Builder()
+                .itemID(1000) // Set the itemID
+                .productCode(testCase)
+                .unitOfMeasure(UnitOfMeasure.Litre)
+                .unitPrice(BigDecimal(0))
+                .quantity(BigDecimal(1))
+                .itemAmount(BigDecimal(0))
+                .productLabel(testCase)
+                .addCustomField(
+                    customField
+                )
+                .build()
+        )
+    }
+
+    return SaleToPOIRequest.Builder()
+        .messageHeader(
+            MessageHeader.Builder()
+                .messageClass(MessageClass.Service)
+                .messageCategory(MessageCategory.Payment)
+                .messageType(MessageType.Request)
+                .serviceID(serviceID)
+                .saleID("f635ab18-09be-4205-963c-6f8ee8ebb409")
+                .protocolVersion("3.1-dmg")
+                .build()
+        )
+        .request(
+            PaymentRequest.Builder()
+                .saleData(
+                    SaleData.Builder()
+                        .operatorLanguage("en")
+                        .saleTransactionID(
+                            SaleTransactionID.Builder()
+                                .timestamp(preauthTimestamp)
+                                .transactionID(transactionID)
+                                .build()
+                        )
+                        .build()
+                )
+                .paymentTransaction(paymentTransactionBuilder.build())
+                .paymentData(
+                    PaymentData.Builder()
+                        .paymentType(PaymentType.FirstReservation)
+                        .build()
+                )
+                .build()
+        )
+        .build()
 }
 
 
@@ -408,6 +532,7 @@ private fun buildPaymentRequest(testCase: String?, saleItems: MutableList<SaleIt
             AmountsReq.Builder()
                 .currency("AUD")
                 .requestedAmount(BigDecimal(totalAmount))
+                .tipAmount(BigDecimal(0))
                 .build()
         )
         .saleItems(saleItems)

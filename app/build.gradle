@@ -11,7 +11,7 @@ android {
         minSdk 21
         targetSdk 32
         versionCode 1
-        versionName "1.0"
+        versionName "2.0-fuel-products"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -48,6 +48,8 @@ android {
     buildTypes {
         debug {
             debuggable = true
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
             minifyEnabled false
@@ -65,17 +67,6 @@ android {
         coreLibraryDesugaringEnabled true
     }
 
-    task printPaxApkName {
-        doLast {
-            print "DebugTerminalPOSDemoPax920" + android.productFlavors.pax.buildConfigFields.VERSION_TYPE.value.replaceAll('^\"|\"$', "") + "." + android.defaultConfig.versionName + ".apk"
-        }
-    }
-
-    task printIngenicoApkName {
-        doLast {
-            print "DebugTerminalPOSDemoDx8000" + android.productFlavors.ingenico.buildConfigFields.VERSION_TYPE.value.replaceAll('^\"|\"$', "") + "." + android.defaultConfig.versionName + ".apk"
-        }
-    }
     buildFeatures {
         viewBinding true
         compose true
@@ -86,8 +77,37 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
-}
+    afterEvaluate {
+        android.applicationVariants.all { variant ->
+            variant.outputs.each { output ->
+                def buildType = variant.buildType.name.capitalize()
+                def flavor = variant.flavorName.capitalize()
 
+                def assembleTaskName = "assemble${flavor}${buildType}"
+
+                tasks.named(assembleTaskName).configure {
+                    doLast {
+                        println "Renaming APK files for $flavor $buildType..."
+
+                        // Get the built APK file for the flavor
+                        def apkFile = output.outputFile
+                        if (apkFile.exists()) {
+                            // Rename the APK file
+                            def newApkName = "DebugTerminalPOSDemo${flavor}920" + android.productFlavors[flavor.toLowerCase()].buildConfigFields.VERSION_TYPE.value.replaceAll('^\"|\"$', "") + "." + android.defaultConfig.versionName + ".apk"
+                            def newApk = file("${buildDir}/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/$newApkName")
+                            ant.move(file: apkFile, tofile: newApk)
+                            println "Renamed APK file to: $newApk"
+                        } else {
+                            println "APK file not found for $flavor $buildType."
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+}
 dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
     implementation 'androidx.appcompat:appcompat:1.4.2'

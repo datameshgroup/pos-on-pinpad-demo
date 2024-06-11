@@ -2,6 +2,13 @@
 buildscript {
 //    ext.kotlin_version = '1.5.21'
     ext.kotlin_version = '1.7.0'
+    ext {
+        app_id = 'au.com.dmg.terminalposdemo'
+        app_name = 'TerminalPOSDemo'
+        apk_name = "TerminalPOSDemo"
+        major_version = "2.0.0" // Update every release, must be integer
+        minor_version = 'a' // Update every build
+    }
     repositories {
         google()
         mavenCentral()

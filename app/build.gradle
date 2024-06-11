@@ -11,7 +11,6 @@ android {
         minSdk 21
         targetSdk 32
         versionCode 1
-        versionName "2.0-fuel-products"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -27,40 +26,80 @@ android {
     }
 
     flavorDimensions 'device'
-    productFlavors {
-        pax {
-            dimension "device"
-            applicationId = "au.com.dmg.terminalposdemo"
-            buildConfigField 'boolean', 'DEVICE_PAX', 'true'
-            buildConfigField 'boolean', 'DEVICE_IGO', 'false'
-            buildConfigField 'String', 'VERSION_TYPE', "\"v1\""
 
+    ext {
+        deviceVersions = [:]
+    }
+
+    productFlavors {
+
+        def versionFormat = "${rootProject.ext.major_version}"
+        def apkName = rootProject.ext.apk_name
+
+        def createDeviceFlavor = { device ->
+            "${device}" {
+                dimension "device"
+
+                resValue "string", "device_version", "${device}"
+
+                def deviceVersion = "${versionFormat}"
+                println("${device}Version: $deviceVersion")
+                resValue "string", "application_int_version", "${deviceVersion}"
+
+                versionName "${deviceVersion}${rootProject.ext.minor_version}"
+                resValue "string", "application_version", versionName
+
+                resValue "string", "application_name", "${apkName}${versionName}"
+
+//                archivesBaseName = "FusionAdaptor" + deviceVersion
+                resValue "string", "app_name_display", apkName + " v" + versionName
+
+//                setProperty("archivesBaseName", archivesBaseName)
+                android.ext.deviceVersions[device] = deviceVersion
+            }
         }
-        ingenico {
-            dimension "device"
-            applicationId = "au.com.dmg.terminalposdemo"
-            buildConfigField 'boolean', 'DEVICE_PAX', 'false'
-            buildConfigField 'boolean', 'DEVICE_IGO', 'true'
-            buildConfigField 'String', 'VERSION_TYPE', "\"v1\""
+
+        createDeviceFlavor("pax")
+
+        createDeviceFlavor("ingenico")
+    }
+
+    applicationVariants.all { variant ->
+        def deviceFlavor = variant.productFlavors.get(0)
+        def deviceVersion = android.ext.deviceVersions[deviceFlavor.name]
+
+        variant.outputs.each { output ->
+            output.outputFileName = "TerminalPOSDemo_${deviceVersion}-${variant.buildType.name}-${deviceFlavor.name}.apk"
         }
     }
 
+
     buildTypes {
-        debug {
-            debuggable = true
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            shrinkResources false
+            debuggable = false
+            signingConfig signingConfigs.debug
+            if (project.hasProperty("pax")) {
+                v2SigningEnabled false
+            }
         }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            shrinkResources false
+            signingConfig signingConfigs.debug
+            debuggable = true
+        }
+
     }
     sourceSets {
         main {
             jniLibs.srcDirs = ['src/main/jniLibs']
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -71,43 +110,17 @@ android {
         viewBinding true
         compose true
     }
+
     composeOptions {
         kotlinCompilerExtensionVersion '1.2.0'
     }
+
     kotlinOptions {
         jvmTarget = '1.8'
     }
-    afterEvaluate {
-        android.applicationVariants.all { variant ->
-            variant.outputs.each { output ->
-                def buildType = variant.buildType.name.capitalize()
-                def flavor = variant.flavorName.capitalize()
-
-                def assembleTaskName = "assemble${flavor}${buildType}"
-
-                tasks.named(assembleTaskName).configure {
-                    doLast {
-                        println "Renaming APK files for $flavor $buildType..."
-
-                        // Get the built APK file for the flavor
-                        def apkFile = output.outputFile
-                        if (apkFile.exists()) {
-                            // Rename the APK file
-                            def newApkName = "DebugTerminalPOSDemo${flavor}920" + android.productFlavors[flavor.toLowerCase()].buildConfigFields.VERSION_TYPE.value.replaceAll('^\"|\"$', "") + "." + android.defaultConfig.versionName + ".apk"
-                            def newApk = file("${buildDir}/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/$newApkName")
-                            ant.move(file: apkFile, tofile: newApk)
-                            println "Renamed APK file to: $newApk"
-                        } else {
-                            println "APK file not found for $flavor $buildType."
-                        }
-                    }
-                }
-            }
-        }
-    }
-
 
 }
+
 dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
     implementation 'androidx.appcompat:appcompat:1.4.2'

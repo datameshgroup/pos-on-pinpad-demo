@@ -1,5 +1,6 @@
 package au.com.dmg.terminalposdemo
 
+//import androidx.compose.ui.text.TextStyle
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -12,6 +13,7 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
@@ -42,13 +45,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import au.com.dmg.fusion.Message
@@ -69,10 +75,10 @@ import au.com.dmg.fusion.request.paymentrequest.SaleData
 import au.com.dmg.fusion.request.paymentrequest.SaleItem
 import au.com.dmg.fusion.request.paymentrequest.SaleTransactionID
 import au.com.dmg.fusion.response.SaleToPOIResponse
-import au.com.dmg.fusion.response.paymentresponse.PaymentResponse
 import java.math.BigDecimal
 import java.time.Instant
 import java.util.UUID
+
 
 class ActivityFuelProducts : ComponentActivity(), PaymentResultListener {
     private lateinit var paymentLauncher: ActivityResultLauncher<Intent>
@@ -158,9 +164,9 @@ fun openActivityResult(context: Context, mc: MessageCategory?, r: SaleToPOIRespo
 @Composable
 fun ShoppingCartScreenPreview() {
     val cart = Cart()
-    cart.addItem(Item(ProductCode.NonFuel.name, 10.0, 1.0))
-    cart.addItem(Item(ProductCode.FuelProductCodeFreedomFuelCard.name, 15.0, 1.0))
-    cart.addItem(Item(ProductCode.FuelProductCode.name, 20.0, 2.0))
+    cart.addItem(Item(ProductCode.NonFuel.displayName, 100.0000, 100900.0))
+    cart.addItem(Item(ProductCode.FuelProductCodeFreedomFuelCard.displayName, 15.0, 1.0))
+    cart.addItem(Item(ProductCode.FuelProductCode.displayName, 20.0, 2.0))
     ShoppingCartScreen(context = LocalContext.current, paymentLauncher = mockLauncher, cart = cart)
 }
 class MockLauncher : ActivityResultLauncher<Intent>() {
@@ -256,7 +262,13 @@ fun ShoppingCartScreen(context: Context,paymentLauncher: ActivityResultLauncher<
         Spacer(modifier = Modifier.height(16.dp))
         CartItemsList(cart)
         Spacer(modifier = Modifier.height(16.dp))
-        Text("Total Price: \$${cart.getTotalPrice()}")
+        Text(
+            text = "Total Price: \$${cart.getTotalPrice()}",
+            style = TextStyle(
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold // Set the font weight to bold
+            )
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
         Button(
@@ -286,6 +298,7 @@ fun ShoppingCartScreen(context: Context,paymentLauncher: ActivityResultLauncher<
                 paymentLauncher?.launch(intent)
             },
             modifier = Modifier.fillMaxWidth(),
+            enabled = cart.getItems().isNotEmpty(),
             colors = ButtonDefaults.buttonColors(Color(ContextCompat.getColor(context, R.color.datameshPurple)))
         ) {
             Text("PAY NOW", color = Color.White) // Set text color to white for better visibility
@@ -319,6 +332,7 @@ fun ShoppingCartScreen(context: Context,paymentLauncher: ActivityResultLauncher<
                 paymentLauncher?.launch(intent)
             },
             modifier = Modifier.fillMaxWidth(),
+            enabled = cart.getItems().isNotEmpty(),
             colors = ButtonDefaults.buttonColors(Color(ContextCompat.getColor(context, R.color.datameshPurple)))
         ) {
             Text("PREAUTHORIZE", color = Color.White) // Set text color to white for better visibility
@@ -412,43 +426,60 @@ fun CartItemsList(cart: Cart) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                        .padding(vertical = 8.dp),
+//                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "${item.code}",
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(2f)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .horizontalScroll(rememberScrollState(), enabled = true)
+                            .weight(2f)
+                    ) {
+                        Text(
+                            text = item.code,
+                            maxLines = 1
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .horizontalScroll(rememberScrollState(), enabled = true)
+                            .weight(2f)
+                            .padding(horizontal = 8.dp)
+                    ) {
+                        Text(
+                            text = "\$${item.price} x ${item.quantity}",
+                            maxLines = 1
+                        )
+                    }
 
-                    Text(
-                        text = "\$${item.price} x ${item.quantity}",
-                        modifier = Modifier.weight(1f),
-                        maxLines = 1,
-                    )
-
-                    Text(
-                        text = "\$${item.getItemAmount()}",
-                        modifier = Modifier.weight(1f)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .horizontalScroll(rememberScrollState(), enabled = true)
+                            .weight(1f)
+                            .padding(horizontal = 8.dp)
+                    ) {
+                        Text(
+                            text = "\$${item.getItemAmount()}",
+                            maxLines = 1
+                        )
+                    }
 
                     ClickableText(
                         text = buildAnnotatedString {
-                            withStyle(style = SpanStyle(color = Color.Red, textDecoration = TextDecoration.Underline)) {
+                            withStyle(style = SpanStyle(color = Color.Red, textDecoration = TextDecoration.None)) {
                                 append("Remove")
                             }
                         },
                         onClick = { cart.removeItem(item) },
-                        modifier = Modifier.align(Alignment.CenterVertically) // Align text vertically
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1
                     )
+
                 }
             }
         }
     }
 }
-
 
 
 

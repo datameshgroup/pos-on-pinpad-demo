@@ -182,7 +182,7 @@ val mockLauncher = MockLauncher()
 
 @Composable
 fun ShoppingCartScreen(context: Context,paymentLauncher: ActivityResultLauncher<Intent>, cart: Cart) {
-    var selectedItemCode by remember { mutableStateOf(ProductCode.FuelProductCodeShellCard) }
+    var selectedItemCode by remember { mutableStateOf(ProductCode.NonFuel) }
     var unitPrice by remember { mutableStateOf("10.00") }
     var itemQuantity by remember { mutableStateOf("1.0") }
     var expanded by remember { mutableStateOf(false) }
@@ -288,6 +288,7 @@ fun ShoppingCartScreen(context: Context,paymentLauncher: ActivityResultLauncher<
                 // name of this app, that gets treated as the POS label by the terminal.
                 // name of this app, that gets treated as the POS label by the terminal.
                 intent.putExtra(Message.INTENT_EXTRA_APPLICATION_NAME, GlobalClass.APPLICATION_NAME)
+                intent.putExtra("Source", "POSONTERMINAL")
                 // version of of this POS app.
                 // version of of this POS app.
                 intent.putExtra(

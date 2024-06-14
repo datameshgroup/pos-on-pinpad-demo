@@ -24,6 +24,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -80,6 +81,8 @@ public class ActivityPayment extends AppCompatActivity {
 
     String testServiceID;
     ExtensionData customExtensionData = null;
+
+    SaleItem customSaleItem = null;
 
     //A2B-Specific Amounts
     BigDecimal lateNightFee = BigDecimal.valueOf(1.1);
@@ -141,7 +144,7 @@ public class ActivityPayment extends AppCompatActivity {
         btnExtension.setOnClickListener(this::viewExtensionData);
 
         btnAddSalteItems = (Button) findViewById(R.id.btnUpdateSaleItems);
-        btnAddSalteItems.setOnClickListener(this::updateSalteItems);
+        btnAddSalteItems.setOnClickListener(this::viewSaleItem);
 
         btnOtherFields = (Button) findViewById(R.id.btnOtherFields);
         btnOtherFields.setOnClickListener(this::viewOtherFields);
@@ -169,29 +172,6 @@ public class ActivityPayment extends AppCompatActivity {
             inputAmount.setFocusable(true);
             btnPay.setText("PAY");
         }
-    }
-
-    private void updateSalteItems(View view) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("SaleItems");
-        SaleItem saleItem;
-
-
-        final View customLayout = getLayoutInflater().inflate(R.layout.dialog_saleitems, null);
-        builder.setView(customLayout);
-//        EditText editText = customLayout.findViewById(R.id.etExtenstionData);
-
-        builder.setNegativeButton("Cancel", (dialog, which) -> {
-            Toast.makeText(this, "SaleItem/s not saved", Toast.LENGTH_SHORT).show();
-        });
-        builder.setPositiveButton("OK", (dialog, which) -> {
-//            sendDialogDataToActivity(editText.getText().toString()); //TODO update this to updateSaleItems create new
-        });
-
-        builder.setCancelable(true);
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
     }
 
     public void viewOtherFields(View view) {
@@ -232,6 +212,55 @@ public class ActivityPayment extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
+    public void viewSaleItem(View view)  {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("SaleItem");
+        SaleItem saleItem;
+
+        if(customSaleItem ==null){
+            saleItem = createSampleSaleItem();
+        }else{
+            saleItem = customSaleItem;
+        }
+
+        final View customLayout = getLayoutInflater().inflate(R.layout.dialog_saleitems, null);
+        builder.setView(customLayout);
+        EditText editText = customLayout.findViewById(R.id.etSaleItems);
+
+        JSONObject json;
+        try {
+            json = new JSONObject(printSaleItemtoJson(saleItem));
+            editText.setText(json.toString(2));
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> {
+            Toast.makeText(this, "TransitData not updated", Toast.LENGTH_SHORT).show();
+        });
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            sendDialogSaleItemToActivity(editText.getText().toString());
+        });
+
+        builder.setCancelable(true);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    public SaleItem createSampleSaleItem(){
+        return new SaleItem.Builder()
+                .itemID(1)
+                .productCode("MeteredFare")
+                .unitOfMeasure(UnitOfMeasure.Kilometre)
+                .itemAmount(BigDecimal.valueOf(3.9))
+                .unitPrice(BigDecimal.valueOf(3.9))
+                .quantity(new BigDecimal(2))
+                .productLabel("TARIFF 3")
+                .tags(Arrays.asList(new String[]{""}))
+                .build();
+    }
+
     public void viewExtensionData(View view)  {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("TransitData");
@@ -296,6 +325,26 @@ public class ActivityPayment extends AppCompatActivity {
         }
     }
 
+    private void sendDialogSaleItemToActivity(String data) {
+        try {
+            customSaleItem = buildSaleItemfromJson(data);
+            //Validate TransitData using builder
+            SaleItem si = new SaleItem.Builder()
+                    .itemID(1)
+                    .productCode(customSaleItem.getProductCode())
+                    .unitOfMeasure(customSaleItem.getUnitOfMeasure())
+                    .itemAmount(customSaleItem.getItemAmount())
+                    .unitPrice(customSaleItem.getUnitPrice())
+                    .quantity(customSaleItem.getQuantity())
+                    .productLabel(customSaleItem.getProductLabel())
+                    .tags(Arrays.asList(new String[]{""}))
+                    .build();
+        } catch (Exception e) {
+            customSaleItem = null;
+            Toast.makeText(this, "Invalid SaleItem. Ignoring.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     @SuppressLint("HandlerLeak")
     private final Handler barcodeHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
@@ -347,16 +396,21 @@ public class ActivityPayment extends AppCompatActivity {
             }
         }, 10000);
     }
-
     private SaleToPOIRequest buildPaymentRequest(String serviceID) {
 
         SaleToPOIRequest paymentRequest;
         ExtensionData extensionData;
+        SaleItem saleItem;
 
         if(customExtensionData==null){
             extensionData = createSampleExtensionData();
         }else{
             extensionData = customExtensionData;
+        }
+        if(customSaleItem==null){
+            saleItem = createSampleSaleItem();
+        }else{
+            saleItem = customSaleItem;
         }
 
         bAmount = new BigDecimal(inputAmount.getText().toString());
@@ -396,16 +450,7 @@ public class ActivityPayment extends AppCompatActivity {
                                                 .tipAmount(BigDecimal.valueOf(0))
                                                 .cashBackAmount(BigDecimal.valueOf(0))
                                                 .build())
-                                        .addSaleItem(new SaleItem.Builder()
-                                                .itemID(1)
-                                                .productCode("MeteredFare")
-                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
-                                                .itemAmount(BigDecimal.valueOf(3.9))
-                                                .unitPrice(BigDecimal.valueOf(3.9))
-                                                .quantity(new BigDecimal(1))
-                                                .productLabel("TARIFF 3")
-                                                .tags(Arrays.asList(new String[]{""}))
-                                                .build())
+                                        .addSaleItem(saleItem)
                                         .addSaleItem(new SaleItem.Builder()
                                                 .itemID(100)
                                                 .productCode("Levy")
@@ -587,6 +632,16 @@ public class ActivityPayment extends AppCompatActivity {
         return jsonAdapter.nonNull().fromJson(jsonString);
     }
 
+    SaleItem buildSaleItemfromJson(String jsonString) throws IOException {
+        Moshi moshi = new Moshi.Builder()
+                .add(new BigDecimalAdapter())
+                .add(new InstantAdapter())
+                .build();
+
+        JsonAdapter<SaleItem> jsonAdapter = moshi.adapter(SaleItem.class);
+        return jsonAdapter.nonNull().fromJson(jsonString);
+    }
+
     public String printExtensionDatatoJson(ExtensionData extensionData) {
         Moshi moshi = new Moshi.Builder()
                 .add(new BigDecimalAdapter())
@@ -594,6 +649,15 @@ public class ActivityPayment extends AppCompatActivity {
                 .build();
         JsonAdapter<ExtensionData> jsonAdapter = moshi.adapter(ExtensionData.class);
         return jsonAdapter.toJson(extensionData);
+    }
+
+    public String printSaleItemtoJson(SaleItem saleItem) {
+        Moshi moshi = new Moshi.Builder()
+                .add(new BigDecimalAdapter())
+                .add(new InstantAdapter())
+                .build();
+        JsonAdapter<SaleItem> jsonAdapter = moshi.adapter(SaleItem.class);
+        return jsonAdapter.toJson(saleItem);
     }
 
     public ExtensionData createSampleExtensionData(){

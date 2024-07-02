@@ -1,14 +1,13 @@
 package au.com.dmg.terminalposdemo;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.RemoteException;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,17 +60,14 @@ public class ActivityPayment extends AppCompatActivity {
 
     BigDecimal bAmount = BigDecimal.valueOf(0);
     SaleToPOIResponse response = null;
-
-    private ImageView ivScan;
     private Button btnPay;
     private Button btnAbort;
-    private Button btnExtension;
+    private Button btnTripData;
     private Button btnAddSalteItems;
     private Button btnOtherFields;
     private TextView inputAmount;
     private TextView tvResults;
     private POITransactionID resPOI = null;
-    private TextView txtProductCode = null;
     private TextView txtTransactionID = null;
 
     //scanner
@@ -80,7 +76,7 @@ public class ActivityPayment extends AppCompatActivity {
     private long pressedTime;
 
     String testServiceID;
-    ExtensionData customExtensionData = null;
+    Trip customTripData = null;
 
     SaleItem customSaleItem = null;
 
@@ -101,6 +97,10 @@ public class ActivityPayment extends AppCompatActivity {
     Boolean pendingPartialPayment = false;
     BigDecimal remainingAmount;
     String pendingTransactionID;
+
+    CheckBox chkIsWheelchairEnabled, chkNTAllowTSSSubsidy, chkNTAllowTSSLift, chkQLDAllowTSSSubsidy, chkNSWAllowTSSLift, chkNSWAllowTSSSubsidy;
+    List<String> selectedTags;
+    private TextView inputODBS;
 
     @Override
     public void onBackPressed() {
@@ -125,35 +125,35 @@ public class ActivityPayment extends AppCompatActivity {
         appName = getResources().getString(R.string.application_name);
         appVersion = getResources().getString(R.string.application_version);
 
-        ivScan = (ImageView) findViewById(R.id.ivScan);
-        ivScan.setOnClickListener(v -> {
-            try {
-                startScan();
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-        });
-
         btnPay = (Button) findViewById(R.id.btnPay);
         btnPay.setOnClickListener(this::sendPaymentRequest);
 
         btnAbort = (Button) findViewById(R.id.btnAbort);
         btnAbort.setOnClickListener(this::testAbort);
 
-        btnExtension = (Button) findViewById(R.id.btnExtensionData);
-        btnExtension.setOnClickListener(this::viewExtensionData);
+        btnTripData = (Button) findViewById(R.id.btnTripData);
+        btnTripData.setOnClickListener(this::viewTripData);
 
         btnAddSalteItems = (Button) findViewById(R.id.btnUpdateSaleItems);
         btnAddSalteItems.setOnClickListener(this::viewSaleItem);
 
-        btnOtherFields = (Button) findViewById(R.id.btnOtherFields);
+        btnOtherFields = (Button) findViewById(R.id.btnSaleDataFields);
         btnOtherFields.setOnClickListener(this::viewOtherFields);
 
         inputAmount = (TextView) findViewById(R.id.inputTotal);
 
         tvResults = (TextView) findViewById(R.id.tvResults);
-        txtProductCode =  (TextView) findViewById(R.id.txtProductCode);
         txtTransactionID = (TextView) findViewById(R.id.txtTransactionID);
+
+        inputODBS = findViewById(R.id.inputODBS);
+
+        chkIsWheelchairEnabled = findViewById(R.id.chkIsWheelchairEnabled);
+        chkNTAllowTSSSubsidy = findViewById(R.id.chkNTAllowTSSSubsidy);
+        chkNTAllowTSSLift  = findViewById(R.id.chkNTAllowTSSLift);
+        chkQLDAllowTSSSubsidy  = findViewById(R.id.chkQLDAllowTSSSubsidy);
+        chkNSWAllowTSSLift  = findViewById(R.id.chkNSWAllowTSSLift);
+        chkNSWAllowTSSSubsidy = findViewById(R.id.chkNSWAllowTSSSubsidy);
+        selectedTags = new ArrayList<>();
 
         // TODO Add logic for saleitems
         // Check Partial Payment
@@ -174,6 +174,23 @@ public class ActivityPayment extends AppCompatActivity {
         }
     }
 
+    private void collectSelectedTags() {
+        if (chkNTAllowTSSSubsidy.isChecked()) {
+            selectedTags.add("NTAllowTSSSubsidy");
+        }
+        if (chkNTAllowTSSLift.isChecked()) {
+            selectedTags.add("NTAllowTSSLift");
+        }
+        if (chkQLDAllowTSSSubsidy.isChecked()) {
+            selectedTags.add("QLDAllowTSSSubsidy");
+        }
+        if (chkNSWAllowTSSLift.isChecked()) {
+            selectedTags.add("NSWAllowTSSLift");
+        }
+        if (chkNSWAllowTSSSubsidy.isChecked()) {
+            selectedTags.add("NSWAllowTSSSubsidy");
+        }
+    }
     public void viewOtherFields(View view) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Other Fields");
@@ -255,29 +272,29 @@ public class ActivityPayment extends AppCompatActivity {
                 .unitOfMeasure(UnitOfMeasure.Kilometre)
                 .itemAmount(BigDecimal.valueOf(3.9))
                 .unitPrice(BigDecimal.valueOf(3.9))
-                .quantity(new BigDecimal(2))
+                .quantity(new BigDecimal(1))
                 .productLabel("TARIFF 3")
                 .tags(Arrays.asList(new String[]{""}))
                 .build();
     }
 
-    public void viewExtensionData(View view)  {
+    public void viewTripData(View view)  {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("TransitData");
-        ExtensionData extensionData;
-                if(customExtensionData==null){
-                    extensionData = createSampleExtensionData();
+        Trip tripData;
+                if(customTripData ==null){
+                    tripData = createSampleTripData();
                 }else{
-                    extensionData = customExtensionData;
+                    tripData = customTripData;
                 }
 
         final View customLayout = getLayoutInflater().inflate(R.layout.dialog_extensiondata, null);
         builder.setView(customLayout);
-        EditText editText = customLayout.findViewById(R.id.etExtenstionData);
+        EditText editText = customLayout.findViewById(R.id.etTripData);
 
         JSONObject json;
         try {
-            json = new JSONObject(printExtensionDatatoJson(extensionData));
+            json = new JSONObject(printTripDatatoJson(tripData));
             editText.setText(json.toString(2));
         } catch (JSONException e) {
             throw new RuntimeException(e);
@@ -298,17 +315,17 @@ public class ActivityPayment extends AppCompatActivity {
 
     private void sendDialogDataToActivity(String data) {
         try {
-            customExtensionData = buildExtensionDatafromJson(data);
-            //Validate TransitData using builder
-            TransitData td = new TransitData.Builder()
-                    .isWheelchairEnabled(customExtensionData.getTransitData().getIsWheelchairEnabled())
-                    .trip(customExtensionData.getTransitData().getTrip())
-                    .tags(customExtensionData.getTransitData().getTags())
-                    .build();
+            customTripData = buildTripDatafromJson(data);
+//            //Validate TransitData using builder
+//            TransitData td = new TransitData.Builder()
+//                    .isWheelchairEnabled(customTripData.getTransitData().getIsWheelchairEnabled())
+//                    .trip(customTripData.getTransitData().getTrip())
+//                    .tags(customTripData.getTransitData().getTags())
+//                    .build();
             //Validate Trip using builder
             Trip trip = new Trip.Builder()
-                    .addStops(td.getTrip().getStops())
-                    .totalDistanceTravelled(td.getTrip().getTotalDistanceTravelled())
+                    .addStops(customTripData.getStops())
+                    .totalDistanceTravelled(customTripData.getTotalDistanceTravelled())
                     .build();
             //Validate stops; This just checks for the first stop entry as a sample
             int stopsCount = trip.getStops().size();
@@ -320,7 +337,7 @@ public class ActivityPayment extends AppCompatActivity {
             }
             Toast.makeText(this, data, Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
-            customExtensionData = null;
+            customTripData = null;
             Toast.makeText(this, "Invalid TransitData. Ignoring.", Toast.LENGTH_SHORT).show();
         }
     }
@@ -343,24 +360,6 @@ public class ActivityPayment extends AppCompatActivity {
             customSaleItem = null;
             Toast.makeText(this, "Invalid SaleItem. Ignoring.", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    @SuppressLint("HandlerLeak")
-    private final Handler barcodeHandler = new Handler() {
-        public void handleMessage(android.os.Message msg) {
-            if (msg.what == 0) {
-                txtProductCode.setText(msg.obj.toString());
-            }
-        };
-    };
-
-    public void startScan() throws RemoteException {
-        try {
-            device.scanBarcode(barcodeHandler, 30, TerminalDevice.camera_front);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-
     }
 
     private void testAbort(View view) {
@@ -396,22 +395,37 @@ public class ActivityPayment extends AppCompatActivity {
             }
         }, 10000);
     }
+
     private SaleToPOIRequest buildPaymentRequest(String serviceID) {
 
         SaleToPOIRequest paymentRequest;
         ExtensionData extensionData;
+        Trip trip;
         SaleItem saleItem;
+        collectSelectedTags();
+        String odbs = inputODBS.getText().toString();
 
-        if(customExtensionData==null){
-            extensionData = createSampleExtensionData();
+        if(customTripData ==null){
+            trip = createSampleTripData();
         }else{
-            extensionData = customExtensionData;
+            trip = customTripData;
         }
         if(customSaleItem==null){
             saleItem = createSampleSaleItem();
         }else{
             saleItem = customSaleItem;
         }
+
+
+        extensionData =  new ExtensionData.Builder().transitData(
+                            new TransitData.Builder()
+                                    .isWheelchairEnabled(chkIsWheelchairEnabled.isChecked())
+                                    .trip(trip)
+                                    .tags(selectedTags)
+                                    .odbs(TextUtils.isEmpty(odbs) ? null : odbs)
+                                    .build())
+                        .build();
+
 
         bAmount = new BigDecimal(inputAmount.getText().toString());
 
@@ -451,66 +465,66 @@ public class ActivityPayment extends AppCompatActivity {
                                                 .cashBackAmount(BigDecimal.valueOf(0))
                                                 .build())
                                         .addSaleItem(saleItem)
-                                        .addSaleItem(new SaleItem.Builder()
-                                                .itemID(100)
-                                                .productCode("Levy")
-                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
-                                                .itemAmount(BigDecimal.valueOf(1.1))
-                                                .unitPrice(BigDecimal.valueOf(1.1))
-                                                .quantity(new BigDecimal(1))
-                                                .productLabel("Levy")
-                                                .tags(Arrays.asList(new String[]{"extra"}))
-                                                .build())
-                                        .addSaleItem(new SaleItem.Builder()
-                                                .itemID(205)
-                                                .productCode("Lifting Fee")
-                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
-                                                .itemAmount(BigDecimal.valueOf(20.0))
-                                                .unitPrice(BigDecimal.valueOf(20.0))
-                                                .quantity(new BigDecimal(1))
-                                                .productLabel("Lifting Fee")
-                                                .tags(Arrays.asList(new String[]{"extra"}))
-                                                .build())
-                                        .addSaleItem(new SaleItem.Builder()
-                                                .itemID(204)
-                                                .productCode("Cleaning Fee")
-                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
-                                                .itemAmount(BigDecimal.valueOf(120.0))
-                                                .unitPrice(BigDecimal.valueOf(120.0))
-                                                .quantity(new BigDecimal(1))
-                                                .productLabel("Cleaning Fee")
-                                                .tags(Arrays.asList(new String[]{"extra"}))
-                                                .build())
-                                        .addSaleItem(new SaleItem.Builder()
-                                                .itemID(203)
-                                                .productCode("HOV")
-                                                .unitOfMeasure(UnitOfMeasure.Other)
-                                                .itemAmount(BigDecimal.valueOf(5.0))
-                                                .unitPrice(BigDecimal.valueOf(5.0))
-                                                .quantity(new BigDecimal(1))
-                                                .productLabel("HOV")
-                                                .tags(Arrays.asList(new String[]{"extra"}))
-                                                .build())
-                                        .addSaleItem(new SaleItem.Builder()
-                                                .itemID(201)
-                                                .productCode("Peak")
-                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
-                                                .itemAmount(BigDecimal.valueOf(2.5))
-                                                .unitPrice(BigDecimal.valueOf(2.5))
-                                                .quantity(new BigDecimal(1))
-                                                .productLabel("Peak")
-                                                .tags(Arrays.asList(new String[]{"extra"}))
-                                                .build())
-                                        .addSaleItem(new SaleItem.Builder()
-                                                .itemID(202)
-                                                .productCode("Airport")
-                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
-                                                .itemAmount(BigDecimal.valueOf(20.0))
-                                                .unitPrice(BigDecimal.valueOf(20.0))
-                                                .quantity(new BigDecimal(1))
-                                                .productLabel("Airport")
-                                                .tags(Arrays.asList(new String[]{"extra"}))
-                                                .build())
+//                                        .addSaleItem(new SaleItem.Builder()
+//                                                .itemID(100)
+//                                                .productCode("Levy")
+//                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
+//                                                .itemAmount(BigDecimal.valueOf(1.1))
+//                                                .unitPrice(BigDecimal.valueOf(1.1))
+//                                                .quantity(new BigDecimal(1))
+//                                                .productLabel("Levy")
+//                                                .tags(Arrays.asList(new String[]{"extra"}))
+//                                                .build())
+//                                        .addSaleItem(new SaleItem.Builder()
+//                                                .itemID(205)
+//                                                .productCode("Lifting Fee")
+//                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
+//                                                .itemAmount(BigDecimal.valueOf(20.0))
+//                                                .unitPrice(BigDecimal.valueOf(20.0))
+//                                                .quantity(new BigDecimal(1))
+//                                                .productLabel("Lifting Fee")
+//                                                .tags(Arrays.asList(new String[]{"extra"}))
+//                                                .build())
+//                                        .addSaleItem(new SaleItem.Builder()
+//                                                .itemID(204)
+//                                                .productCode("Cleaning Fee")
+//                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
+//                                                .itemAmount(BigDecimal.valueOf(120.0))
+//                                                .unitPrice(BigDecimal.valueOf(120.0))
+//                                                .quantity(new BigDecimal(1))
+//                                                .productLabel("Cleaning Fee")
+//                                                .tags(Arrays.asList(new String[]{"extra"}))
+//                                                .build())
+//                                        .addSaleItem(new SaleItem.Builder()
+//                                                .itemID(203)
+//                                                .productCode("HOV")
+//                                                .unitOfMeasure(UnitOfMeasure.Other)
+//                                                .itemAmount(BigDecimal.valueOf(5.0))
+//                                                .unitPrice(BigDecimal.valueOf(5.0))
+//                                                .quantity(new BigDecimal(1))
+//                                                .productLabel("HOV")
+//                                                .tags(Arrays.asList(new String[]{"extra"}))
+//                                                .build())
+//                                        .addSaleItem(new SaleItem.Builder()
+//                                                .itemID(201)
+//                                                .productCode("Peak")
+//                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
+//                                                .itemAmount(BigDecimal.valueOf(2.5))
+//                                                .unitPrice(BigDecimal.valueOf(2.5))
+//                                                .quantity(new BigDecimal(1))
+//                                                .productLabel("Peak")
+//                                                .tags(Arrays.asList(new String[]{"extra"}))
+//                                                .build())
+//                                        .addSaleItem(new SaleItem.Builder()
+//                                                .itemID(202)
+//                                                .productCode("Airport")
+//                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
+//                                                .itemAmount(BigDecimal.valueOf(20.0))
+//                                                .unitPrice(BigDecimal.valueOf(20.0))
+//                                                .quantity(new BigDecimal(1))
+//                                                .productLabel("Airport")
+//                                                .tags(Arrays.asList(new String[]{"extra"}))
+//                                                .build())
                                         .build()
                         )
                         .paymentData(new PaymentData.Builder()
@@ -622,13 +636,13 @@ public class ActivityPayment extends AppCompatActivity {
 
         }
     }
-    ExtensionData buildExtensionDatafromJson(String jsonString) throws IOException {
+    Trip buildTripDatafromJson(String jsonString) throws IOException {
         Moshi moshi = new Moshi.Builder()
                 .add(new BigDecimalAdapter())
                 .add(new InstantAdapter())
                 .build();
 
-        JsonAdapter<ExtensionData> jsonAdapter = moshi.adapter(ExtensionData.class);
+        JsonAdapter<Trip> jsonAdapter = moshi.adapter(Trip.class);
         return jsonAdapter.nonNull().fromJson(jsonString);
     }
 
@@ -642,13 +656,13 @@ public class ActivityPayment extends AppCompatActivity {
         return jsonAdapter.nonNull().fromJson(jsonString);
     }
 
-    public String printExtensionDatatoJson(ExtensionData extensionData) {
+    public String printTripDatatoJson(Trip tripData) {
         Moshi moshi = new Moshi.Builder()
                 .add(new BigDecimalAdapter())
                 .add(new InstantAdapter())
                 .build();
-        JsonAdapter<ExtensionData> jsonAdapter = moshi.adapter(ExtensionData.class);
-        return jsonAdapter.toJson(extensionData);
+        JsonAdapter<Trip> jsonAdapter = moshi.adapter(Trip.class);
+        return jsonAdapter.toJson(tripData);
     }
 
     public String printSaleItemtoJson(SaleItem saleItem) {
@@ -660,37 +674,26 @@ public class ActivityPayment extends AppCompatActivity {
         return jsonAdapter.toJson(saleItem);
     }
 
-    public ExtensionData createSampleExtensionData(){
-//        String tagsString = "NSWAllowTSSSubsidy, NSWAllowTSSLift";
-//        String tagsString = "QLDAllowTSSSubsidy";
-        String tagsString = "NTAllowTSSSubsidy, NTAllowTSSLift";
-        List<String> tags = Arrays.asList(tagsString.split("\\s*,\\s*"));
-
-        return new ExtensionData.Builder().transitData(
-                        new TransitData.Builder()
-                                .isWheelchairEnabled(false)
-                                .trip(new Trip.Builder()
-                                        .totalDistanceTravelled(new BigDecimal("222.22"))
-                                        .addStop(new Stop.Builder()
-                                                .stopIndex(0)
-                                                .stopID("0")
-                                                .stopName("test0")
-                                                .latitude(new BigDecimal(3432423))
-                                                .longitude(new BigDecimal(-3432423))
-                                                .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
-                                                .build())
-                                        .addStop(new Stop.Builder()
-                                                .stopIndex(1)
-                                                .stopID("1")
-                                                .stopName("test1")
-                                                .latitude(new BigDecimal(3432423))
-                                                .longitude(new BigDecimal(-3432423))
-                                                .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
-                                                .build())
-                                        .build())
-                                .tags(tags)
+    public Trip createSampleTripData(){
+        return new Trip.Builder()
+                        .totalDistanceTravelled(new BigDecimal("222.22"))
+                        .addStop(new Stop.Builder()
+                                .stopIndex(0)
+                                .stopID("0")
+                                .stopName("test0")
+                                .latitude(new BigDecimal(3432423))
+                                .longitude(new BigDecimal(-3432423))
+                                .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
                                 .build())
-                .build();
+                        .addStop(new Stop.Builder()
+                                .stopIndex(1)
+                                .stopID("1")
+                                .stopName("test1")
+                                .latitude(new BigDecimal(3432423))
+                                .longitude(new BigDecimal(-3432423))
+                                .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
+                                .build())
+                        .build();
     }
     public void openActivityResult(MessageCategory mc, SaleToPOIResponse r, Message message) {
         Intent intent = new Intent(this, ActivityResult.class);

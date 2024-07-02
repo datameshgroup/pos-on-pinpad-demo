@@ -7,7 +7,7 @@
 
 
     <EditText
-        android:id="@+id/etExtenstionData"
+        android:id="@+id/etTripData"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="top"

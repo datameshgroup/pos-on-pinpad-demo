@@ -1,199 +1,248 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="au.com.dmg.terminalposdemo.ActivityPayment">
 
-    <TextView
-        android:id="@+id/lblProductCode"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="50dp"
-        android:layout_marginBottom="8dp"
-        android:text="Product Code"
-        app:layout_constraintBottom_toTopOf="@+id/txtProductCode"
-        app:layout_constraintStart_toStartOf="parent"
-        android:enabled="@bool/enableProductCode"/>
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/txtProductCode"
-        android:layout_width="0dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginEnd="1dp"
-        android:background="@drawable/edit_text_border"
-        android:text="MeteredFare"
-        android:inputType="text"
-        android:paddingStart="5dp"
-        android:paddingEnd="5dp"
-        android:theme="@style/AppEditText"
-        app:layout_constraintEnd_toStartOf="@+id/ivScan"
-        app:layout_constraintHorizontal_bias="0.322"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:enabled="@bool/enableProductCode"/>
-    <ImageView
-        android:id="@+id/ivScan"
-        android:layout_width="58dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginEnd="50dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@android:drawable/ic_menu_camera"
-        android:enabled="@bool/enableProductCode"/>
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginEnd="18dp">
 
+        <TextView
+            android:id="@+id/lblTransactionID"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:clickable="true"
+            android:enabled="@bool/enableTransactionID"
+            android:onClick="TransactionID_OnClick"
+            android:text="TransactionID"
+            android:layout_gravity="center_vertical" />
 
-    <TextView
-        android:id="@+id/lblTransactionID"
-        android:layout_width="wrap_content"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/txtTransactionID"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:background="@drawable/edit_text_border"
+            android:enabled="@bool/enableTransactionID"
+            android:focusable="false"
+            android:inputType="text"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            android:text="a3200b40-cd48-4d70-a1a5-8f2cb5f2e39e"
+            android:theme="@style/AppEditText" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="50dp"
-        android:layout_marginBottom="8dp"
-        android:text="TransactionID"
-        android:onClick="TransactionID_OnClick"
-        android:clickable="true"
-        app:layout_constraintBottom_toTopOf="@+id/txtProductCode"
-        app:layout_constraintStart_toStartOf="parent"
-        android:enabled="@bool/enableTransactionID"/>
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginEnd="18dp">
 
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/txtTransactionID"
-        android:layout_width="0dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginEnd="50dp"
-        android:background="@drawable/edit_text_border"
-        android:enabled="@bool/enableTransactionID"
-        android:inputType="text"
-        android:paddingStart="5dp"
-        android:paddingEnd="5dp"
-        android:text="a3200b40-cd48-4d70-a1a5-8f2cb5f2e39e"
-        android:theme="@style/AppEditText"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.322"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:focusable="false"/>
+        <TextView
+            android:id="@+id/tvTotal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="Total Amount"
+            android:layout_gravity="center_vertical" />
 
+        <EditText
+            android:id="@+id/inputTotal"
+            android:layout_width="100dp"
+            android:layout_height="40dp"
+            android:background="@drawable/edit_text_border"
+            android:ems="10"
+            android:hint="0.00"
+            android:inputType="numberDecimal"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            android:textAlignment="textEnd"
+            android:text="22.00"
+            android:textSize="20sp" />
+    </LinearLayout>
 
-    <Button
-        android:id="@+id/btnOtherFields"
-        android:layout_width="150dp"
-        android:layout_height="67dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="28dp"
-        android:text="View/Edit \nOther Fields"
-        android:textSize="14sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTotal" />
-
-    <Button
-        android:id="@+id/btnUpdateSaleItems"
-        android:layout_width="150dp"
-        android:layout_height="67dp"
-        android:layout_marginTop="28dp"
-        android:layout_marginEnd="24dp"
-        android:text="Update \nSaleItems"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTotal" />
-
-    <Button
-        android:id="@+id/btnPay"
-        android:layout_width="0dp"
-        android:layout_height="80dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="28dp"
-        android:layout_marginEnd="24dp"
-        android:backgroundTint="@color/datameshCobalt"
-        android:text="Pay"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnExtensionData" />
-
-    <Button
-        android:id="@+id/btnAbort"
-        android:layout_width="150dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="28dp"
-        android:layout_marginEnd="24dp"
-        android:text="Pay &amp; Abort"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnUpdateSaleItems" />
-
-    <Button
-        android:id="@+id/btnExtensionData"
-        android:layout_width="150dp"
-        android:layout_height="80dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="28dp"
-        android:text="View Transit Data"
-        android:textSize="14sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnOtherFields" />
-
-    <TextView
-        android:id="@+id/tvTotal"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="116dp"
-        android:text="Amount"
-        android:textSize="30sp"
-        app:layout_constraintEnd_toStartOf="@+id/inputTotal"
-        app:layout_constraintHorizontal_bias="0.472"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginEnd="18dp">
 
-    <EditText
-        android:id="@+id/inputTotal"
-        android:layout_width="165dp"
-        android:layout_height="58dp"
-        android:layout_marginTop="110dp"
-        android:layout_marginEnd="24dp"
-        android:background="@drawable/edit_text_border"
-        android:ems="10"
-        android:hint="0.00"
-        android:inputType="numberDecimal"
-        android:paddingStart="5dp"
-        android:paddingEnd="5dp"
-        android:text="22.00"
-        android:textSize="30sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/tvODBS"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="ODBS"
+            android:layout_gravity="center_vertical" />
 
+        <EditText
+            android:id="@+id/inputODBS"
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_weight="2"
+            android:background="@drawable/edit_text_border"
+            android:inputType="text"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            android:text=""
+            android:theme="@style/AppEditText" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <CheckBox
+                android:id="@+id/chkIsWheelchairEnabled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="IsWheelchairEnabled" />
+
+            <CheckBox
+                android:id="@+id/chkNTAllowTSSSubsidy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NTAllowTSSSubsidy" />
+
+            <CheckBox
+                android:id="@+id/chkNTAllowTSSLift"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NTAllowTSSLift" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <CheckBox
+                android:id="@+id/chkQLDAllowTSSSubsidy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="QLDAllowTSSSubsidy" />
+
+            <CheckBox
+                android:id="@+id/chkNSWAllowTSSLift"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NSWAllowTSSLift" />
+
+            <CheckBox
+                android:id="@+id/chkNSWAllowTSSSubsidy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NSWAllowTSSSubsidy" />
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btnTripData"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="18dp"
+            android:layout_marginEnd="18dp"
+            android:text="View/Edit Trip Data"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="18dp"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btnSaleDataFields"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="View/Edit \nSALE DATA"/>
+
+        <Button
+            android:id="@+id/btnUpdateSaleItems"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="View/Edit \nSale Items"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btnPay"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="@color/datameshCobalt"
+            android:text="Pay"
+            android:textSize="16sp"/>
+
+        <Button
+            android:id="@+id/btnAbort"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="Pay &amp; Abort"
+            android:textSize="14sp"/>
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tvResults"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#555555"
+        android:padding="16dp"
         android:text=""
         android:textAlignment="textStart"
         android:textColor="#FAF6F6"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.476"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnPay"
-        app:layout_constraintVertical_bias="0.002" />
+        android:gravity="start" />
 
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="22dp" />
-
-
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

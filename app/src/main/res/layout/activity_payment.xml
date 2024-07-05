@@ -11,15 +11,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="18dp"
-        android:layout_marginEnd="18dp">
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp">
 
         <TextView
             android:id="@+id/lblTransactionID"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="8dp"
             android:clickable="true"
             android:enabled="@bool/enableTransactionID"
             android:onClick="TransactionID_OnClick"
@@ -45,15 +45,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="18dp"
-        android:layout_marginEnd="18dp">
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp">
 
         <TextView
             android:id="@+id/tvTotal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="8dp"
             android:text="Total Amount"
             android:layout_gravity="center_vertical" />
 
@@ -76,15 +76,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="18dp"
-        android:layout_marginEnd="18dp">
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp">
 
         <TextView
             android:id="@+id/tvODBS"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="8dp"
             android:text="ODBS"
             android:layout_gravity="center_vertical" />
 
@@ -105,7 +105,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -117,19 +119,37 @@
                 android:id="@+id/chkIsWheelchairEnabled"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="IsWheelchairEnabled" />
+                android:text="IsWheelchairEnabled"
+                android:textSize="12sp" />
 
             <CheckBox
                 android:id="@+id/chkNTAllowTSSSubsidy"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="NTAllowTSSSubsidy" />
+                android:text="NTAllowTSSSubsidy"
+                android:textSize="12sp" />
 
             <CheckBox
                 android:id="@+id/chkNTAllowTSSLift"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="NTAllowTSSLift" />
+                android:text="NTAllowTSSLift"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/chkQLDAllowTSSSubsidy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="QLDAllowTSSSubsidy"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/chkNSWAllowTSSLift"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NSWAllowTSSLift"
+                android:textSize="12sp" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -139,41 +159,57 @@
             android:orientation="vertical">
 
             <CheckBox
-                android:id="@+id/chkQLDAllowTSSSubsidy"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="QLDAllowTSSSubsidy" />
-
-            <CheckBox
-                android:id="@+id/chkNSWAllowTSSLift"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="NSWAllowTSSLift" />
-
-            <CheckBox
                 android:id="@+id/chkNSWAllowTSSSubsidy"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="NSWAllowTSSSubsidy" />
+                android:text="NSWAllowTSSSubsidy"
+                android:textSize="12sp" />
 
+            <CheckBox
+                android:id="@+id/chkVICAllowTSSLift"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="VICAllowTSSLift"
+                android:textSize="12sp" />
 
+            <CheckBox
+                android:id="@+id/chkVICAllowTSSsubsidy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="VICAllowTSSsubsidy"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/chkACTAllowTSSSubsidy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ACTAllowTSSSubsidy"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/chkTASAllowTSSSubsidy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TASAllowTSSSubsidy"
+                android:textSize="12sp" />
         </LinearLayout>
-
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center">
+        android:gravity="center"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp">
 
         <Button
             android:id="@+id/btnTripData"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="18dp"
-            android:layout_marginEnd="18dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
             android:text="View/Edit Trip Data"
             android:textSize="14sp" />
     </LinearLayout>
@@ -183,7 +219,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginStart="10dp"
-        android:layout_marginEnd="18dp"
+        android:layout_marginEnd="10dp"
         android:gravity="center">
 
         <Button
@@ -191,8 +227,8 @@
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
             android:text="View/Edit \nSALE DATA"/>
 
         <Button
@@ -200,7 +236,7 @@
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_weight="1"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="5dp"
             android:text="View/Edit \nSale Items"/>
     </LinearLayout>
 
@@ -217,8 +253,8 @@
             android:layout_width="0dp"
             android:layout_height="80dp"
             android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
             android:backgroundTint="@color/datameshCobalt"
             android:text="Pay"
             android:textSize="16sp"/>
@@ -228,8 +264,8 @@
             android:layout_width="0dp"
             android:layout_height="80dp"
             android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
             android:text="Pay &amp; Abort"
             android:textSize="14sp"/>
     </LinearLayout>
@@ -239,7 +275,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#555555"
-        android:padding="16dp"
+        android:padding="8dp"
         android:text=""
         android:textAlignment="textStart"
         android:textColor="#FAF6F6"

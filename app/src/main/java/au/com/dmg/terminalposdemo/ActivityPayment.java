@@ -98,7 +98,7 @@ public class ActivityPayment extends AppCompatActivity {
     BigDecimal remainingAmount;
     String pendingTransactionID;
 
-    CheckBox chkIsWheelchairEnabled, chkNTAllowTSSSubsidy, chkNTAllowTSSLift, chkQLDAllowTSSSubsidy, chkNSWAllowTSSLift, chkNSWAllowTSSSubsidy;
+    CheckBox chkIsWheelchairEnabled, chkNTAllowTSSSubsidy, chkNTAllowTSSLift, chkQLDAllowTSSSubsidy, chkNSWAllowTSSLift, chkNSWAllowTSSSubsidy, chkVICAllowTSSLift, chkVICAllowTSSsubsidy, chkACTAllowTSSSubsidy, chkTASAllowTSSSubsidy;
     List<String> selectedTags;
     private TextView inputODBS;
 
@@ -153,6 +153,11 @@ public class ActivityPayment extends AppCompatActivity {
         chkQLDAllowTSSSubsidy  = findViewById(R.id.chkQLDAllowTSSSubsidy);
         chkNSWAllowTSSLift  = findViewById(R.id.chkNSWAllowTSSLift);
         chkNSWAllowTSSSubsidy = findViewById(R.id.chkNSWAllowTSSSubsidy);
+        chkVICAllowTSSLift = findViewById(R.id.chkVICAllowTSSLift);
+        chkVICAllowTSSsubsidy = findViewById(R.id.chkVICAllowTSSsubsidy);
+        chkACTAllowTSSSubsidy = findViewById(R.id.chkACTAllowTSSSubsidy);
+        chkTASAllowTSSSubsidy =findViewById(R.id.chkTASAllowTSSSubsidy);
+
         selectedTags = new ArrayList<>();
 
         // TODO Add logic for saleitems
@@ -189,6 +194,18 @@ public class ActivityPayment extends AppCompatActivity {
         }
         if (chkNSWAllowTSSSubsidy.isChecked()) {
             selectedTags.add("NSWAllowTSSSubsidy");
+        }
+        if (chkVICAllowTSSLift.isChecked()) {
+            selectedTags.add("VICAllowTSSLift");
+        }
+        if (chkVICAllowTSSsubsidy.isChecked()) {
+            selectedTags.add("VICAllowTSSsubsidy");
+        }
+        if (chkACTAllowTSSSubsidy.isChecked()) {
+            selectedTags.add("ACTAllowTSSSubsidy");
+        }
+        if (chkTASAllowTSSSubsidy.isChecked()) {
+            selectedTags.add("TASAllowTSSSubsidy");
         }
     }
     public void viewOtherFields(View view) {

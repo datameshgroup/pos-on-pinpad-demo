@@ -11,7 +11,6 @@ android {
         minSdk 21
         targetSdk 32
         versionCode 1
-        versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -27,58 +26,99 @@ android {
     }
 
     flavorDimensions 'device'
-    productFlavors {
-        pax {
-            dimension "device"
-            applicationId = "au.com.dmg.terminalposdemo"
-            buildConfigField 'boolean', 'DEVICE_PAX', 'true'
-            buildConfigField 'boolean', 'DEVICE_IGO', 'false'
-            buildConfigField 'String', 'VERSION_TYPE', "\"v1\""
 
+    ext {
+        deviceVersions = [:]
+    }
+
+    productFlavors {
+
+        def versionFormat = "${rootProject.ext.major_version}"
+        def apkName = rootProject.ext.apk_name
+
+        def createDeviceFlavor = { device ->
+            "${device}" {
+                dimension "device"
+
+                resValue "string", "device_version", "${device}"
+
+                def deviceVersion = "${versionFormat}"
+                println("${device}Version: $deviceVersion")
+                resValue "string", "application_int_version", "${deviceVersion}"
+
+                versionName "${deviceVersion}${rootProject.ext.minor_version}"
+                resValue "string", "application_version", versionName
+
+                resValue "string", "application_name", "${apkName}${versionName}"
+
+//                archivesBaseName = "FusionAdaptor" + deviceVersion
+                resValue "string", "app_name_display", apkName + " v" + versionName
+
+//                setProperty("archivesBaseName", archivesBaseName)
+                android.ext.deviceVersions[device] = deviceVersion
+            }
         }
-        ingenico {
-            dimension "device"
-            applicationId = "au.com.dmg.terminalposdemo"
-            buildConfigField 'boolean', 'DEVICE_PAX', 'false'
-            buildConfigField 'boolean', 'DEVICE_IGO', 'true'
-            buildConfigField 'String', 'VERSION_TYPE', "\"v1\""
+
+        createDeviceFlavor("pax")
+
+        createDeviceFlavor("ingenico")
+    }
+
+    applicationVariants.all { variant ->
+        def deviceFlavor = variant.productFlavors.get(0)
+        def deviceVersion = android.ext.deviceVersions[deviceFlavor.name]
+
+        variant.outputs.each { output ->
+            output.outputFileName = "TerminalPOSDemo_${deviceVersion}-${variant.buildType.name}-${deviceFlavor.name}.apk"
         }
     }
 
+
     buildTypes {
-        debug {
-            debuggable = true
-        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            shrinkResources false
+            debuggable = false
+            signingConfig signingConfigs.debug
+            if (project.hasProperty("pax")) {
+                v2SigningEnabled false
+            }
         }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            shrinkResources false
+            signingConfig signingConfigs.debug
+            debuggable = true
+        }
+
     }
     sourceSets {
         main {
             jniLibs.srcDirs = ['src/main/jniLibs']
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
         coreLibraryDesugaringEnabled true
     }
 
-    task printPaxApkName {
-        doLast {
-            print "DebugTerminalPOSDemoPax920" + android.productFlavors.pax.buildConfigFields.VERSION_TYPE.value.replaceAll('^\"|\"$', "") + "." + android.defaultConfig.versionName + ".apk"
-        }
-    }
-
-    task printIngenicoApkName {
-        doLast {
-            print "DebugTerminalPOSDemoDx8000" + android.productFlavors.ingenico.buildConfigFields.VERSION_TYPE.value.replaceAll('^\"|\"$', "") + "." + android.defaultConfig.versionName + ".apk"
-        }
-    }
     buildFeatures {
         viewBinding true
+        compose true
     }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.2.0'
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
 }
 
 dependencies {
@@ -91,13 +131,27 @@ dependencies {
     implementation "com.squareup.moshi:moshi:1.14.0"
     testImplementation 'junit:junit:4.13.2'
 
-    implementation "com.datameshgroup.fusion:fusion-sdk:1.3.5"
+    implementation "com.datameshgroup.fusion:fusion-sdk:2.0.0"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1"
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+//    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+//    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
     // Printing utilities
     implementation "com.izettle:html2bitmap:1.10"
     ingenicoImplementation fileTree(include: ['*.jar'], dir: 'libs/ingenico')
     paxImplementation fileTree(include: ['*.jar'], dir: 'libs/pax')
+
+    //added for new FuelProducts page
+    implementation 'androidx.core:core-ktx:1.8.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
+    implementation 'androidx.activity:activity-compose:1.5.1'
+    implementation 'androidx.compose.ui:ui:1.2.0'
+    implementation 'androidx.compose.material:material:1.2.0'
+//    implementation "androidx.compose.ui:ui-tooling-preview:1.1.0"
+    implementation 'androidx.navigation:navigation-compose:2.5.1'
+    debugImplementation 'androidx.compose.ui:ui-tooling:1.2.0'
+    debugImplementation 'androidx.compose.ui:ui-test-manifest:1.2.0'
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.2.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.4'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }

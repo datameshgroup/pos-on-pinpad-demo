@@ -158,7 +158,7 @@ public class ActivityResult extends AppCompatActivity {
 
             ///PaymentInstrumentData
             PaymentInstrumentData paymentInstrumentData = paymentResult.getPaymentInstrumentData();
-            String paymentInstrumentType = StringUtils.defaultIfEmpty(paymentInstrumentData.getPaymentInstrumentType(), noValue);
+            String paymentInstrumentType = StringUtils.defaultIfEmpty(paymentInstrumentData.getPaymentInstrumentType().toString(), noValue);
 
             ///CardData
             PaymentResponseCardData cardData = paymentInstrumentData.getCardData();

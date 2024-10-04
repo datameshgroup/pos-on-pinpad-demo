@@ -6,6 +6,46 @@
     android:layout_height="match_parent"
     tools:context="au.com.dmg.terminalposdemo.MainActivity">
 
+    <Button
+        android:id="@+id/btnPayment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="50dp"
+        android:text="@string/Payment"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.486"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btnFuelProducts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="50dp"
+        android:text="@string/fuel_products"
+        android:enabled="@bool/enableFuelProducts"
+        app:layout_constraintEnd_toEndOf="@+id/btnPayment"
+        app:layout_constraintHorizontal_bias="0.48"
+        app:layout_constraintStart_toStartOf="@+id/btnPayment"
+        app:layout_constraintTop_toBottomOf="@+id/btnPayment" />
+
+    <Button
+        android:id="@+id/btnSatellite"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="50dp"
+        android:text="@string/satellite"
+        android:enabled="@bool/enableSatellite"
+        app:layout_constraintEnd_toEndOf="@+id/btnFuelProducts"
+        app:layout_constraintHorizontal_bias="0.48"
+        app:layout_constraintStart_toStartOf="@+id/btnFuelProducts"
+        app:layout_constraintTop_toBottomOf="@+id/btnFuelProducts" />
 
     <Button
         android:id="@+id/btnPrint"
@@ -35,31 +75,5 @@
         app:layout_constraintStart_toStartOf="@+id/btnPrint"
         app:layout_constraintTop_toBottomOf="@+id/btnPrint" />
 
-    <Button
-        android:id="@+id/btnPayment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginEnd="50dp"
-        android:text="@string/Payment"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.486"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/btnSatellite"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="40dp"
-        android:layout_marginEnd="50dp"
-        android:text="@string/satellite"
-        android:enabled="@bool/enableSatellite"
-        app:layout_constraintEnd_toEndOf="@+id/btnPayment"
-        app:layout_constraintHorizontal_bias="0.48"
-        app:layout_constraintStart_toStartOf="@+id/btnPayment"
-        app:layout_constraintTop_toBottomOf="@+id/btnPayment" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

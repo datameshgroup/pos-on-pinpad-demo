@@ -357,31 +357,31 @@ fun buildPreauthorisationRequest(testCase: String?, saleItems: MutableList<SaleI
         .saleItems(saleItems)
 
     // Add SaleItem with zero amount if testCase is not empty
-    if (!testCase.isNullOrEmpty()) {
-        val testItemProduct = ProductCode.values().find { it.testCase == testCase }
-        val testCaseProductCode = testItemProduct?.name
-        println("testCaseProductCode ---- $testCaseProductCode")
-        val customField = CustomField.Builder()
-            .key(testCaseProductCode)
-            .type(CustomFieldType.String)
-            .value(1)
-            .build();
-
-        paymentTransactionBuilder.addSaleItem(
-            SaleItem.Builder()
-                .itemID(1000) // Set the itemID
-                .productCode(testCase)
-                .unitOfMeasure(UnitOfMeasure.Litre)
-                .unitPrice(BigDecimal(0))
-                .quantity(BigDecimal(1))
-                .itemAmount(BigDecimal(0))
-                .productLabel(testCase)
-                .addCustomField(
-                    customField
-                )
-                .build()
-        )
-    }
+//    if (!testCase.isNullOrEmpty()) {
+//        val testItemProduct = ProductCode.values().find { it.testCase == testCase }
+//        val testCaseProductCode = testItemProduct?.name
+//        println("testCaseProductCode ---- $testCaseProductCode")
+//        val customField = CustomField.Builder()
+//            .key(testCaseProductCode)
+//            .type(CustomFieldType.String)
+//            .value(1)
+//            .build();
+//
+//        paymentTransactionBuilder.addSaleItem(
+//            SaleItem.Builder()
+//                .itemID(1000) // Set the itemID
+//                .productCode(testCase)
+//                .unitOfMeasure(UnitOfMeasure.Litre)
+//                .unitPrice(BigDecimal(0))
+//                .quantity(BigDecimal(1))
+//                .itemAmount(BigDecimal(0))
+//                .productLabel(testCase)
+//                .addCustomField(
+//                    customField
+//                )
+//                .build()
+//        )
+//    }
 
     return SaleToPOIRequest.Builder()
         .messageHeader(
@@ -574,31 +574,31 @@ private fun buildPaymentRequest(testCase: String?, saleItems: MutableList<SaleIt
         .saleItems(saleItems)
 
     // Add SaleItem with zero amount if testCase is not empty
-    if (!testCase.isNullOrEmpty()) {
-        val testItemProduct = ProductCode.values().find { it.testCase == testCase }
-        val testCaseProductCode = testItemProduct?.name
-        println("testCaseProductCode ---- $testCaseProductCode")
-        val customField = CustomField.Builder()
-            .key(testCaseProductCode)
-            .type(CustomFieldType.String)
-            .value(1)
-            .build();
-
-        paymentTransactionBuilder.addSaleItem(
-            SaleItem.Builder()
-                .itemID(1000) // Set the itemID
-                .productCode(testCase)
-                .unitOfMeasure(UnitOfMeasure.Litre)
-                .unitPrice(BigDecimal(0))
-                .quantity(BigDecimal(1))
-                .itemAmount(BigDecimal(0))
-                .productLabel(testCase)
-                .addCustomField(
-                    customField
-                )
-                .build()
-        )
-    }
+//    if (!testCase.isNullOrEmpty()) {
+//        val testItemProduct = ProductCode.values().find { it.testCase == testCase }
+//        val testCaseProductCode = testItemProduct?.name
+//        println("testCaseProductCode ---- $testCaseProductCode")
+//        val customField = CustomField.Builder()
+//            .key(testCaseProductCode)
+//            .type(CustomFieldType.String)
+//            .value(1)
+//            .build();
+//
+//        paymentTransactionBuilder.addSaleItem(
+//            SaleItem.Builder()
+//                .itemID(1000) // Set the itemID
+//                .productCode(testCase)
+//                .unitOfMeasure(UnitOfMeasure.Litre)
+//                .unitPrice(BigDecimal(0))
+//                .quantity(BigDecimal(1))
+//                .itemAmount(BigDecimal(0))
+//                .productLabel(testCase)
+//                .addCustomField(
+//                    customField
+//                )
+//                .build()
+//        )
+//    }
 
     return SaleToPOIRequest.Builder()
         .messageHeader(

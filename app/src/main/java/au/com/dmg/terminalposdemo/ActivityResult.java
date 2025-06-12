@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.text.method.ScrollingMovementMethod;
-import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
@@ -361,14 +360,26 @@ public class ActivityResult extends AppCompatActivity {
         try {
             createParser = factory.createParser(message.toString());
             JsonNode actualObj1 = mapper.readTree(createParser);
-            path = actualObj1.findPath("PaymentReceipt").get(0).get("OutputContent").get("OutputXHTML").toString();
-            path2 = actualObj1.findPath("PaymentReceipt").get(1).get("OutputContent").get("OutputXHTML").toString();
-            trimmedMessage = message.toString().replace(path, "\"\"");
-            trimmedMessage = trimmedMessage.replace(path2, "\"\"");
+
+            JsonNode paymentReceipts = actualObj1.findPath("PaymentReceipt");
+
+            if (paymentReceipts.isArray() && paymentReceipts.size() > 1) {
+                JsonNode outputContent1 = paymentReceipts.get(0).path("OutputContent").path("OutputXHTML");
+                JsonNode outputContent2 = paymentReceipts.get(1).path("OutputContent").path("OutputXHTML");
+
+                path = outputContent1.isMissingNode() ? "" : outputContent1.toString();
+                path2 = outputContent2.isMissingNode() ? "" : outputContent2.toString();
+
+                trimmedMessage = message.toString().replace(path, "\"\"").replace(path2, "\"\"");
+            } else {
+                // Handle missing or incomplete PaymentReceipt data
+                trimmedMessage = message.toString();
+            }
         } catch (IOException e) {
             // TODO log cannot trim
             trimmedMessage = message.toString();
         }
+
         return trimmedMessage;
     }
 

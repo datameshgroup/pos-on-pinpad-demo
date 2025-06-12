@@ -24,6 +24,17 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import au.com.dmg.devices.TerminalDevice;
+import au.com.dmg.fusion.Message;
+import au.com.dmg.fusion.MessageHeader;
+import au.com.dmg.fusion.data.MessageCategory;
+import au.com.dmg.fusion.data.MessageClass;
+import au.com.dmg.fusion.data.MessageType;
+import au.com.dmg.fusion.data.PaymentType;
+import au.com.dmg.fusion.request.SaleToPOIRequest;
+import au.com.dmg.fusion.request.aborttransactionrequest.AbortTransactionRequest;
+import au.com.dmg.fusion.request.transactionstatusrequest.MessageReference;
+import au.com.dmg.fusion.request.transactionstatusrequest.TransactionStatusRequest;
+import au.com.dmg.fusion.response.SaleToPOIResponse;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btnOtherRequests;
     private Button btnPrint;
     private Button btnScan;
+    private Button btnSync;
     private TerminalDevice device = new TerminalDevice();
 
     @Override
@@ -67,6 +79,11 @@ public class MainActivity extends AppCompatActivity {
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
+        });
+
+        btnSync = (Button) findViewById(R.id.btnSync);
+        btnSync.setOnClickListener(v -> {
+            testSync();
         });
     }
 
@@ -126,6 +143,74 @@ public class MainActivity extends AppCompatActivity {
         } catch (RemoteException e) {
             e.printStackTrace();
         }
+    }
+
+    public void testSync() {
+        GlobalClass globalClass = (GlobalClass)getApplicationContext();
+        SaleToPOIResponse lastResponse = globalClass.getResponse();
+        String lastTxid = (lastResponse == null)? "" : lastResponse.getPaymentResponse().getPoiData().getPOITransactionID().getTransactionID();
+        String lastServiceID = (lastResponse == null)? "" : lastResponse.getMessageHeader().getServiceID();
+        PaymentType lastPaymentType = (lastResponse == null) ? PaymentType.Normal : lastResponse.getPaymentResponse().getPaymentResult().getPaymentType();
+        if (lastServiceID == null || lastPaymentType!= PaymentType.Normal) {
+            lastServiceID = "";
+        }
+
+        SaleToPOIRequest abortRequest = buildAbortRequest(lastServiceID);
+        Intent intentCancel = new Intent("au.com.dmg.satellite_integration.poscomms");
+        Message messageCancel = new Message(abortRequest);
+        Utils.showLog("AbortRequest", messageCancel.toJson());
+        intentCancel.putExtra("message", messageCancel.toJson());
+        intentCancel.putExtra(Message.RETURN_TO_PACKAGE, this.getPackageName());
+        sendBroadcast(intentCancel);
+
+        SaleToPOIRequest request = new SaleToPOIRequest.Builder()
+                .messageHeader(
+                        new MessageHeader.Builder()
+                                .messageClass(MessageClass.Service)
+                                .messageCategory(MessageCategory.TransactionStatus)
+                                .messageType(MessageType.Request)
+                                .serviceID(lastServiceID)
+                                .build()
+                )
+                .request(new TransactionStatusRequest())
+                .build();
+
+        //Fusion SDK requires intent action upgrade
+        Intent intent = new Intent("au.com.dmg.satellite_integration.poscomms");
+        Message syncMessage = new Message(request);
+        Utils.showLog("SyncRequestMessage", syncMessage.toJson());
+        intent.putExtra("message", syncMessage.toJson());
+        Handler handler = new Handler();
+        handler.postDelayed(() -> sendBroadcast(intent), 10000);
+
+    }
+
+    private String generateRandomUUID() {
+        return java.util.UUID.randomUUID().toString();
+    }
+
+    private SaleToPOIRequest buildAbortRequest(String refServiceID) {
+
+        // Abort Request
+        MessageReference messageReference = new MessageReference.Builder()//
+                .messageCategory(MessageCategory.Abort)
+                .saleID("")
+                .POIID("00S29947")
+                .serviceID(refServiceID)
+                .build();
+        AbortTransactionRequest abortTransactionRequest = new AbortTransactionRequest(messageReference, "User Cancel");
+
+        SaleToPOIRequest abortRequest = new SaleToPOIRequest.Builder()
+                .messageHeader(new MessageHeader.Builder()
+                        .messageClass(MessageClass.Service)
+                        .messageCategory(MessageCategory.Abort)
+                        .messageType(MessageType.Request)
+                        .serviceID(generateRandomUUID())
+                        .build())
+                .request(abortTransactionRequest)
+                .build();
+
+        return abortRequest;
     }
 
     public void openActivityCart() {

@@ -3,6 +3,7 @@
 
     <string name="payment">Payment</string>
     <string name="other_request">Other Requests</string>
+    <string name="sync_txn">Sync Transaction</string>
     <string name="discount">Discount</string>
     <string name="idProductCode">5</string>
     <string name="idProductLabel">Test Product</string>

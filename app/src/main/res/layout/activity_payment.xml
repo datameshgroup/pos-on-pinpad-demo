@@ -1,284 +1,464 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="8dp"
+    android:fillViewport="true"
     tools:context="au.com.dmg.terminalposdemo.ActivityPayment">
 
     <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="5dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp">
+        android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/lblTransactionID"
-            android:layout_width="wrap_content"
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:clickable="true"
-            android:enabled="@bool/enableTransactionID"
-            android:onClick="TransactionID_OnClick"
-            android:text="TransactionID"
-            android:layout_gravity="center_vertical" />
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/txtTransactionID"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_weight="1"
-            android:background="@drawable/edit_text_border"
-            android:enabled="@bool/enableTransactionID"
-            android:focusable="false"
-            android:inputType="text"
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp"
-            android:text="a3200b40-cd48-4d70-a1a5-8f2cb5f2e39e"
-            android:theme="@style/AppEditText" />
-    </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="5dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Transaction Details"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="12dp" />
 
-        <TextView
-            android:id="@+id/tvTotal"
-            android:layout_width="wrap_content"
+                <!-- Transaction ID -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:hint="Transaction ID"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/txtTransactionID"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="a3200b40-cd48-4d70-a1a5-8f2cb5f2e39e"
+                        android:enabled="@bool/enableTransactionID"
+                        android:focusable="false"
+                        android:textSize="14sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Amount -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Amount ($)"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputTotal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="22.00"
+                        android:inputType="numberDecimal"
+                        android:textAlignment="textStart"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Configuration Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="Total Amount"
-            android:layout_gravity="center_vertical" />
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
 
-        <EditText
-            android:id="@+id/inputTotal"
-            android:layout_width="100dp"
-            android:layout_height="40dp"
-            android:background="@drawable/edit_text_border"
-            android:ems="10"
-            android:hint="0.00"
-            android:inputType="numberDecimal"
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp"
-            android:textAlignment="textEnd"
-            android:text="22.00"
-            android:textSize="20sp" />
-    </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="5dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Configuration"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="12dp" />
 
-        <TextView
-            android:id="@+id/tvODBS"
-            android:layout_width="wrap_content"
+                <!-- Payment Options -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:hint="Payment Brand"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputPaymentBrand"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="!0200, !0201" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Accessibility Toggle -->
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchWheelchair"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Wheelchair Accessible"
+                    android:layout_marginBottom="8dp" />
+
+                <EditText
+                    android:id="@+id/inputLift"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="2500"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    android:background="@drawable/edit_text_border"
+                    android:padding="5dp"
+                    android:layout_margin="8dp" />
+
+                <!-- Transport Subsidies Expandable -->
+                <TextView
+                    android:id="@+id/tvSubsidiesHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Transport Subsidies ▼"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:padding="8dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <LinearLayout
+                    android:id="@+id/layoutSubsidies"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:padding="8dp"
+                    android:background="#F5F5F5">
+
+                    <!-- State Selector -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Select State/Territory:"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp" />
+
+                    <Spinner
+                        android:id="@+id/spinnerState"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Subsidy Options -->
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchSubsidy"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Allow TSS Subsidy"
+                        android:layout_marginBottom="8dp" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchLift"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Allow TSS Lift" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Advanced Options Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="ODBS"
-            android:layout_gravity="center_vertical" />
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
 
-        <EditText
-            android:id="@+id/inputODBS"
-            android:layout_width="0dp"
-            android:layout_height="30dp"
-            android:layout_weight="2"
-            android:background="@drawable/edit_text_border"
-            android:inputType="text"
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp"
-            android:text=""
-            android:theme="@style/AppEditText" />
-    </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Advanced Options"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="12dp" />
+
+                <!-- Quick Action Buttons -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <Button
+                        android:id="@+id/btnTripData"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        android:backgroundTint="@color/datameshCobalt"
+                        android:text="View/Edit\nTripData"
+                        android:textSize="10sp"/>
+
+                    <Button
+                        android:id="@+id/btnSaleDataFields"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        android:backgroundTint="@color/datameshCobalt"
+                        android:textSize="10sp"
+                        android:text="View/Edit\nSaleData" />
+
+                    <Button
+                        android:id="@+id/btnUpdateSaleItems"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/datameshCobalt"
+                        android:textSize="10sp"
+                        android:text="View/Edit\nSaleItem" />
+
+                </LinearLayout>
+
+                <!-- Optional Fields (Collapsible) -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Custom Footer (Optional)"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputCustomFooter"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Optional Fields (Collapsible) -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="ODBS (Optional)"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputODBS"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="horizontal"-->
+<!--            android:gravity="center_vertical"-->
+<!--            android:layout_marginStart="10dp"-->
+<!--            android:layout_marginEnd="10dp">-->
+
+<!--            <LinearLayout-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_weight="1"-->
+<!--                android:orientation="vertical">-->
+
+<!--                <CheckBox-->
+<!--                    android:id="@+id/chkIsWheelchairEnabled"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="IsWheelchairEnabled"-->
+<!--                    android:textSize="12sp" />-->
+
+<!--                <CheckBox-->
+<!--                    android:id="@+id/chkNTAllowTSSSubsidy"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="NTAllowTSSSubsidy"-->
+<!--                    android:textSize="12sp" />-->
+
+<!--                <CheckBox-->
+<!--                    android:id="@+id/chkNTAllowTSSLift"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="NTAllowTSSLift"-->
+<!--                    android:textSize="12sp" />-->
+
+<!--                <CheckBox-->
+<!--                    android:id="@+id/chkQLDAllowTSSSubsidy"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="QLDAllowTSSSubsidy"-->
+<!--                    android:textSize="12sp" />-->
+
+<!--                <CheckBox-->
+<!--                    android:id="@+id/chkNSWAllowTSSLift"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="NSWAllowTSSLift"-->
+<!--                    android:textSize="12sp" />-->
+
+<!--            </LinearLayout>-->
+
+<!--            <LinearLayout-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_weight="1"-->
+<!--                android:orientation="vertical">-->
+
+<!--                <CheckBox-->
+<!--                    android:id="@+id/chkNSWAllowTSSSubsidy"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="NSWAllowTSSSubsidy"-->
+<!--                    android:textSize="12sp" />-->
+
+<!--                <CheckBox-->
+<!--                    android:id="@+id/chkVICAllowTSSLift"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="VICAllowTSSLift"-->
+<!--                    android:textSize="12sp" />-->
+
+<!--                <CheckBox-->
+<!--                    android:id="@+id/chkVICAllowTSSsubsidy"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="VICAllowTSSsubsidy"-->
+<!--                    android:textSize="12sp" />-->
+
+<!--                <CheckBox-->
+<!--                    android:id="@+id/chkACTAllowTSSSubsidy"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="ACTAllowTSSSubsidy"-->
+<!--                    android:textSize="12sp" />-->
+
+<!--                <CheckBox-->
+<!--                    android:id="@+id/chkTASAllowTSSSubsidy"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="TASAllowTSSSubsidy"-->
+<!--                    android:textSize="12sp" />-->
+<!--            </LinearLayout>-->
+
+<!--        </LinearLayout>-->
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <CheckBox
-                android:id="@+id/chkIsWheelchairEnabled"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="IsWheelchairEnabled"
-                android:textSize="12sp" />
-
-            <CheckBox
-                android:id="@+id/chkNTAllowTSSSubsidy"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="NTAllowTSSSubsidy"
-                android:textSize="12sp" />
-
-            <CheckBox
-                android:id="@+id/chkNTAllowTSSLift"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="NTAllowTSSLift"
-                android:textSize="12sp" />
-
-            <CheckBox
-                android:id="@+id/chkQLDAllowTSSSubsidy"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="QLDAllowTSSSubsidy"
-                android:textSize="12sp" />
-
-            <CheckBox
-                android:id="@+id/chkNSWAllowTSSLift"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="NSWAllowTSSLift"
-                android:textSize="12sp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <CheckBox
-                android:id="@+id/chkNSWAllowTSSSubsidy"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="NSWAllowTSSSubsidy"
-                android:textSize="12sp" />
-
-            <CheckBox
-                android:id="@+id/chkVICAllowTSSLift"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="VICAllowTSSLift"
-                android:textSize="12sp" />
-
-            <CheckBox
-                android:id="@+id/chkVICAllowTSSsubsidy"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="VICAllowTSSsubsidy"
-                android:textSize="12sp" />
-
-            <CheckBox
-                android:id="@+id/chkACTAllowTSSSubsidy"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="ACTAllowTSSSubsidy"
-                android:textSize="12sp" />
-
-            <CheckBox
-                android:id="@+id/chkTASAllowTSSSubsidy"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TASAllowTSSSubsidy"
-                android:textSize="12sp" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp">
-
-        <Button
-            android:id="@+id/btnTripData"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:orientation="horizontal"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
-            android:text="View/Edit Trip Data"
-            android:textSize="14sp" />
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/btnPay"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:layout_weight="1"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:backgroundTint="@color/datameshCobalt"
+                android:text="Pay"
+                android:textSize="16sp"/>
+
+            <Button
+                android:id="@+id/btnAbort"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:layout_weight="1"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:text="Pay &amp; Abort"
+                android:textSize="14sp"/>
+        </LinearLayout>
+
+        <!-- Results Display -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Testing Tools (Development Only) -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Development Tools"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <Button
+                    android:id="@+id/btnSend100Payments"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Send 100 Test Payments"
+                    android:layout_marginBottom="16dp"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Transaction Result"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/tvResults"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#F5F5F5"
+                    android:padding="12dp"
+                    android:hint="Results will appear here..."
+                    android:textSize="14sp"
+                    android:fontFamily="monospace" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:gravity="center">
+</ScrollView>
 
-        <Button
-            android:id="@+id/btnSaleDataFields"
-            android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:layout_weight="1"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
-            android:text="View/Edit \nSALE DATA"/>
-
-        <Button
-            android:id="@+id/btnUpdateSaleItems"
-            android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:layout_weight="1"
-            android:layout_marginStart="5dp"
-            android:text="View/Edit \nSale Items"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:gravity="center">
-
-        <Button
-            android:id="@+id/btnPay"
-            android:layout_width="0dp"
-            android:layout_height="80dp"
-            android:layout_weight="1"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
-            android:backgroundTint="@color/datameshCobalt"
-            android:text="Pay"
-            android:textSize="16sp"/>
-
-        <Button
-            android:id="@+id/btnAbort"
-            android:layout_width="0dp"
-            android:layout_height="80dp"
-            android:layout_weight="1"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
-            android:text="Pay &amp; Abort"
-            android:textSize="14sp"/>
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/tvResults"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#555555"
-        android:padding="8dp"
-        android:text=""
-        android:textAlignment="textStart"
-        android:textColor="#FAF6F6"
-        android:gravity="start" />
-
-</LinearLayout>

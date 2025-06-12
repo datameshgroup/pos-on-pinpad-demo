@@ -5,31 +5,44 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
+import com.squareup.moshi.Types;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 import au.com.dmg.devices.TerminalDevice;
 import au.com.dmg.fusion.Message;
 import au.com.dmg.fusion.MessageHeader;
+import au.com.dmg.fusion.data.CustomFieldType;
+import au.com.dmg.fusion.data.DocumentQualifier;
 import au.com.dmg.fusion.data.MessageCategory;
 import au.com.dmg.fusion.data.MessageClass;
 import au.com.dmg.fusion.data.MessageType;
@@ -39,6 +52,7 @@ import au.com.dmg.fusion.request.SaleTerminalData;
 import au.com.dmg.fusion.request.SaleToPOIRequest;
 import au.com.dmg.fusion.request.aborttransactionrequest.AbortTransactionRequest;
 import au.com.dmg.fusion.request.paymentrequest.AmountsReq;
+import au.com.dmg.fusion.request.paymentrequest.CustomField;
 import au.com.dmg.fusion.request.paymentrequest.POITransactionID;
 import au.com.dmg.fusion.request.paymentrequest.PaymentData;
 import au.com.dmg.fusion.request.paymentrequest.PaymentRequest;
@@ -47,12 +61,15 @@ import au.com.dmg.fusion.request.paymentrequest.SaleData;
 import au.com.dmg.fusion.request.paymentrequest.SaleItem;
 import au.com.dmg.fusion.request.paymentrequest.SaleTransactionID;
 import au.com.dmg.fusion.request.paymentrequest.SponsoredMerchant;
+import au.com.dmg.fusion.request.paymentrequest.TransactionConditions;
 import au.com.dmg.fusion.request.paymentrequest.extenstiondata.ExtensionData;
 import au.com.dmg.fusion.request.paymentrequest.extenstiondata.Stop;
 import au.com.dmg.fusion.request.paymentrequest.extenstiondata.TransitData;
 import au.com.dmg.fusion.request.paymentrequest.extenstiondata.Trip;
+import au.com.dmg.fusion.request.printrequest.OutputContent;
 import au.com.dmg.fusion.request.transactionstatusrequest.MessageReference;
 import au.com.dmg.fusion.response.SaleToPOIResponse;
+import au.com.dmg.fusion.response.paymentresponse.PaymentReceipt;
 import au.com.dmg.fusion.util.BigDecimalAdapter;
 import au.com.dmg.fusion.util.InstantAdapter;
 
@@ -98,9 +115,39 @@ public class ActivityPayment extends AppCompatActivity {
     BigDecimal remainingAmount;
     String pendingTransactionID;
 
-    CheckBox chkIsWheelchairEnabled, chkNTAllowTSSSubsidy, chkNTAllowTSSLift, chkQLDAllowTSSSubsidy, chkNSWAllowTSSLift, chkNSWAllowTSSSubsidy, chkVICAllowTSSLift, chkVICAllowTSSsubsidy, chkACTAllowTSSSubsidy, chkTASAllowTSSSubsidy;
+    EditText inputLift;
     List<String> selectedTags;
     private TextView inputODBS;
+    private EditText inputPaymentBrand;
+    private EditText inputCustomFooter;
+
+    private SwitchMaterial switchWheelchair;
+    private SwitchMaterial switchSubsidy;
+    private SwitchMaterial switchLift;
+    private Spinner spinnerState;
+    private TextView tvSubsidiesHeader;
+    private LinearLayout layoutSubsidies;
+
+    // State management
+    private String selectedState = "";
+    private boolean isSubsidiesExpanded = false;
+
+    // State constants
+    private static final String[] STATES = {
+            "Select State...",
+            "NSW - New South Wales",
+            "VIC - Victoria",
+            "QLD - Queensland",
+            "SA - South Australia",
+            "WA - Western Australia",
+            "TAS - Tasmania",
+            "NT - Northern Territory",
+            "ACT - Australian Capital Territory"
+    };
+
+    private static final String[] STATE_CODES = {
+            "", "NSW", "VIC", "QLD", "SA", "WA", "TAS", "NT", "ACT"
+    };
 
     @Override
     public void onBackPressed() {
@@ -114,6 +161,14 @@ public class ActivityPayment extends AppCompatActivity {
     }
 
 
+    // Add these class variables after the existing declarations
+    private int requestCounter = 0;
+    private int successCounter = 0;
+    private boolean isProcessingMultipleRequests = false;
+    private static final int MULTIPLE_REQUEST_BASE = 200;
+    private static final int MULTIPLE_REQUEST_COUNT = 100;
+    private Button btnSend100Payments;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -139,6 +194,11 @@ public class ActivityPayment extends AppCompatActivity {
 
         btnOtherFields = (Button) findViewById(R.id.btnSaleDataFields);
         btnOtherFields.setOnClickListener(this::viewOtherFields);
+        
+        btnSend100Payments = (Button) findViewById(R.id.btnSend100Payments);
+        if (btnSend100Payments != null) {
+            btnSend100Payments.setOnClickListener(this::send100PaymentRequests);
+        }
 
         inputAmount = (TextView) findViewById(R.id.inputTotal);
 
@@ -146,17 +206,25 @@ public class ActivityPayment extends AppCompatActivity {
         txtTransactionID = (TextView) findViewById(R.id.txtTransactionID);
 
         inputODBS = findViewById(R.id.inputODBS);
+        inputPaymentBrand = findViewById(R.id.inputPaymentBrand);
+        inputCustomFooter = findViewById(R.id.inputCustomFooter);
+        inputCustomFooter.setText("line1<br/>line2<br/>line3<br/>");
 
-        chkIsWheelchairEnabled = findViewById(R.id.chkIsWheelchairEnabled);
-        chkNTAllowTSSSubsidy = findViewById(R.id.chkNTAllowTSSSubsidy);
-        chkNTAllowTSSLift  = findViewById(R.id.chkNTAllowTSSLift);
-        chkQLDAllowTSSSubsidy  = findViewById(R.id.chkQLDAllowTSSSubsidy);
-        chkNSWAllowTSSLift  = findViewById(R.id.chkNSWAllowTSSLift);
-        chkNSWAllowTSSSubsidy = findViewById(R.id.chkNSWAllowTSSSubsidy);
-        chkVICAllowTSSLift = findViewById(R.id.chkVICAllowTSSLift);
-        chkVICAllowTSSsubsidy = findViewById(R.id.chkVICAllowTSSsubsidy);
-        chkACTAllowTSSSubsidy = findViewById(R.id.chkACTAllowTSSSubsidy);
-        chkTASAllowTSSSubsidy =findViewById(R.id.chkTASAllowTSSSubsidy);
+        inputLift = findViewById(R.id.inputLift);
+
+        switchWheelchair = findViewById(R.id.switchWheelchair);
+        switchSubsidy = findViewById(R.id.switchSubsidy);
+        switchLift = findViewById(R.id.switchLift);
+        spinnerState = findViewById(R.id.spinnerState);
+        tvSubsidiesHeader = findViewById(R.id.tvSubsidiesHeader);
+        layoutSubsidies = findViewById(R.id.layoutSubsidies);
+
+        // Subsidies expandable section
+        tvSubsidiesHeader.setOnClickListener(this::toggleSubsidiesSection);
+        switchLift.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            updateLiftInputVisibility();
+        });
+        setupStateSpinner();
 
         selectedTags = new ArrayList<>();
 
@@ -174,38 +242,105 @@ public class ActivityPayment extends AppCompatActivity {
 
         }else{
             txtTransactionID.setText(generateRandomUUID());
+            inputAmount.setText(getRandomAmount());
             inputAmount.setFocusable(true);
             btnPay.setText("PAY");
         }
     }
 
+    private void setupStateSpinner() {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, STATES);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerState.setAdapter(adapter);
+
+        // State spinner listener
+        spinnerState.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedState = position > 0 ? STATE_CODES[position] : "";
+                updateSubsidyAvailability();
+                updateLiftInputVisibility();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                selectedState = "";
+                updateLiftInputVisibility();
+            }
+        });
+    }
+
+    private void toggleSubsidiesSection(View view) {
+        isSubsidiesExpanded = !isSubsidiesExpanded;
+
+        if (isSubsidiesExpanded) {
+            layoutSubsidies.setVisibility(View.VISIBLE);
+            tvSubsidiesHeader.setText("Transport Subsidies ▲");
+        } else {
+            layoutSubsidies.setVisibility(View.GONE);
+            tvSubsidiesHeader.setText("Transport Subsidies ▼");
+        }
+    }
+
+    private void updateSubsidyAvailability() {
+        boolean hasStateSelected = !selectedState.isEmpty();
+
+        // Enable/disable subsidy controls based on state selection
+        switchSubsidy.setEnabled(hasStateSelected);
+        switchLift.setEnabled(hasStateSelected);
+
+        if (!hasStateSelected) {
+            switchSubsidy.setChecked(false);
+            switchLift.setChecked(false);
+        }
+    }
+
+    private void updateLiftInputVisibility() {
+        boolean showACTLift = "ACT".equals(selectedState) && switchLift.isChecked();
+        boolean showTASLift = "TAS".equals(selectedState) && switchLift.isChecked();
+
+        inputLift.setVisibility((showACTLift || showTASLift )? View.VISIBLE : View.GONE);
+
+        // Clear the input when hiding
+        if (!showACTLift && !showTASLift) {
+            inputLift.setText("");
+        }
+
+        // Set default values when showing
+        if (showACTLift && inputLift.getText().toString().isEmpty()) {
+            inputLift.setText("2500");
+        }
+        if (showTASLift && inputLift.getText().toString().isEmpty()) {
+            inputLift.setText("2500");
+        }
+    }
+
+
     private void collectSelectedTags() {
-        if (chkNTAllowTSSSubsidy.isChecked()) {
-            selectedTags.add("NTAllowTSSSubsidy");
-        }
-        if (chkNTAllowTSSLift.isChecked()) {
-            selectedTags.add("NTAllowTSSLift");
-        }
-        if (chkQLDAllowTSSSubsidy.isChecked()) {
-            selectedTags.add("QLDAllowTSSSubsidy");
-        }
-        if (chkNSWAllowTSSLift.isChecked()) {
-            selectedTags.add("NSWAllowTSSLift");
-        }
-        if (chkNSWAllowTSSSubsidy.isChecked()) {
-            selectedTags.add("NSWAllowTSSSubsidy");
-        }
-        if (chkVICAllowTSSLift.isChecked()) {
-            selectedTags.add("VICAllowTSSLift");
-        }
-        if (chkVICAllowTSSsubsidy.isChecked()) {
-            selectedTags.add("VICAllowTSSsubsidy");
-        }
-        if (chkACTAllowTSSSubsidy.isChecked()) {
-            selectedTags.add("ACTAllowTSSSubsidy");
-        }
-        if (chkTASAllowTSSSubsidy.isChecked()) {
-            selectedTags.add("TASAllowTSSSubsidy");
+        selectedTags.clear();
+
+        if (!selectedState.isEmpty()) {
+            if (switchSubsidy.isChecked()) {
+                selectedTags.add(selectedState + "AllowTSSSubsidy");
+            }
+
+            if (switchLift.isChecked()) {
+                // For ACT and TAS, you might want to add lift amount
+                if ("ACT".equals(selectedState)) {
+                    String actLift = inputLift.getText().toString();
+                    if (!TextUtils.isEmpty(actLift)) {
+                        selectedTags.add("ACTAllowTSSLift." + actLift);
+                    }
+                } else if ("TAS".equals(selectedState)) {
+                    String tasLift = inputLift.getText().toString();
+                    if (!TextUtils.isEmpty(tasLift)) {
+                        selectedTags.add("TASAllowTSSLift." + tasLift);
+                    }
+                }else {
+                    selectedTags.add(selectedState + "AllowTSSLift");
+                }
+            }
         }
     }
     public void viewOtherFields(View view) {
@@ -286,6 +421,7 @@ public class ActivityPayment extends AppCompatActivity {
         return new SaleItem.Builder()
                 .itemID(1)
                 .productCode("MeteredFare")
+                .customFields(Collections.singletonList(buildCustomField()))
                 .unitOfMeasure(UnitOfMeasure.Kilometre)
                 .itemAmount(BigDecimal.valueOf(3.9))
                 .unitPrice(BigDecimal.valueOf(3.9))
@@ -421,6 +557,8 @@ public class ActivityPayment extends AppCompatActivity {
         SaleItem saleItem;
         collectSelectedTags();
         String odbs = inputODBS.getText().toString();
+        String paymentBrand = inputPaymentBrand.getText().toString();
+        String customFooter = inputCustomFooter.getText().toString();
 
         if(customTripData ==null){
             trip = createSampleTripData();
@@ -436,7 +574,7 @@ public class ActivityPayment extends AppCompatActivity {
 
         extensionData =  new ExtensionData.Builder().transitData(
                             new TransitData.Builder()
-                                    .isWheelchairEnabled(chkIsWheelchairEnabled.isChecked())
+                                    .isWheelchairEnabled(switchWheelchair.isChecked())
                                     .trip(trip)
                                     .tags(selectedTags)
                                     .odbs(TextUtils.isEmpty(odbs) ? null : odbs)
@@ -456,6 +594,12 @@ public class ActivityPayment extends AppCompatActivity {
                         .saleID("test")
                         .build())
                 .request(new PaymentRequest.Builder()
+                        .paymentReceipt(Collections.singletonList(new PaymentReceipt.Builder()
+                                .documentQualifier(DocumentQualifier.CustomFooter)
+                                .outputContent(new OutputContent("XHTML", customFooter))
+                                .requiredSignatureFlag(false)
+                                .build()))
+                        .customFields(saleItem.getCustomFields())
                         .saleData(new SaleData.Builder()
                                 .operatorLanguage("en")
                                 .operatorID(operatorID)
@@ -475,6 +619,9 @@ public class ActivityPayment extends AppCompatActivity {
                                 .build())
                         .paymentTransaction(
                                 new PaymentTransaction.Builder()
+                                        .transactionConditions(new TransactionConditions.Builder()
+                                                .allowedPaymentBrand(Arrays.asList(paymentBrand.trim().split(",")))
+                                                .build())
                                         .amountsReq(new AmountsReq.Builder()
                                                 .currency("AUD")
                                                 .requestedAmount(bAmount) //Total of all sale items
@@ -482,66 +629,6 @@ public class ActivityPayment extends AppCompatActivity {
                                                 .cashBackAmount(BigDecimal.valueOf(0))
                                                 .build())
                                         .addSaleItem(saleItem)
-//                                        .addSaleItem(new SaleItem.Builder()
-//                                                .itemID(100)
-//                                                .productCode("Levy")
-//                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
-//                                                .itemAmount(BigDecimal.valueOf(1.1))
-//                                                .unitPrice(BigDecimal.valueOf(1.1))
-//                                                .quantity(new BigDecimal(1))
-//                                                .productLabel("Levy")
-//                                                .tags(Arrays.asList(new String[]{"extra"}))
-//                                                .build())
-//                                        .addSaleItem(new SaleItem.Builder()
-//                                                .itemID(205)
-//                                                .productCode("Lifting Fee")
-//                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
-//                                                .itemAmount(BigDecimal.valueOf(20.0))
-//                                                .unitPrice(BigDecimal.valueOf(20.0))
-//                                                .quantity(new BigDecimal(1))
-//                                                .productLabel("Lifting Fee")
-//                                                .tags(Arrays.asList(new String[]{"extra"}))
-//                                                .build())
-//                                        .addSaleItem(new SaleItem.Builder()
-//                                                .itemID(204)
-//                                                .productCode("Cleaning Fee")
-//                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
-//                                                .itemAmount(BigDecimal.valueOf(120.0))
-//                                                .unitPrice(BigDecimal.valueOf(120.0))
-//                                                .quantity(new BigDecimal(1))
-//                                                .productLabel("Cleaning Fee")
-//                                                .tags(Arrays.asList(new String[]{"extra"}))
-//                                                .build())
-//                                        .addSaleItem(new SaleItem.Builder()
-//                                                .itemID(203)
-//                                                .productCode("HOV")
-//                                                .unitOfMeasure(UnitOfMeasure.Other)
-//                                                .itemAmount(BigDecimal.valueOf(5.0))
-//                                                .unitPrice(BigDecimal.valueOf(5.0))
-//                                                .quantity(new BigDecimal(1))
-//                                                .productLabel("HOV")
-//                                                .tags(Arrays.asList(new String[]{"extra"}))
-//                                                .build())
-//                                        .addSaleItem(new SaleItem.Builder()
-//                                                .itemID(201)
-//                                                .productCode("Peak")
-//                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
-//                                                .itemAmount(BigDecimal.valueOf(2.5))
-//                                                .unitPrice(BigDecimal.valueOf(2.5))
-//                                                .quantity(new BigDecimal(1))
-//                                                .productLabel("Peak")
-//                                                .tags(Arrays.asList(new String[]{"extra"}))
-//                                                .build())
-//                                        .addSaleItem(new SaleItem.Builder()
-//                                                .itemID(202)
-//                                                .productCode("Airport")
-//                                                .unitOfMeasure(UnitOfMeasure.Kilometre)
-//                                                .itemAmount(BigDecimal.valueOf(20.0))
-//                                                .unitPrice(BigDecimal.valueOf(20.0))
-//                                                .quantity(new BigDecimal(1))
-//                                                .productLabel("Airport")
-//                                                .tags(Arrays.asList(new String[]{"extra"}))
-//                                                .build())
                                         .build()
                         )
                         .paymentData(new PaymentData.Builder()
@@ -584,6 +671,11 @@ public class ActivityPayment extends AppCompatActivity {
         return abortRequest;
     }
 
+    private String getRandomAmount() {
+        double amount = ThreadLocalRandom.current().nextDouble(0.1, 100.0);
+        return new DecimalFormat("0.00").format(amount);
+    }
+
     private String generateRandomUUID() {
         return java.util.UUID.randomUUID().toString();
     }
@@ -604,12 +696,127 @@ public class ActivityPayment extends AppCompatActivity {
         startActivityForResult(intent, 100);
     }
 
-
+    /**
+     * Initiates sending 100 payment requests
+     */
+    private void send100PaymentRequests(View view) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Send 100 Payments");
+        builder.setMessage("Are you sure you want to send 100 payment requests?");
+        
+        builder.setPositiveButton("Yes", (dialog, which) -> {
+            sendMultiplePaymentRequests(MULTIPLE_REQUEST_COUNT);
+        });
+        
+        builder.setNegativeButton("No", null);
+        builder.show();
+    }
+    
+    /**
+     * Sends multiple payment requests in sequence
+     * @param count Number of requests to send
+     */
+    private void sendMultiplePaymentRequests(int count) {
+        isProcessingMultipleRequests = true;
+        requestCounter = 0;
+        successCounter = 0;
+        
+        tvResults.setText("Preparing to send " + count + " payment requests...");
+        Utils.showLog("Multiple Requests", "Starting to send " + count + " requests");
+        
+        // Start the first request
+        sendNextPaymentRequest();
+    }
+    
+    /**
+     * Sends the next payment request in the sequence
+     */
+    private void sendNextPaymentRequest() {
+        if (requestCounter < MULTIPLE_REQUEST_COUNT) {
+            requestCounter++;
+            String serviceID = generateRandomUUID();
+            String transactionID = generateRandomUUID();
+            txtTransactionID.setText(transactionID);
+            
+            // Generate a different random amount for each request
+            String randomAmount = getRandomAmount();
+            inputAmount.setText(randomAmount);
+            
+            SaleToPOIRequest request = buildPaymentRequest(serviceID);
+            
+            tvResults.setText("Sending request " + requestCounter + " of " + MULTIPLE_REQUEST_COUNT + 
+                             "\nSuccessful: " + successCounter + 
+                             "\nAmount: $" + randomAmount);
+            Utils.showLog("Multiple Requests", "Sending request " + requestCounter + " of " + MULTIPLE_REQUEST_COUNT + " with amount $" + randomAmount);
+            
+            // Send the request
+            Intent intent = new Intent(Message.INTENT_ACTION_SALETOPOI_REQUEST);
+            Message message = new Message(request);
+            intent.putExtra(Message.INTENT_EXTRA_MESSAGE, message.toJson());
+            intent.putExtra(Message.INTENT_EXTRA_APPLICATION_NAME, appName);
+            intent.putExtra(Message.INTENT_EXTRA_APPLICATION_VERSION, appVersion);
+            
+            startActivityForResult(intent, MULTIPLE_REQUEST_BASE + requestCounter);
+        } else {
+            // All requests have been sent
+            isProcessingMultipleRequests = false;
+            tvResults.setText("Completed sending " + MULTIPLE_REQUEST_COUNT + " payment requests\nSuccessful: " + successCounter);
+            Utils.showLog("Multiple Requests", "Completed sending all requests");
+            
+            // Show a completion dialog
+            AlertDialog.Builder builder = new AlertDialog.Builder(ActivityPayment.this);
+            builder.setTitle("Multiple Requests Completed");
+            builder.setMessage("Sent " + MULTIPLE_REQUEST_COUNT + " payment requests\nSuccessful: " + successCounter);
+            builder.setPositiveButton("OK", null);
+            builder.show();
+        }
+    }
+    
     @Override
     protected void onActivityResult(int requestCode, int responseCode, Intent data) {
         super.onActivityResult(requestCode, responseCode, data);
         if (data != null && data.hasExtra(Message.INTENT_EXTRA_MESSAGE)) {
-            this.handleResponseIntent(data);
+            // Check if this is a response from our multiple payment requests
+            if (requestCode >= MULTIPLE_REQUEST_BASE && isProcessingMultipleRequests) {
+                handleMultiplePaymentResponse(data);
+            } else {
+                this.handleResponseIntent(data);
+            }
+        }
+    }
+    
+    /**
+     * Handles responses from multiple payment requests
+     */
+    private void handleMultiplePaymentResponse(Intent intent) {
+        Utils.showLog("Multiple Response", "Received response for request " + requestCounter);
+        try {
+            Message message = Message.fromJson(intent.getStringExtra(Message.INTENT_EXTRA_MESSAGE));
+            SaleToPOIResponse response = message.getResponse();
+            
+            if (response != null && response.getPaymentResponse() != null) {
+                // Check if payment was successful
+                if (response.getPaymentResponse().getResponse() != null && 
+                    response.getPaymentResponse().getResponse().getResult() != null && 
+                    response.getPaymentResponse().getResponse().getResult().toString().equals("Success")) {
+                    successCounter++;
+                }
+                
+                // Schedule the next request after a delay
+                final Handler handler = new Handler();
+                handler.postDelayed(() -> sendNextPaymentRequest(), 1000); // 1 second delay
+            } else {
+                // If there was an error, still continue with the next request
+                final Handler handler = new Handler();
+                handler.postDelayed(() -> sendNextPaymentRequest(), 1000);
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "Error reading intent: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+            
+            // If there was an exception, still continue with the next request
+            final Handler handler = new Handler();
+            handler.postDelayed(() -> sendNextPaymentRequest(), 1000);
         }
     }
 
@@ -653,6 +860,36 @@ public class ActivityPayment extends AppCompatActivity {
 
         }
     }
+
+    CustomField buildCustomField(){
+        Map<String, Object> pickUpLocation = new HashMap<>();
+        pickUpLocation.put("Latitude", -33.8688);
+        pickUpLocation.put("Longitude", 151.2093);
+
+        Map<String, Object> dropOffLocation = new HashMap<>();
+        dropOffLocation.put("Latitude", -33.8688);
+        dropOffLocation.put("Longitude", 151.2093);
+
+        Map<String, Object> location = new HashMap<>();
+        location.put("PickUp", pickUpLocation);
+        location.put("DropOff", dropOffLocation);
+
+        // Convert to JSON using Moshi
+        Moshi moshi = new Moshi.Builder().build();
+        JsonAdapter<Map<String, Object>> jsonAdapter = moshi.adapter(
+                Types.newParameterizedType(Map.class, String.class, Object.class));
+
+        String locationJson = jsonAdapter.toJson(location);
+
+        // Create CustomField
+        CustomField locationField = new CustomField.Builder()
+                .key("Location")
+                .type(CustomFieldType.Object)
+                .value(locationJson)
+                .build();
+        return  locationField;
+    }
+
     Trip buildTripDatafromJson(String jsonString) throws IOException {
         Moshi moshi = new Moshi.Builder()
                 .add(new BigDecimalAdapter())

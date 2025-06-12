@@ -66,5 +66,12 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".SyncReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="au.com.dmg.satellite_integration.poscomms.BROADCAST_POS_MESSAGE"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>
